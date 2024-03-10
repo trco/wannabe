@@ -10,7 +10,6 @@ import (
 
 // generates record from ctx *fiber.Ctx request and response, server, hash and curl
 func GenerateRecord(ctx *fiber.Ctx, server string, curl string, hash string) ([]byte, error) {
-
 	requestBody, err := prepareBody(ctx.Body())
 	if err != nil {
 		return nil, err
