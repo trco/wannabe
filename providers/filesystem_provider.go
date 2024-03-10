@@ -69,6 +69,20 @@ func (fsp FilesystemProvider) InsertRecords(hashes []string, records [][]byte) e
 	return nil
 }
 
+// TODO ? bulk delete using goroutines and channels
+func (fsp FilesystemProvider) DeleteRecords(hashes []string) error {
+	for _, hash := range hashes {
+		filepath := fsp.GenerateFilepath(hash)
+
+		err := os.Remove(filepath)
+		if err != nil {
+			return filesystemProviderErr("failed deleting file", err)
+		}
+	}
+
+	return nil
+}
+
 func (fsp FilesystemProvider) GetHashes() ([]string, error) {
 	folder := fsp.Config.FilesystemConfig.Folder
 

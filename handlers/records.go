@@ -25,12 +25,12 @@ func GetRecords(storageProvider providers.StorageProvider) WannabeHandler {
 			}
 		}
 
-		recordsBytes, err := storageProvider.ReadRecords(hashes)
+		encodedRecords, err := storageProvider.ReadRecords(hashes)
 		if err != nil {
 			return internalError(ctx, err)
 		}
 
-		records, err := record.DecodeRecords(recordsBytes)
+		records, err := record.DecodeRecords(encodedRecords)
 		if err != nil {
 			return internalError(ctx, err)
 		}
@@ -99,7 +99,27 @@ func PostRecords(config config.Config, storageProvider providers.StorageProvider
 	}
 }
 
-func DeleteRecords(ctx *fiber.Ctx) error {
-	// REVIEW ? bulk delete files using goroutines and channels
-	return nil
+func DeleteRecords(storageProvider providers.StorageProvider) WannabeHandler {
+	return func(ctx *fiber.Ctx) error {
+		hash := ctx.Params("hash")
+		hashes := []string{hash}
+
+		if hash == "" {
+			var err error
+			hashes, err = storageProvider.GetHashes()
+			if err != nil {
+				return internalError(ctx, err)
+			}
+		}
+
+		err := storageProvider.DeleteRecords(hashes)
+		if err != nil {
+			return internalError(ctx, err)
+		}
+
+		return ctx.Status(fiber.StatusCreated).JSON(DeleteRecordsResponse{
+			Message: fmt.Sprintf("%v records successfully deleted.", len(hashes)),
+			Hashes:  hashes,
+		})
+	}
 }

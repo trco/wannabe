@@ -21,7 +21,7 @@ type PostRecordsResponse struct {
 	Hashes  []string `json:"hashes"`
 }
 
-type HashRecordBytes struct {
-	Hash        string
-	RecordBytes []byte
+type DeleteRecordsResponse struct {
+	Message string   `json:"message"`
+	Hashes  []string `json:"hashes"`
 }

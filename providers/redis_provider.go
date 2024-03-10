@@ -20,6 +20,10 @@ func (redis RedisProvider) InsertRecords(hashes []string, records [][]byte) erro
 	return nil
 }
 
+func (redis RedisProvider) DeleteRecords(hashes []string) error {
+	return nil
+}
+
 func (redis RedisProvider) GetHashes() ([]string, error) {
 	return []string{}, nil
 }

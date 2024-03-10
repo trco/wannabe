@@ -47,8 +47,8 @@ func main() {
 	app.Get("/wannabe/api/records/:hash", handlers.GetRecords(storageProvider))
 	app.Get("/wannabe/api/records", handlers.GetRecords(storageProvider))
 	app.Post("/wannabe/api/records", handlers.PostRecords(config, storageProvider))
-	app.Delete("/wannabe/api/records/:hash", handlers.DeleteRecords)
-	app.Delete("/wannabe/api/records/:hash", handlers.DeleteRecords)
+	app.Delete("/wannabe/api/records/:hash", handlers.DeleteRecords(storageProvider))
+	app.Delete("/wannabe/api/records", handlers.DeleteRecords(storageProvider))
 
 	// NOTE get all hashes/curls
 	// app.Get("/wannabe/api/hash/curl", handlers.Api)
