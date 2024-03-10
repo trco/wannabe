@@ -3,13 +3,16 @@ package actions
 import (
 	"encoding/json"
 	"fmt"
+	"wannabe/config"
 	"wannabe/record/entities"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 // generates record from ctx *fiber.Ctx request and response, server, hash and curl
-func GenerateRecord(ctx *fiber.Ctx, server string, curl string, hash string) ([]byte, error) {
+func GenerateRecord(ctx *fiber.Ctx, config config.Records, server string, curl string, hash string) ([]byte, error) {
+	requestHeaders := filterRequestHeaders(ctx.GetReqHeaders(), config.Headers.Exclude)
+
 	requestBody, err := prepareBody(ctx.Body())
 	if err != nil {
 		return nil, err
@@ -29,7 +32,7 @@ func GenerateRecord(ctx *fiber.Ctx, server string, curl string, hash string) ([]
 			Path:       ctx.Path(),
 			Query:      ctx.Queries(),
 			// Query:      string(ctx.Request().URI().QueryString()),
-			Headers: ctx.GetReqHeaders(),
+			Headers: requestHeaders,
 			Body:    requestBody,
 			Curl:    curl,
 		},
@@ -46,6 +49,27 @@ func GenerateRecord(ctx *fiber.Ctx, server string, curl string, hash string) ([]
 	}
 
 	return recordBytes, nil
+}
+
+func filterRequestHeaders(headers map[string][]string, exclude []string) map[string][]string {
+	filteredRequesHeaders := make(map[string][]string)
+
+	for key, values := range headers {
+		if !contains(exclude, key) {
+			filteredRequesHeaders[key] = values
+		}
+	}
+
+	return filteredRequesHeaders
+}
+
+func contains(slice []string, value string) bool {
+	for _, item := range slice {
+		if item == value {
+			return true
+		}
+	}
+	return false
 }
 
 func prepareBody(bodyBytes []byte) (entities.BodyMap, error) {

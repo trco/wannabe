@@ -4,11 +4,18 @@ import (
 	"encoding/json"
 	"reflect"
 	"testing"
+	"wannabe/config"
 	"wannabe/record/entities"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/valyala/fasthttp"
 )
+
+var testConfig = config.Records{
+	Headers: config.HeadersToExclude{
+		Exclude: []string{},
+	},
+}
 
 var testServer = "test.com"
 var testCurl = "testCurl"
@@ -62,7 +69,7 @@ func TestGenerateRecord(t *testing.T) {
 		},
 	})
 
-	record, _ := GenerateRecord(ctx, testServer, testCurl, testHash)
+	record, _ := GenerateRecord(ctx, testConfig, testServer, testCurl, testHash)
 
 	if !reflect.DeepEqual(expected, record) {
 		t.Errorf("Expected record: %v, Actual record: %v", expected, record)

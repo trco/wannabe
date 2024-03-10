@@ -38,6 +38,7 @@ func Wannabe(config config.Config, storageProvider providers.StorageProvider) Wa
 			}
 
 			// response from record is set directly to ctx
+			// FIXME this breaks in case config.Read.FailOnError is set to true and there are no records
 			err = response.SetResponse(ctx, records[0])
 			if err != nil && config.Read.FailOnError {
 				return internalError(ctx, err)
@@ -46,7 +47,6 @@ func Wannabe(config config.Config, storageProvider providers.StorageProvider) Wa
 			// TODO remove log
 			fmt.Println("GetResponse >>> READ and return")
 
-			// FIXME this breaks in case config.Read.FailOnError is set to false/true and there are no records
 			return nil
 		}
 
@@ -56,7 +56,7 @@ func Wannabe(config config.Config, storageProvider providers.StorageProvider) Wa
 			return internalError(ctx, err)
 		}
 
-		record, err := record.GenerateRecord(ctx, config.Server, curl, hash)
+		record, err := record.GenerateRecord(ctx, config.Records, config.Server, curl, hash)
 		if err != nil {
 			return internalError(ctx, err)
 		}
