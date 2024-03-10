@@ -30,7 +30,7 @@ func GetRecords(storageProvider providers.StorageProvider) WannabeHandler {
 			return internalError(ctx, err)
 		}
 
-		records, err := record.PrepareRecords(recordsBytes)
+		records, err := record.DecodeRecords(recordsBytes)
 		if err != nil {
 			return internalError(ctx, err)
 		}
@@ -41,12 +41,7 @@ func GetRecords(storageProvider providers.StorageProvider) WannabeHandler {
 
 func PostRecords(config config.Config, storageProvider providers.StorageProvider) WannabeHandler {
 	return func(ctx *fiber.Ctx) error {
-		// FIXME remove ctx dependency also in other services
-
-		// validate request for mandatory fields
-		// ? validate request in relation to config
-		// - ! relevant config is needed for generation of curl and hash in case request matching is used
-		// - ? validate with config based on presence of reqeust matching
+		// TODO validate ctx.Body in relation to config, config.RequestMatching
 
 		records, err := record.ExtractRecords(ctx.Body())
 		if err != nil {
@@ -54,7 +49,8 @@ func PostRecords(config config.Config, storageProvider providers.StorageProvider
 		}
 
 		var hashes []string
-		var recordsBytes [][]byte
+		var encodedRecords [][]byte
+
 		for _, record := range records {
 			body := record.Request.Body
 			bodyBytes, err := json.Marshal(body)
@@ -82,22 +78,22 @@ func PostRecords(config config.Config, storageProvider providers.StorageProvider
 			record.Request.Curl = curl
 			record.Request.Hash = hash
 
-			recordBytes, err := json.Marshal(record)
+			encodedRecord, err := json.Marshal(record)
 			if err != nil {
 				return internalError(ctx, fmt.Errorf("PostRecords: failed marshaling record: %v", err))
 			}
 
 			hashes = append(hashes, hash)
-			recordsBytes = append(recordsBytes, recordBytes)
+			encodedRecords = append(encodedRecords, encodedRecord)
 		}
 
-		err = storageProvider.InsertRecords(hashes, recordsBytes)
+		err = storageProvider.InsertRecords(hashes, encodedRecords)
 		if err != nil {
 			return internalError(ctx, err)
 		}
 
 		return ctx.Status(fiber.StatusCreated).JSON(PostRecordsResponse{
-			Message: "Record successfully created.",
+			Message: "Records successfully created.",
 			Hashes:  hashes,
 		})
 	}
