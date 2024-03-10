@@ -1,4 +1,4 @@
-package services
+package actions
 
 import (
 	"encoding/json"
@@ -6,7 +6,6 @@ import (
 	"wannabe/record/entities"
 )
 
-// FIXME add action
 func ExtractRecords(body []byte) ([]entities.Record, error) {
 	var records []entities.Record
 
