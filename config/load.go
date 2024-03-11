@@ -61,11 +61,36 @@ func loadConfigFromFile(configFilepath string, config Config) (Config, error) {
 	return config, nil
 }
 
+var validate *validator.Validate
+
 func validateConfig(config Config) error {
-	err := validator.New().Struct(config)
+	validate = validator.New()
+
+	validate.RegisterValidation("the_same_header_defined_in_records_headers_exclude", validateHeadersConfig)
+
+	err := validate.Struct(config)
 	if err != nil {
 		return err
 	}
 
 	return nil
+}
+
+// custom validation functions
+func validateHeadersConfig(fl validator.FieldLevel) bool {
+	fieldInclude := fl.Parent().FieldByName(fl.StructFieldName())
+	include := fieldInclude.Interface().([]string)
+
+	fieldExclude := fl.Top().FieldByName("Records").FieldByName("Headers").FieldByName("Exclude")
+	exclude := fieldExclude.Interface().([]string)
+
+	for _, i := range include {
+		for _, e := range exclude {
+			if i == e {
+				return false
+			}
+		}
+	}
+
+	return true
 }

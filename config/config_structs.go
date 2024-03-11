@@ -84,7 +84,7 @@ type Body struct {
 }
 
 type Headers struct {
-	Include   []string      `koanf:"include" validate:"gte=0,dive"`
+	Include   []string      `koanf:"include" validate:"the_same_header_defined_in_records_headers_exclude,gte=0,dive"`
 	Wildcards []WildcardKey `koanf:"wildcards" validate:"gte=0,dive"`
 }
 
