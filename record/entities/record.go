@@ -7,13 +7,13 @@ type Record struct {
 
 type Request struct {
 	Hash       string              `json:"hash"`
+	Curl       string              `json:"curl"`
 	HttpMethod string              `json:"httpMethod"`
 	Host       string              `json:"host"`
 	Path       string              `json:"path"`
 	Query      map[string]string   `json:"query"`
 	Headers    map[string][]string `json:"headers"`
 	Body       BodyMap             `json:"body"`
-	Curl       string              `json:"curl"`
 }
 
 type Response struct {

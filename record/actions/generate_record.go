@@ -27,14 +27,13 @@ func GenerateRecord(ctx *fiber.Ctx, config config.Records, server string, curl s
 		// TODO add Metadata (timestamp,...)
 		Request: entities.Request{
 			Hash:       hash,
+			Curl:       curl,
 			HttpMethod: ctx.Method(),
 			Host:       server,
 			Path:       ctx.Path(),
 			Query:      ctx.Queries(),
-			// Query:      string(ctx.Request().URI().QueryString()),
-			Headers: requestHeaders,
-			Body:    requestBody,
-			Curl:    curl,
+			Headers:    requestHeaders,
+			Body:       requestBody,
 		},
 		Response: entities.Response{
 			StatusCode: ctx.Response().StatusCode(),
@@ -52,15 +51,15 @@ func GenerateRecord(ctx *fiber.Ctx, config config.Records, server string, curl s
 }
 
 func filterRequestHeaders(headers map[string][]string, exclude []string) map[string][]string {
-	filteredRequesHeaders := make(map[string][]string)
+	filteredRequestHeaders := make(map[string][]string)
 
 	for key, values := range headers {
 		if !contains(exclude, key) {
-			filteredRequesHeaders[key] = values
+			filteredRequestHeaders[key] = values
 		}
 	}
 
-	return filteredRequesHeaders
+	return filteredRequestHeaders
 }
 
 func contains(slice []string, value string) bool {

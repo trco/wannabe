@@ -41,6 +41,8 @@ func TestGenerateRecord(t *testing.T) {
 
 	expected, _ := json.Marshal(entities.Record{
 		Request: entities.Request{
+			Hash:       "testHash",
+			Curl:       "testCurl",
 			HttpMethod: "POST",
 			Host:       "test.com",
 			Path:       "/test",
@@ -54,8 +56,6 @@ func TestGenerateRecord(t *testing.T) {
 			Body: map[string]interface{}{
 				"test": "test",
 			},
-			Hash: "testHash",
-			Curl: "testCurl",
 		},
 		Response: entities.Response{
 			StatusCode: 200,
