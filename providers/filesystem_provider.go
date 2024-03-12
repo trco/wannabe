@@ -1,10 +1,8 @@
 package providers
 
 import (
-	"errors"
 	"fmt"
 	"io"
-	"io/fs"
 	"os"
 	"path/filepath"
 	"wannabe/config"
@@ -28,7 +26,7 @@ func (fsp FilesystemProvider) ReadRecords(hashes []string) ([][]byte, error) {
 
 		// check if file exists
 		_, err := os.Stat(filepath)
-		if err != nil && !errors.Is(err, &fs.PathError{}) {
+		if err != nil {
 			return nil, filesystemProviderErr("failed checking if file exists", err)
 		}
 
