@@ -37,17 +37,18 @@ func Wannabe(config config.Config, storageProvider providers.StorageProvider) Wa
 				return internalError(ctx, err)
 			}
 
-			// response from record is set directly to ctx
-			// FIXME this breaks in case config.Read.FailOnError is set to true and there are no records
-			err = response.SetResponse(ctx, records[0])
-			if err != nil && config.Read.FailOnError {
-				return internalError(ctx, err)
+			if records != nil {
+				// response from record is set directly to ctx
+				err = response.SetResponse(ctx, records[0])
+				if err != nil && config.Read.FailOnError {
+					return internalError(ctx, err)
+				}
+
+				// TODO remove log
+				fmt.Println("GetResponse >>> READ and return")
+
+				return nil
 			}
-
-			// TODO remove log
-			fmt.Println("GetResponse >>> READ and return")
-
-			return nil
 		}
 
 		// response is set directly to ctx
