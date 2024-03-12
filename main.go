@@ -35,12 +35,6 @@ func main() {
 	// NOTE get all hashes/curls
 	// app.Get("/wannabe/api/hash/curl", handlers.Api)
 
-	// NOTE stats
-	// app.Get("/wannabe/api/stats", handlers.Api)
-	// NOTE logs
-	// app.Get("/wannabe/api/logs", handlers.Api)
-	// app.Delete("/wannabe/api/logs", handlers.Api)
-
 	// NOTE run all requests and validate responses
 	// app.Get("/wannabe/api/records/test", handlers.Api)
 
