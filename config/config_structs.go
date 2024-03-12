@@ -10,7 +10,6 @@ type Config struct {
 	Server          string          `koanf:"server" validate:"required,http_url"`
 	RequestMatching RequestMatching `koanf:"requestMatching"`
 	Records         Records         `koanf:"records"`
-	Logger          Logger          `koanf:"logger"`
 }
 
 type StorageProvider struct {
@@ -115,10 +114,4 @@ type Records struct {
 
 type HeadersToExclude struct {
 	Exclude []string `koanf:"exclude"`
-}
-
-type Logger struct {
-	Enabled  bool   `koanf:"enabled" validate:"boolean"`
-	Filepath string `koanf:"filepath"`
-	Format   string `koanf:"format"`
 }

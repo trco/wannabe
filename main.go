@@ -2,13 +2,11 @@ package main
 
 import (
 	"log"
-	"os"
 	"wannabe/config"
 	"wannabe/handlers"
 	"wannabe/providers"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/logger"
 )
 
 func main() {
@@ -21,22 +19,6 @@ func main() {
 	}
 
 	app := fiber.New()
-
-	// TODO implement logger using factory pattern identical to StorageProviderFactory
-	// Initialize logger
-	if config.Logger.Enabled {
-		file, err := os.OpenFile(config.Logger.Filepath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-		if err != nil {
-			log.Fatalf("fatal error when starting app: %v", err)
-		}
-
-		defer file.Close()
-
-		app.Use(logger.New(logger.Config{
-			Output: file,
-			Format: config.Logger.Format,
-		}))
-	}
 
 	// Probes endpoints
 	app.Get("/wannabe/liveness", handlers.Liveness)

@@ -40,10 +40,6 @@ func setConfigDefaults() Config {
 			Enabled:     true,
 			FailOnError: false,
 		},
-		// Logger: Logger{
-		// 	Filepath: "./wannabe.log",
-		// 	Format:   "${time} | ${status} | ${latency} | ${ip} | ${method} | ${path} | ${error}\nResponse body\n${resBody}",
-		// },
 	}
 }
 
