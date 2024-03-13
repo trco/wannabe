@@ -18,7 +18,7 @@ func ProcessBody(body []byte, config config.Body) (string, error) {
 
 	bodyBytes, err := json.Marshal(bodyMap)
 	if err != nil {
-		return "", fmt.Errorf("ProcessBody: failed to marshal request body: %v", err)
+		return "", fmt.Errorf("ProcessBody: failed marshaling request body: %v", err)
 	}
 
 	bodyString := string(bodyBytes)
