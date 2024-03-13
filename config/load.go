@@ -12,16 +12,14 @@ import (
 func Load(configFilepath string) Config {
 	config := setConfigDefaults()
 
-	// var config Config
-
 	config, err := loadConfigFromFile(configFilepath, config)
 	if err != nil {
-		log.Fatalf("fatal error when loading config from file: %v", err)
+		log.Fatalf("fatal error loading config: %v", err)
 	}
 
 	err = validateConfig(config)
 	if err != nil {
-		log.Fatalf("fatal error when validating config loaded from file: %v", err)
+		log.Fatalf("fatal error validating config: %v", err)
 	}
 
 	return config
@@ -44,15 +42,46 @@ func setConfigDefaults() Config {
 }
 
 func loadConfigFromFile(configFilepath string, config Config) (Config, error) {
+	f := file.Provider(configFilepath)
 	var k = koanf.New(".")
 
-	// overwrites defaults
-	err := k.Load(file.Provider(configFilepath), json.Parser())
-	if err != nil {
-		return config, err
+	loadConfig := func() error {
+		// overwrites config defaults
+		err := k.Load(f, json.Parser())
+		if err != nil {
+			return err
+		}
+
+		err = k.Unmarshal("", &config)
+		if err != nil {
+			return err
+		}
+
+		return nil
 	}
 
-	k.Unmarshal("", &config)
+	err := loadConfig()
+	if err != nil {
+		return Config{}, err
+	}
+
+	f.Watch(func(event interface{}, err error) {
+		if err != nil {
+			log.Fatalf("fatal error watching config file: %v", err)
+		}
+
+		err = loadConfig()
+		if err != nil {
+			log.Fatalf("fatal error updating config: %v", err)
+		}
+
+		err = validateConfig(config)
+		if err != nil {
+			log.Fatalf("fatal error validating updated config: %v", err)
+		}
+
+		log.Println("config successfully updated")
+	})
 
 	return config, nil
 }
