@@ -22,7 +22,7 @@ func (fsp FilesystemProvider) ReadRecords(hashes []string) ([][]byte, error) {
 
 	// TODO all or nothing ?
 	for _, hash := range hashes {
-		filepath := fsp.GenerateFilepath(hash)
+		filepath := fsp.GenerateFilepath(hash, false)
 
 		// check if file exists
 		_, err := os.Stat(filepath)
@@ -51,7 +51,7 @@ func (fsp FilesystemProvider) ReadRecords(hashes []string) ([][]byte, error) {
 func (fsp FilesystemProvider) InsertRecords(hashes []string, records [][]byte) error {
 	// TODO all or nothing ?
 	for index, record := range records {
-		filepath := fsp.GenerateFilepath(hashes[index])
+		filepath := fsp.GenerateFilepath(hashes[index], true)
 
 		_, err := os.Create(filepath)
 		if err != nil {
@@ -70,7 +70,7 @@ func (fsp FilesystemProvider) InsertRecords(hashes []string, records [][]byte) e
 // TODO ? bulk delete using goroutines and channels
 func (fsp FilesystemProvider) DeleteRecords(hashes []string) error {
 	for _, hash := range hashes {
-		filepath := fsp.GenerateFilepath(hash)
+		filepath := fsp.GenerateFilepath(hash, false)
 
 		err := os.Remove(filepath)
 		if err != nil {
@@ -105,7 +105,11 @@ func (fsp FilesystemProvider) GetHashes() ([]string, error) {
 	return hashes, nil
 }
 
-func (fsp FilesystemProvider) GenerateFilepath(hash string) string {
+func (fsp FilesystemProvider) GenerateFilepath(hash string, insert bool) string {
+	if fsp.Config.Regenerate && insert {
+		return fsp.Config.FilesystemConfig.RegenerateFolder + "/" + hash + "." + fsp.Config.FilesystemConfig.Format
+	}
+
 	return fsp.Config.FilesystemConfig.Folder + "/" + hash + "." + fsp.Config.FilesystemConfig.Format
 }
 
