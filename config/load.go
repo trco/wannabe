@@ -28,10 +28,12 @@ func Load(configFilepath string) Config {
 func setConfigDefaults() Config {
 	return Config{
 		StorageProvider: StorageProvider{
-			Type: "filesystem",
+			Type:       "filesystem",
+			Regenerate: false,
 			FilesystemConfig: FilesystemConfig{
-				Folder: "records",
-				Format: "json",
+				Folder:           "records",
+				RegenerateFolder: "",
+				Format:           "json",
 			},
 		},
 		Read: Read{

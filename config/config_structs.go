@@ -14,6 +14,7 @@ type Config struct {
 
 type StorageProvider struct {
 	Type             string           `koanf:"type" validate:"required,oneof=filesystem redis"`
+	Regenerate       bool             `koanf:"regenerate"`
 	FilesystemConfig FilesystemConfig `koanf:"filesystemConfig" validate:"required_if=Type filesystem,omitempty"`
 	RedisConfig      RedisConfig      `koanf:"redisConfig" validate:"required_if=Type redis,omitempty"`
 	// Folder   string `koanf:"folder" validate:"required_if=Type filesystem"`
@@ -23,8 +24,9 @@ type StorageProvider struct {
 
 type FilesystemConfig struct {
 	// REVIEW validate:"dirpath" demands existing folder
-	Folder string `koanf:"folder" validate:"required"`
-	Format string `koanf:"format" validate:"required,oneof=json"`
+	Folder           string `koanf:"folder" validate:"required"`
+	RegenerateFolder string `koanf:"regenerateFolder"`
+	Format           string `koanf:"format" validate:"required,oneof=json"`
 }
 
 type RedisConfig struct {
