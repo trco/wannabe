@@ -25,3 +25,9 @@ type DeleteRecordsResponse struct {
 	Message string   `json:"message"`
 	Hashes  []string `json:"hashes"`
 }
+
+type RegenerateResponse struct {
+	Message           string   `json:"message"`
+	RegeneratedHashes []string `json:"regeneratedHashes"`
+	FailedHashes      []string `json:"failedHashes"`
+}

@@ -39,10 +39,8 @@ func main() {
 	// app.Get("/wannabe/api/records/test", handlers.Api)
 
 	// Tools endpoints
-	// NOTE validate config
-	// app.Get("/wannabe/tools/validate-config", handlers.Tools)
 	// NOTE regenerate records using new config
-	// app.Get("/wannabe/tools/regenerate", handlers.Tools)
+	app.Get("/wannabe/tools/regenerate", handlers.Regenerate(app, config, storageProvider))
 
 	// Wannabe endpoints
 	app.Get("/*", handlers.Wannabe(config, storageProvider))
