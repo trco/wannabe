@@ -12,10 +12,12 @@ func testConfig() Config {
 	zero := 0
 	return Config{
 		StorageProvider: StorageProvider{
-			Type: "filesystem",
+			Type:       "filesystem",
+			Regenerate: false,
 			FilesystemConfig: FilesystemConfig{
-				Folder: "records",
-				Format: "json",
+				Folder:           "records",
+				RegenerateFolder: "",
+				Format:           "json",
 			},
 		},
 		Read: Read{
@@ -58,10 +60,12 @@ func TestSetConfigDefaults(t *testing.T) {
 
 	expectedConfig := Config{
 		StorageProvider: StorageProvider{
-			Type: "filesystem",
+			Type:       "filesystem",
+			Regenerate: false,
 			FilesystemConfig: FilesystemConfig{
-				Folder: "records",
-				Format: "json",
+				Folder:           "records",
+				RegenerateFolder: "",
+				Format:           "json",
 			},
 		},
 		Read: Read{
@@ -103,10 +107,12 @@ func TestLoadConfigFromFile(t *testing.T) {
 func TestValidateConfig(t *testing.T) {
 	invalidConfig := Config{
 		StorageProvider: StorageProvider{
-			Type: "filesystem",
+			Type:       "filesystem",
+			Regenerate: false,
 			FilesystemConfig: FilesystemConfig{
-				Folder: "records",
-				Format: "json",
+				Folder:           "records",
+				RegenerateFolder: "",
+				Format:           "json",
 			},
 		},
 	}
@@ -135,10 +141,12 @@ func createTestConfigFile(filename string) (string, error) {
 	zero := 0
 	config := Config{
 		StorageProvider: StorageProvider{
-			Type: "filesystem",
+			Type:       "filesystem",
+			Regenerate: false,
 			FilesystemConfig: FilesystemConfig{
-				Folder: "records",
-				Format: "json",
+				Folder:           "records",
+				RegenerateFolder: "",
+				Format:           "json",
 			},
 		},
 		Read: Read{

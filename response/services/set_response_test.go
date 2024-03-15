@@ -14,10 +14,12 @@ import (
 
 var testConfigB = config.Config{
 	StorageProvider: config.StorageProvider{
-		Type: "filesystem",
+		Type:       "filesystem",
+		Regenerate: false,
 		FilesystemConfig: config.FilesystemConfig{
-			Folder: "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T",
-			Format: "json",
+			Folder:           "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T",
+			RegenerateFolder: "",
+			Format:           "json",
 		},
 	},
 }

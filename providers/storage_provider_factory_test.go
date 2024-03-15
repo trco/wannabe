@@ -19,8 +19,9 @@ func TestStorageProviderFactory(t *testing.T) {
 	configFilesystem := config.StorageProvider{
 		Type: "filesystem",
 		FilesystemConfig: config.FilesystemConfig{
-			Folder: "records",
-			Format: "json",
+			Folder:           "records",
+			RegenerateFolder: "",
+			Format:           "json",
 		},
 	}
 
