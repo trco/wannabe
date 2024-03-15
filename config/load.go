@@ -65,23 +65,7 @@ func loadConfigFromFile(configFilepath string, config Config) (Config, error) {
 		return Config{}, err
 	}
 
-	f.Watch(func(event interface{}, err error) {
-		if err != nil {
-			log.Fatalf("fatal error watching config file: %v", err)
-		}
-
-		err = loadConfig()
-		if err != nil {
-			log.Fatalf("fatal error updating config: %v", err)
-		}
-
-		err = validateConfig(config)
-		if err != nil {
-			log.Fatalf("fatal error validating updated config: %v", err)
-		}
-
-		log.Println("config successfully updated")
-	})
+	k.Print()
 
 	return config, nil
 }
