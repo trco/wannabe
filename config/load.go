@@ -1,7 +1,7 @@
 package config
 
 import (
-	"log"
+	"fmt"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/knadh/koanf"
@@ -9,20 +9,20 @@ import (
 	"github.com/knadh/koanf/providers/file"
 )
 
-func Load(configFilepath string) Config {
+func Load(configFilepath string) (Config, error) {
 	config := setConfigDefaults()
 
 	config, err := loadConfigFromFile(configFilepath, config)
 	if err != nil {
-		log.Fatalf("fatal error loading config: %v", err)
+		return Config{}, fmt.Errorf("Load: failed loading config: %v", err)
 	}
 
 	err = validateConfig(config)
 	if err != nil {
-		log.Fatalf("fatal error validating config: %v", err)
+		return Config{}, fmt.Errorf("Load: failed validating config: %v", err)
 	}
 
-	return config
+	return config, nil
 }
 
 func setConfigDefaults() Config {

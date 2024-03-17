@@ -46,7 +46,7 @@ func testConfig() Config {
 func TestLoad(t *testing.T) {
 	configFilepath, _ := createTestConfigFile("config.json")
 
-	config := Load(configFilepath)
+	config, _ := Load(configFilepath)
 
 	expectedConfig := testConfig()
 
