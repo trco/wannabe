@@ -16,6 +16,20 @@ func (fsp FilesystemProvider) GetConfig() config.StorageProvider {
 	return fsp.Config
 }
 
+func (fsp FilesystemProvider) CreateFolders() error {
+	err := os.Mkdir(fsp.Config.FilesystemConfig.Folder, 0750)
+	if err != nil && !os.IsExist(err) {
+		return err
+	}
+
+	err = os.Mkdir(fsp.Config.FilesystemConfig.RegenerateFolder, 0750)
+	if err != nil && !os.IsExist(err) {
+		return err
+	}
+
+	return nil
+}
+
 // TODO ? bulk read using goroutines and channels
 func (fsp FilesystemProvider) ReadRecords(hashes []string) ([][]byte, error) {
 	var records [][]byte

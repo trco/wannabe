@@ -15,9 +15,16 @@ func (e *StorageProviderGenerationError) Error() string {
 
 func StorageProviderFactory(spc config.StorageProvider) (StorageProvider, error) {
 	if spc.Type == "filesystem" {
-		return FilesystemProvider{
+		storageProvider := FilesystemProvider{
 			Config: spc,
-		}, nil
+		}
+
+		err := storageProvider.CreateFolders()
+		if err != nil {
+			return nil, fmt.Errorf("StorageProviderFactory: failed creating folders: %v", err)
+		}
+
+		return storageProvider, nil
 	}
 
 	if spc.Type == "redis" {
