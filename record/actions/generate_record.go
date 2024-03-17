@@ -3,6 +3,7 @@ package actions
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 	"wannabe/config"
 	"wannabe/record/entities"
 
@@ -24,7 +25,6 @@ func GenerateRecord(ctx *fiber.Ctx, config config.Records, server string, curl s
 	}
 
 	record := entities.Record{
-		// TODO add Metadata (timestamp,...)
 		Request: entities.Request{
 			Hash:       hash,
 			Curl:       curl,
@@ -39,6 +39,12 @@ func GenerateRecord(ctx *fiber.Ctx, config config.Records, server string, curl s
 			StatusCode: ctx.Response().StatusCode(),
 			Headers:    ctx.GetRespHeaders(),
 			Body:       responseBody,
+		},
+		Metadata: entities.Metadata{
+			GeneratedAt: entities.GeneratedAt{
+				Unix:      time.Now().Unix(),
+				Timestamp: time.Now().UTC(),
+			},
 		},
 	}
 

@@ -1,8 +1,11 @@
 package entities
 
+import "time"
+
 type Record struct {
 	Request  Request  `json:"request"`
 	Response Response `json:"response"`
+	Metadata Metadata `json:"metadata"`
 }
 
 type Request struct {
@@ -23,3 +26,12 @@ type Response struct {
 }
 
 type BodyMap map[string]interface{}
+
+type Metadata struct {
+	GeneratedAt GeneratedAt `json:"generatedAt"`
+}
+
+type GeneratedAt struct {
+	Unix      int64     `json:"unix"`
+	Timestamp time.Time `json:"timestamp"`
+}

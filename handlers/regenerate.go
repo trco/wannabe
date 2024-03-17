@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 	"wannabe/config"
 	curl "wannabe/curl/services"
 	hash "wannabe/hash/services"
@@ -78,6 +79,10 @@ func Regenerate(app *fiber.App, config config.Config, storageProvider providers.
 
 			record.Request.Hash = hash
 			record.Request.Curl = curl
+			record.Metadata.GeneratedAt = entities.GeneratedAt{
+				Unix:      time.Now().Unix(),
+				Timestamp: time.Now().UTC(),
+			}
 
 			recordBytesRegen, err := json.Marshal(record)
 			if err != nil {
