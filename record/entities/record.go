@@ -28,10 +28,12 @@ type Response struct {
 type BodyMap map[string]interface{}
 
 type Metadata struct {
-	GeneratedAt GeneratedAt `json:"generatedAt"`
+	RequestedAt   Timestamp `json:"requestedAt"`
+	GeneratedAt   Timestamp `json:"generatedAt"`
+	RegeneratedAt Timestamp `json:"regeneratedAt"`
 }
 
-type GeneratedAt struct {
-	Unix      int64     `json:"unix"`
-	Timestamp time.Time `json:"timestamp"`
+type Timestamp struct {
+	Unix int64     `json:"unix"`
+	UTC  time.Time `json:"utc"`
 }

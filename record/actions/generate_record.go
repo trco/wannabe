@@ -41,9 +41,13 @@ func GenerateRecord(ctx *fiber.Ctx, config config.Records, server string, curl s
 			Body:       responseBody,
 		},
 		Metadata: entities.Metadata{
-			GeneratedAt: entities.GeneratedAt{
-				Unix:      time.Now().Unix(),
-				Timestamp: time.Now().UTC(),
+			RequestedAt: entities.Timestamp{
+				Unix: ctx.Context().Time().Unix(),
+				UTC:  ctx.Context().Time().UTC(),
+			},
+			GeneratedAt: entities.Timestamp{
+				Unix: time.Now().Unix(),
+				UTC:  time.Now().UTC(),
 			},
 		},
 	}

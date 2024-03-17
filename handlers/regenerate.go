@@ -79,9 +79,9 @@ func Regenerate(app *fiber.App, config config.Config, storageProvider providers.
 
 			record.Request.Hash = hash
 			record.Request.Curl = curl
-			record.Metadata.GeneratedAt = entities.GeneratedAt{
-				Unix:      time.Now().Unix(),
-				Timestamp: time.Now().UTC(),
+			record.Metadata.RegeneratedAt = entities.Timestamp{
+				Unix: time.Now().Unix(),
+				UTC:  time.Now().UTC(),
 			}
 
 			recordBytesRegen, err := json.Marshal(record)
