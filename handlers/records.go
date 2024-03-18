@@ -3,10 +3,12 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 	"wannabe/config"
 	curl "wannabe/curl/services"
 	hash "wannabe/hash/services"
 	"wannabe/providers"
+	"wannabe/record/entities"
 	record "wannabe/record/services"
 
 	"github.com/gofiber/fiber/v2"
@@ -87,6 +89,10 @@ func PostRecords(config config.Config, storageProvider providers.StorageProvider
 
 			record.Request.Curl = curl
 			record.Request.Hash = hash
+			record.Metadata.GeneratedAt = entities.Timestamp{
+				Unix: time.Now().Unix(),
+				UTC:  time.Now().UTC(),
+			}
 
 			encodedRecord, err := json.Marshal(record)
 			if err != nil {
