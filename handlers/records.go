@@ -53,9 +53,15 @@ func PostRecords(config config.Config, storageProvider providers.StorageProvider
 
 		for _, record := range records {
 			body := record.Request.Body
-			bodyBytes, err := json.Marshal(body)
-			if err != nil {
-				return internalError(ctx, fmt.Errorf("PostRecords: failed marshaling record's request body: %v", err))
+			var bodyBytes []byte
+
+			if body == nil {
+				bodyBytes = []byte("")
+			} else {
+				bodyBytes, err = json.Marshal(body)
+				if err != nil {
+					return internalError(ctx, fmt.Errorf("PostRecords: failed marshaling record's request body: %v", err))
+				}
 			}
 
 			curl, err := curl.GenerateCurl(
@@ -73,6 +79,10 @@ func PostRecords(config config.Config, storageProvider providers.StorageProvider
 			hash, err := hash.GenerateHash(curl)
 			if err != nil {
 				return internalError(ctx, err)
+			}
+
+			if checkDuplicates(hashes, hash) {
+				continue
 			}
 
 			record.Request.Curl = curl
