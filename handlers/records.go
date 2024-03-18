@@ -43,9 +43,12 @@ func GetRecords(storageProvider providers.StorageProvider) WannabeHandler {
 
 func PostRecords(config config.Config, storageProvider providers.StorageProvider) WannabeHandler {
 	return func(ctx *fiber.Ctx) error {
-		// TODO validate ctx.Body in relation to config, config.RequestMatching
-
 		records, err := record.ExtractRecords(ctx.Body())
+		if err != nil {
+			return internalError(ctx, err)
+		}
+
+		err = record.ValidateRecords(config, records)
 		if err != nil {
 			return internalError(ctx, err)
 		}
