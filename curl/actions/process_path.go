@@ -7,11 +7,11 @@ import (
 )
 
 func ProcessPath(path string, config config.Path) (string, error) {
+	strippedPath := strings.TrimPrefix(path, "/")
 	if path == "" {
-		return path, nil
+		return "", nil
 	}
 
-	strippedPath := strings.TrimPrefix(path, "/")
 	pathParts := strings.Split(strippedPath, "/")
 
 	setWildcardsByIndex(pathParts, config.Wildcards)
