@@ -71,8 +71,8 @@ func Regenerate(app *fiber.App, config config.Config, storageProvider providers.
 				failedHashes = append(failedHashes, oldHash)
 			}
 
-			isDuplicateHash := contains(hashes, hash)
-			isDuplicateRegenHash := contains(regenHashes, hash)
+			isDuplicateHash := checkDuplicates(hashes, hash)
+			isDuplicateRegenHash := checkDuplicates(regenHashes, hash)
 			if isDuplicateHash || isDuplicateRegenHash {
 				continue
 			}
@@ -106,14 +106,4 @@ func Regenerate(app *fiber.App, config config.Config, storageProvider providers.
 			FailedHashes:      failedHashes,
 		})
 	}
-}
-
-// FIXME dry, create utils package
-func contains(slice []string, value string) bool {
-	for _, item := range slice {
-		if item == value {
-			return true
-		}
-	}
-	return false
 }
