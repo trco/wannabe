@@ -3,14 +3,14 @@ package actions
 import (
 	"encoding/json"
 	"fmt"
-	"wannabe/record/common"
+	"wannabe/record/entities"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 // set statusCode, headers and body from record to ctx *fiber.Ctx
 func SetResponse(ctx *fiber.Ctx, recordBytes []byte) error {
-	var record common.Record
+	var record entities.Record
 
 	err := json.Unmarshal(recordBytes, &record)
 	if err != nil {

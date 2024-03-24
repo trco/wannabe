@@ -2,15 +2,15 @@ package actions
 
 import (
 	"wannabe/config"
-	"wannabe/record/common"
+	"wannabe/record/entities"
 
 	"github.com/go-playground/validator/v10"
 )
 
 var validate *validator.Validate
 
-func ValidateRecords(config config.Config, records []common.Record) ([]common.Validation, error) {
-	var validations []common.Validation
+func ValidateRecords(config config.Config, records []entities.Record) ([]entities.Validation, error) {
+	var validations []entities.Validation
 
 	validate = validator.New()
 
@@ -19,7 +19,7 @@ func ValidateRecords(config config.Config, records []common.Record) ([]common.Va
 	for i := range records {
 		err := validate.Struct(records[i])
 		if err != nil {
-			validations = append(validations, common.Validation{
+			validations = append(validations, entities.Validation{
 				Valid: false,
 				Error: err.Error(),
 			})
@@ -27,7 +27,7 @@ func ValidateRecords(config config.Config, records []common.Record) ([]common.Va
 			continue
 		}
 
-		validations = append(validations, common.Validation{
+		validations = append(validations, entities.Validation{
 			Valid: true,
 			Error: "",
 		})

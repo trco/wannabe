@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"reflect"
 	"testing"
-	"wannabe/record/common"
+	"wannabe/record/entities"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/valyala/fasthttp"
@@ -14,8 +14,8 @@ func TestSetResponse(t *testing.T) {
 	app := fiber.New()
 	ctx := app.AcquireCtx(&fasthttp.RequestCtx{})
 
-	record, _ := json.Marshal(common.Record{
-		Request: common.Request{
+	record, _ := json.Marshal(entities.Record{
+		Request: entities.Request{
 			HttpMethod: "POST",
 			Host:       "test.com",
 			Path:       "/test",
@@ -30,7 +30,7 @@ func TestSetResponse(t *testing.T) {
 				"test": "test",
 			},
 		},
-		Response: common.Response{
+		Response: entities.Response{
 			StatusCode: 200,
 			Headers: map[string][]string{
 				"Content-Type": {"application/json"},

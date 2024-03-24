@@ -5,27 +5,27 @@ import (
 	"fmt"
 	"time"
 	"wannabe/config"
-	"wannabe/record/common"
+	"wannabe/record/entities"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 // generates record from ctx *fiber.Ctx request and response, server, hash and curl
 func GenerateRecord(ctx *fiber.Ctx, config config.Records, server string, curl string, hash string) ([]byte, error) {
-	requestHeaders := common.FilterRequestHeaders(ctx.GetReqHeaders(), config.Headers.Exclude)
+	requestHeaders := filterRequestHeaders(ctx.GetReqHeaders(), config.Headers.Exclude)
 
-	requestBody, err := common.PrepareBody(ctx.Body())
+	requestBody, err := prepareBody(ctx.Body())
 	if err != nil {
-		return nil, fmt.Errorf("GenerateRecord: failed unmarshaling request body: %v", err)
+		return nil, err
 	}
 
-	responseBody, err := common.PrepareBody(ctx.Response().Body())
+	responseBody, err := prepareBody(ctx.Response().Body())
 	if err != nil {
-		return nil, fmt.Errorf("GenerateRecord: failed unmarshaling response body: %v", err)
+		return nil, err
 	}
 
-	record := common.Record{
-		Request: common.Request{
+	record := entities.Record{
+		Request: entities.Request{
 			Hash:       hash,
 			Curl:       curl,
 			HttpMethod: ctx.Method(),
@@ -35,17 +35,17 @@ func GenerateRecord(ctx *fiber.Ctx, config config.Records, server string, curl s
 			Headers:    requestHeaders,
 			Body:       requestBody,
 		},
-		Response: common.Response{
+		Response: entities.Response{
 			StatusCode: ctx.Response().StatusCode(),
 			Headers:    ctx.GetRespHeaders(),
 			Body:       responseBody,
 		},
-		Metadata: common.Metadata{
-			RequestedAt: common.Timestamp{
+		Metadata: entities.Metadata{
+			RequestedAt: entities.Timestamp{
 				Unix: ctx.Context().Time().Unix(),
 				UTC:  ctx.Context().Time().UTC(),
 			},
-			GeneratedAt: common.Timestamp{
+			GeneratedAt: entities.Timestamp{
 				Unix: time.Now().Unix(),
 				UTC:  time.Now().UTC(),
 			},
@@ -58,4 +58,36 @@ func GenerateRecord(ctx *fiber.Ctx, config config.Records, server string, curl s
 	}
 
 	return recordBytes, nil
+}
+
+func filterRequestHeaders(headers map[string][]string, exclude []string) map[string][]string {
+	filteredRequestHeaders := make(map[string][]string)
+
+	for key, values := range headers {
+		if !contains(exclude, key) {
+			filteredRequestHeaders[key] = values
+		}
+	}
+
+	return filteredRequestHeaders
+}
+
+func contains(slice []string, value string) bool {
+	for _, item := range slice {
+		if item == value {
+			return true
+		}
+	}
+	return false
+}
+
+func prepareBody(bodyBytes []byte) (interface{}, error) {
+	var body interface{}
+
+	err := json.Unmarshal(bodyBytes, &body)
+	if err != nil {
+		return body, fmt.Errorf("GenerateRecord: failed unmarshaling body: %v", err)
+	}
+
+	return body, nil
 }

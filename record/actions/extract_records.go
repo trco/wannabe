@@ -3,11 +3,11 @@ package actions
 import (
 	"encoding/json"
 	"fmt"
-	"wannabe/record/common"
+	"wannabe/record/entities"
 )
 
-func ExtractRecords(bodyBytes []byte) ([]common.Record, error) {
-	var records []common.Record
+func ExtractRecords(bodyBytes []byte) ([]entities.Record, error) {
+	var records []entities.Record
 
 	err := json.Unmarshal(bodyBytes, &records)
 	if err != nil {

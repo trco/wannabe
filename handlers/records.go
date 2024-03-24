@@ -8,7 +8,7 @@ import (
 	curl "wannabe/curl/services"
 	hash "wannabe/hash/services"
 	"wannabe/providers"
-	"wannabe/record/common"
+	"wannabe/record/entities"
 	record "wannabe/record/services"
 
 	"github.com/gofiber/fiber/v2"
@@ -104,7 +104,7 @@ func PostRecords(config config.Config, storageProvider providers.StorageProvider
 
 			record.Request.Curl = curl
 			record.Request.Hash = hash
-			record.Metadata.GeneratedAt = common.Timestamp{
+			record.Metadata.GeneratedAt = entities.Timestamp{
 				Unix: time.Now().Unix(),
 				UTC:  time.Now().UTC(),
 			}

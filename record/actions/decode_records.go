@@ -3,14 +3,14 @@ package actions
 import (
 	"encoding/json"
 	"fmt"
-	"wannabe/record/common"
+	"wannabe/record/entities"
 )
 
-func DecodeRecords(encodedRecords [][]byte) ([]common.Record, error) {
-	var records []common.Record
+func DecodeRecords(encodedRecords [][]byte) ([]entities.Record, error) {
+	var records []entities.Record
 
 	for _, encodedRecord := range encodedRecords {
-		var record common.Record
+		var record entities.Record
 
 		err := json.Unmarshal(encodedRecord, &record)
 		if err != nil {
