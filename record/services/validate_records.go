@@ -6,6 +6,6 @@ import (
 	"wannabe/record/entities"
 )
 
-func ValidateRecords(config config.Config, records []entities.Record) error {
+func ValidateRecords(config config.Config, records []entities.Record) ([]entities.Validation, error) {
 	return actions.ValidateRecords(config, records)
 }

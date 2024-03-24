@@ -9,19 +9,31 @@ import (
 
 var validate *validator.Validate
 
-func ValidateRecords(config config.Config, records []entities.Record) error {
+func ValidateRecords(config config.Config, records []entities.Record) ([]entities.Validation, error) {
+	var validations []entities.Validation
+
 	validate = validator.New()
 
 	validate.RegisterValidation("host_not_matching_config_server", validateHostInRecord(config))
 
-	for _, record := range records {
-		err := validate.Struct(record)
+	for i := range records {
+		err := validate.Struct(records[i])
 		if err != nil {
-			return err
+			validations = append(validations, entities.Validation{
+				Valid: false,
+				Error: err.Error(),
+			})
+
+			continue
 		}
+
+		validations = append(validations, entities.Validation{
+			Valid: true,
+			Error: "",
+		})
 	}
 
-	return nil
+	return validations, nil
 }
 
 // custom validation functions
