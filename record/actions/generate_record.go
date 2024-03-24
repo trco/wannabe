@@ -81,8 +81,8 @@ func contains(slice []string, value string) bool {
 	return false
 }
 
-func prepareBody(bodyBytes []byte) (entities.BodyMap, error) {
-	var body entities.BodyMap
+func prepareBody(bodyBytes []byte) (interface{}, error) {
+	var body interface{}
 
 	err := json.Unmarshal(bodyBytes, &body)
 	if err != nil {

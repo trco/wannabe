@@ -16,16 +16,14 @@ type Request struct {
 	Path       string              `json:"path"`
 	Query      map[string]string   `json:"query"`
 	Headers    map[string][]string `json:"headers"`
-	Body       BodyMap             `json:"body" validate:"required_if=HttpMethod POST,required_if=HttpMethod PUT,required_if=HttpMethod PATCH"`
+	Body       interface{}         `json:"body" validate:"required_if=HttpMethod POST,required_if=HttpMethod PUT,required_if=HttpMethod PATCH"`
 }
 
 type Response struct {
 	StatusCode int                 `json:"statusCode" validate:"required"`
 	Headers    map[string][]string `json:"headers"`
-	Body       BodyMap             `json:"body" validate:"required"`
+	Body       interface{}         `json:"body" validate:"required"`
 }
-
-type BodyMap map[string]interface{}
 
 type Metadata struct {
 	RequestedAt   Timestamp `json:"requestedAt"`
