@@ -6,10 +6,10 @@ import (
 	"wannabe/record/entities"
 )
 
-func ExtractRecords(body []byte) ([]entities.Record, error) {
+func ExtractRecords(bodyBytes []byte) ([]entities.Record, error) {
 	var records []entities.Record
 
-	err := json.Unmarshal(body, &records)
+	err := json.Unmarshal(bodyBytes, &records)
 	if err != nil {
 		return nil, fmt.Errorf("ExtractRecords: failed unmarshaling request body: %v", err)
 	}
