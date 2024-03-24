@@ -9,16 +9,15 @@ type InternalError struct {
 	Error      string `json:"error"`
 }
 
-func internalError(ctx *fiber.Ctx, err error) error {
-	return ctx.Status(fiber.StatusInternalServerError).JSON(InternalError{
-		StatusCode: fiber.StatusInternalServerError,
-		Error:      err.Error(),
-	})
+type ProcessingDetails struct {
+	Hash    string `json:"hash"`
+	Message string `json:"message"`
 }
 
 type PostRecordsResponse struct {
-	Message string   `json:"message"`
-	Hashes  []string `json:"hashes"`
+	InsertedRecordsCount    int                 `json:"insertedRecordsCount"`
+	NotInsertedRecordsCount int                 `json:"notInsertedRecordsCount"`
+	ProcessingDetails       []ProcessingDetails `json:"processingDetails"`
 }
 
 type DeleteRecordsResponse struct {
@@ -30,13 +29,4 @@ type RegenerateResponse struct {
 	Message           string   `json:"message"`
 	RegeneratedHashes []string `json:"regeneratedHashes"`
 	FailedHashes      []string `json:"failedHashes"`
-}
-
-func checkDuplicates(slice []string, value string) bool {
-	for _, item := range slice {
-		if item == value {
-			return true
-		}
-	}
-	return false
 }
