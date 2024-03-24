@@ -6,7 +6,7 @@ import (
 	"testing"
 	"wannabe/config"
 	"wannabe/providers"
-	"wannabe/record/entities"
+	"wannabe/record/common"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/valyala/fasthttp"
@@ -32,8 +32,8 @@ func TestSetResponse(t *testing.T) {
 	testHash := "testHash3"
 	// testHashInvalid := "testHashInvalid"
 
-	testRecord, _ := json.Marshal(entities.Record{
-		Request: entities.Request{
+	testRecord, _ := json.Marshal(common.Record{
+		Request: common.Request{
 			HttpMethod: "POST",
 			Host:       "test.com",
 			Path:       "/test",
@@ -48,7 +48,7 @@ func TestSetResponse(t *testing.T) {
 				"test": "test",
 			},
 		},
-		Response: entities.Response{
+		Response: common.Response{
 			StatusCode: 200,
 			Headers: map[string][]string{
 				"Content-Type": {"application/json"},

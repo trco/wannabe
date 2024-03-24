@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 	"wannabe/config"
-	"wannabe/record/entities"
+	"wannabe/record/common"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/valyala/fasthttp"
@@ -36,8 +36,8 @@ func TestGenerateRecord(t *testing.T) {
 	// {"test":"test"}
 	ctx.Response().SetBody([]byte{123, 10, 32, 32, 32, 32, 34, 116, 101, 115, 116, 34, 58, 32, 34, 116, 101, 115, 116, 34, 10, 125})
 
-	expected, _ := json.Marshal(entities.Record{
-		Request: entities.Request{
+	expected, _ := json.Marshal(common.Record{
+		Request: common.Request{
 			Hash:       "123",
 			Curl:       "test",
 			HttpMethod: "POST",
@@ -54,7 +54,7 @@ func TestGenerateRecord(t *testing.T) {
 				"test": "test",
 			},
 		},
-		Response: entities.Response{
+		Response: common.Response{
 			StatusCode: 200,
 			Headers: map[string][]string{
 				"Content-Type": {"application/json"},

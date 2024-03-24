@@ -3,9 +3,9 @@ package services
 import (
 	"wannabe/config"
 	"wannabe/record/actions"
-	"wannabe/record/entities"
+	"wannabe/record/common"
 )
 
-func ValidateRecords(config config.Config, records []entities.Record) ([]entities.Validation, error) {
+func ValidateRecords(config config.Config, records []common.Record) ([]common.Validation, error) {
 	return actions.ValidateRecords(config, records)
 }

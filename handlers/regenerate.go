@@ -8,7 +8,7 @@ import (
 	curl "wannabe/curl/services"
 	hash "wannabe/hash/services"
 	"wannabe/providers"
-	"wannabe/record/entities"
+	"wannabe/record/common"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -36,7 +36,7 @@ func Regenerate(app *fiber.App, config config.Config, storageProvider providers.
 		}
 
 		for _, recordBytes := range records {
-			var record entities.Record
+			var record common.Record
 
 			err := json.Unmarshal(recordBytes, &record)
 			oldHash := record.Request.Hash
@@ -79,7 +79,7 @@ func Regenerate(app *fiber.App, config config.Config, storageProvider providers.
 
 			record.Request.Hash = hash
 			record.Request.Curl = curl
-			record.Metadata.RegeneratedAt = entities.Timestamp{
+			record.Metadata.RegeneratedAt = common.Timestamp{
 				Unix: time.Now().Unix(),
 				UTC:  time.Now().UTC(),
 			}
