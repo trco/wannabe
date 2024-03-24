@@ -48,15 +48,25 @@ func PostRecords(config config.Config, storageProvider providers.StorageProvider
 			return internalError(ctx, err)
 		}
 
-		err = record.ValidateRecords(config, records)
+		validations, err := record.ValidateRecords(config, records)
 		if err != nil {
 			return internalError(ctx, err)
 		}
 
-		var hashes []string
+		insertedRecordsCount := 0
+		notInsertedRecordsCount := 0
+		var processingDetails []ProcessingDetails
+
+		var validHashes []string
 		var encodedRecords [][]byte
 
-		for _, record := range records {
+		for i, record := range records {
+			if !validations[i].Valid {
+				handleRecordProcessing(&processingDetails, "", validations[i].Error, &notInsertedRecordsCount)
+
+				continue
+			}
+
 			body := record.Request.Body
 			var bodyBytes []byte
 
@@ -65,7 +75,9 @@ func PostRecords(config config.Config, storageProvider providers.StorageProvider
 			} else {
 				bodyBytes, err = json.Marshal(body)
 				if err != nil {
-					return internalError(ctx, fmt.Errorf("PostRecords: failed marshaling record's request body: %v", err))
+					handleRecordProcessing(&processingDetails, "", err.Error(), &notInsertedRecordsCount)
+
+					continue
 				}
 			}
 
@@ -78,15 +90,15 @@ func PostRecords(config config.Config, storageProvider providers.StorageProvider
 				config,
 			)
 			if err != nil {
-				return internalError(ctx, err)
+				handleRecordProcessing(&processingDetails, "", err.Error(), &notInsertedRecordsCount)
+
+				continue
 			}
 
 			hash, err := hash.GenerateHash(curl)
 			if err != nil {
-				return internalError(ctx, err)
-			}
+				handleRecordProcessing(&processingDetails, "", err.Error(), &notInsertedRecordsCount)
 
-			if checkDuplicates(hashes, hash) {
 				continue
 			}
 
@@ -99,21 +111,26 @@ func PostRecords(config config.Config, storageProvider providers.StorageProvider
 
 			encodedRecord, err := json.Marshal(record)
 			if err != nil {
-				return internalError(ctx, fmt.Errorf("PostRecords: failed marshaling record: %v", err))
+				handleRecordProcessing(&processingDetails, hash, err.Error(), &notInsertedRecordsCount)
+
+				continue
 			}
 
-			hashes = append(hashes, hash)
+			validHashes = append(validHashes, hash)
 			encodedRecords = append(encodedRecords, encodedRecord)
+
+			handleRecordProcessing(&processingDetails, hash, "success", &insertedRecordsCount)
 		}
 
-		err = storageProvider.InsertRecords(hashes, encodedRecords)
+		err = storageProvider.InsertRecords(validHashes, encodedRecords)
 		if err != nil {
 			return internalError(ctx, err)
 		}
 
 		return ctx.Status(fiber.StatusCreated).JSON(PostRecordsResponse{
-			Message: "Records successfully created.",
-			Hashes:  hashes,
+			InsertedRecordsCount:    insertedRecordsCount,
+			NotInsertedRecordsCount: notInsertedRecordsCount,
+			ProcessingDetails:       processingDetails,
 		})
 	}
 }
