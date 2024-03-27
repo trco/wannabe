@@ -3,29 +3,30 @@ package services
 import (
 	"wannabe/config"
 	"wannabe/curl/actions"
+	"wannabe/curl/entities"
 )
 
-func GenerateCurl(method string, path string, queries map[string]string, headers map[string][]string, requestBody []byte, config config.Config) (string, error) {
-	httpMethod := actions.ProcessHttpMethod(method)
+func GenerateCurl(config config.Config, payload entities.GenerateCurlPayload) (string, error) {
+	httpMethod := actions.ProcessHttpMethod(payload.HttpMethod)
 
 	processedHost, err := actions.ProcessHost(config.Server, config.RequestMatching.Host)
 	if err != nil {
 		return "", err
 	}
 
-	processedPath, err := actions.ProcessPath(path, config.RequestMatching.Path)
+	processedPath, err := actions.ProcessPath(payload.Path, config.RequestMatching.Path)
 	if err != nil {
 		return "", err
 	}
 
-	processedQuery, err := actions.ProcessQuery(queries, config.RequestMatching.Query)
+	processedQuery, err := actions.ProcessQuery(payload.Query, config.RequestMatching.Query)
 	if err != nil {
 		return "", err
 	}
 
-	processedHeaders := actions.ProcessHeaders(headers, config.RequestMatching.Headers)
+	processedHeaders := actions.ProcessHeaders(payload.RequestHeaders, config.RequestMatching.Headers)
 
-	processedBody, err := actions.ProcessBody(requestBody, config.RequestMatching.Body)
+	processedBody, err := actions.ProcessBody(payload.RequestBody, config.RequestMatching.Body)
 	if err != nil {
 		return "", err
 	}
