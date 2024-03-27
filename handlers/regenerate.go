@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"time"
 	"wannabe/config"
+	curlEntities "wannabe/curl/entities"
 	curl "wannabe/curl/services"
 	hash "wannabe/hash/services"
 	"wannabe/providers"
 	"wannabe/record/entities"
+	recordEntities "wannabe/record/entities"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -55,14 +57,15 @@ func Regenerate(config config.Config, storageProvider providers.StorageProvider)
 				continue
 			}
 
-			curl, err := curl.GenerateCurl(
-				record.Request.HttpMethod,
-				record.Request.Path,
-				record.Request.Query,
-				record.Request.Headers,
-				requestBody,
-				config,
-			)
+			curlPayload := curlEntities.GenerateCurlPayload{
+				HttpMethod:     record.Request.HttpMethod,
+				Path:           record.Request.Path,
+				Query:          record.Request.Query,
+				RequestHeaders: record.Request.Headers,
+				RequestBody:    requestBody,
+			}
+
+			curl, err := curl.GenerateCurl(config, curlPayload)
 			if err != nil {
 				failedCount++
 				failedHashes = append(failedHashes, oldHash)
@@ -86,7 +89,7 @@ func Regenerate(config config.Config, storageProvider providers.StorageProvider)
 
 			record.Request.Hash = hash
 			record.Request.Curl = curl
-			record.Metadata.RegeneratedAt = entities.Timestamp{
+			record.Metadata.RegeneratedAt = recordEntities.Timestamp{
 				Unix: time.Now().Unix(),
 				UTC:  time.Now().UTC(),
 			}

@@ -5,10 +5,11 @@ import (
 	"fmt"
 	"time"
 	"wannabe/config"
+	curlEntities "wannabe/curl/entities"
 	curl "wannabe/curl/services"
 	hash "wannabe/hash/services"
 	"wannabe/providers"
-	"wannabe/record/entities"
+	recordEntities "wannabe/record/entities"
 	record "wannabe/record/services"
 
 	"github.com/gofiber/fiber/v2"
@@ -81,14 +82,15 @@ func PostRecords(config config.Config, storageProvider providers.StorageProvider
 				}
 			}
 
-			curl, err := curl.GenerateCurl(
-				record.Request.HttpMethod,
-				record.Request.Path,
-				record.Request.Query,
-				record.Request.Headers,
-				requestBody,
-				config,
-			)
+			curlPayload := curlEntities.GenerateCurlPayload{
+				HttpMethod:     record.Request.HttpMethod,
+				Path:           record.Request.Path,
+				Query:          record.Request.Query,
+				RequestHeaders: record.Request.Headers,
+				RequestBody:    requestBody,
+			}
+
+			curl, err := curl.GenerateCurl(config, curlPayload)
 			if err != nil {
 				processRecordValidation(&recordProcessingDetails, "", err.Error(), &notInsertedCount)
 
@@ -104,7 +106,7 @@ func PostRecords(config config.Config, storageProvider providers.StorageProvider
 
 			record.Request.Curl = curl
 			record.Request.Hash = hash
-			record.Metadata.GeneratedAt = entities.Timestamp{
+			record.Metadata.GeneratedAt = recordEntities.Timestamp{
 				Unix: time.Now().Unix(),
 				UTC:  time.Now().UTC(),
 			}

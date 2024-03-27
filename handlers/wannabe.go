@@ -3,9 +3,11 @@ package handlers
 import (
 	"fmt"
 	"wannabe/config"
+	curlEntities "wannabe/curl/entities"
 	curl "wannabe/curl/services"
 	hash "wannabe/hash/services"
 	"wannabe/providers"
+	recordEntities "wannabe/record/entities"
 	record "wannabe/record/services"
 	response "wannabe/response/services"
 
@@ -14,14 +16,15 @@ import (
 
 func Wannabe(config config.Config, storageProvider providers.StorageProvider) WannabeHandler {
 	return func(ctx *fiber.Ctx) error {
-		curl, err := curl.GenerateCurl(
-			ctx.Method(),
-			ctx.Path(),
-			ctx.Queries(),
-			ctx.GetReqHeaders(),
-			ctx.Body(),
-			config,
-		)
+		curlPayload := curlEntities.GenerateCurlPayload{
+			HttpMethod:     ctx.Method(),
+			Path:           ctx.Path(),
+			Query:          ctx.Queries(),
+			RequestHeaders: ctx.GetReqHeaders(),
+			RequestBody:    ctx.Body(),
+		}
+
+		curl, err := curl.GenerateCurl(config, curlPayload)
 		if err != nil {
 			return internalError(ctx, err)
 		}
@@ -57,7 +60,25 @@ func Wannabe(config config.Config, storageProvider providers.StorageProvider) Wa
 			return internalError(ctx, err)
 		}
 
-		record, err := record.GenerateRecord(ctx, config.Records, config.Server, curl, hash)
+		recordPayload := recordEntities.GenerateRecordPayload{
+			Hash:            hash,
+			Curl:            curl,
+			HttpMethod:      ctx.Method(),
+			Host:            config.Server,
+			Path:            ctx.Path(),
+			Query:           ctx.Queries(),
+			RequestHeaders:  ctx.GetReqHeaders(),
+			RequestBody:     ctx.Body(),
+			StatusCode:      ctx.Response().StatusCode(),
+			ResponseHeaders: ctx.GetRespHeaders(),
+			ResponseBody:    ctx.Response().Body(),
+			Timestamp: recordEntities.Timestamp{
+				Unix: ctx.Context().Time().Unix(),
+				UTC:  ctx.Context().Time().UTC(),
+			},
+		}
+
+		record, err := record.GenerateRecord(config.Records, recordPayload)
 		if err != nil {
 			return internalError(ctx, err)
 		}
