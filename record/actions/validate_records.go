@@ -9,8 +9,8 @@ import (
 
 var validate *validator.Validate
 
-func ValidateRecords(config config.Config, records []entities.Record) ([]entities.Validation, error) {
-	var validations []entities.Validation
+func ValidateRecords(config config.Config, records []entities.Record) ([]string, error) {
+	var validationErrors []string
 
 	validate = validator.New()
 
@@ -19,21 +19,15 @@ func ValidateRecords(config config.Config, records []entities.Record) ([]entitie
 	for i := range records {
 		err := validate.Struct(records[i])
 		if err != nil {
-			validations = append(validations, entities.Validation{
-				Valid: false,
-				Error: err.Error(),
-			})
+			validationErrors = append(validationErrors, err.Error())
 
 			continue
 		}
 
-		validations = append(validations, entities.Validation{
-			Valid: true,
-			Error: "",
-		})
+		validationErrors = append(validationErrors, "")
 	}
 
-	return validations, nil
+	return validationErrors, nil
 }
 
 // custom validation functions

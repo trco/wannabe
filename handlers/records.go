@@ -48,34 +48,34 @@ func PostRecords(config config.Config, storageProvider providers.StorageProvider
 			return internalError(ctx, err)
 		}
 
-		validations, err := record.ValidateRecords(config, records)
+		validationErrors, err := record.ValidateRecords(config, records)
 		if err != nil {
 			return internalError(ctx, err)
 		}
 
-		insertedRecordsCount := 0
-		notInsertedRecordsCount := 0
-		var processingDetails []ProcessingDetails
+		insertedCount := 0
+		notInsertedCount := 0
+		var recordProcessingDetails []RecordProcessingDetails
 
 		var validHashes []string
 		var encodedRecords [][]byte
 
 		for i, record := range records {
-			if !validations[i].Valid {
-				handleRecordProcessing(&processingDetails, "", validations[i].Error, &notInsertedRecordsCount)
+			if validationErrors[i] != "" {
+				processRecordValidation(&recordProcessingDetails, "", validationErrors[i], &notInsertedCount)
 
 				continue
 			}
 
 			body := record.Request.Body
-			var bodyBytes []byte
+			var requestBody []byte
 
 			if body == nil {
-				bodyBytes = []byte("")
+				requestBody = []byte("")
 			} else {
-				bodyBytes, err = json.Marshal(body)
+				requestBody, err = json.Marshal(body)
 				if err != nil {
-					handleRecordProcessing(&processingDetails, "", err.Error(), &notInsertedRecordsCount)
+					processRecordValidation(&recordProcessingDetails, "", err.Error(), &notInsertedCount)
 
 					continue
 				}
@@ -86,18 +86,18 @@ func PostRecords(config config.Config, storageProvider providers.StorageProvider
 				record.Request.Path,
 				record.Request.Query,
 				record.Request.Headers,
-				bodyBytes,
+				requestBody,
 				config,
 			)
 			if err != nil {
-				handleRecordProcessing(&processingDetails, "", err.Error(), &notInsertedRecordsCount)
+				processRecordValidation(&recordProcessingDetails, "", err.Error(), &notInsertedCount)
 
 				continue
 			}
 
 			hash, err := hash.GenerateHash(curl)
 			if err != nil {
-				handleRecordProcessing(&processingDetails, "", err.Error(), &notInsertedRecordsCount)
+				processRecordValidation(&recordProcessingDetails, "", err.Error(), &notInsertedCount)
 
 				continue
 			}
@@ -111,7 +111,7 @@ func PostRecords(config config.Config, storageProvider providers.StorageProvider
 
 			encodedRecord, err := json.Marshal(record)
 			if err != nil {
-				handleRecordProcessing(&processingDetails, hash, err.Error(), &notInsertedRecordsCount)
+				processRecordValidation(&recordProcessingDetails, hash, err.Error(), &notInsertedCount)
 
 				continue
 			}
@@ -119,7 +119,7 @@ func PostRecords(config config.Config, storageProvider providers.StorageProvider
 			validHashes = append(validHashes, hash)
 			encodedRecords = append(encodedRecords, encodedRecord)
 
-			handleRecordProcessing(&processingDetails, hash, "success", &insertedRecordsCount)
+			processRecordValidation(&recordProcessingDetails, hash, "success", &insertedCount)
 		}
 
 		err = storageProvider.InsertRecords(validHashes, encodedRecords)
@@ -128,9 +128,9 @@ func PostRecords(config config.Config, storageProvider providers.StorageProvider
 		}
 
 		return ctx.Status(fiber.StatusCreated).JSON(PostRecordsResponse{
-			InsertedRecordsCount:    insertedRecordsCount,
-			NotInsertedRecordsCount: notInsertedRecordsCount,
-			ProcessingDetails:       processingDetails,
+			InsertedRecordsCount:    insertedCount,
+			NotInsertedRecordsCount: notInsertedCount,
+			RecordProcessingDetails: recordProcessingDetails,
 		})
 	}
 }

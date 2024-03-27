@@ -9,15 +9,15 @@ type InternalError struct {
 	Error      string `json:"error"`
 }
 
-type ProcessingDetails struct {
+type RecordProcessingDetails struct {
 	Hash    string `json:"hash"`
 	Message string `json:"message"`
 }
 
 type PostRecordsResponse struct {
-	InsertedRecordsCount    int                 `json:"insertedRecordsCount"`
-	NotInsertedRecordsCount int                 `json:"notInsertedRecordsCount"`
-	ProcessingDetails       []ProcessingDetails `json:"processingDetails"`
+	InsertedRecordsCount    int                       `json:"insertedRecordsCount"`
+	NotInsertedRecordsCount int                       `json:"notInsertedRecordsCount"`
+	RecordProcessingDetails []RecordProcessingDetails `json:"recordProcessingDetails"`
 }
 
 type DeleteRecordsResponse struct {

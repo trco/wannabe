@@ -35,21 +35,24 @@ func Regenerate(config config.Config, storageProvider providers.StorageProvider)
 			return internalError(ctx, err)
 		}
 
-		for _, recordBytes := range records {
+		for _, encodedRecord := range records {
 			var record entities.Record
 
-			err := json.Unmarshal(recordBytes, &record)
+			err := json.Unmarshal(encodedRecord, &record)
 			oldHash := record.Request.Hash
 			if err != nil {
 				failedCount++
 				failedHashes = append(failedHashes, oldHash)
+
 				continue
 			}
 
-			bodyBytes, err := json.Marshal(record.Request.Body)
+			requestBody, err := json.Marshal(record.Request.Body)
 			if err != nil {
 				failedCount++
 				failedHashes = append(failedHashes, oldHash)
+
+				continue
 			}
 
 			curl, err := curl.GenerateCurl(
@@ -57,18 +60,22 @@ func Regenerate(config config.Config, storageProvider providers.StorageProvider)
 				record.Request.Path,
 				record.Request.Query,
 				record.Request.Headers,
-				bodyBytes,
+				requestBody,
 				config,
 			)
 			if err != nil {
 				failedCount++
 				failedHashes = append(failedHashes, oldHash)
+
+				continue
 			}
 
 			hash, err := hash.GenerateHash(curl)
 			if err != nil {
 				failedCount++
 				failedHashes = append(failedHashes, oldHash)
+
+				continue
 			}
 
 			isDuplicateHash := checkDuplicates(hashes, hash)
@@ -84,16 +91,20 @@ func Regenerate(config config.Config, storageProvider providers.StorageProvider)
 				UTC:  time.Now().UTC(),
 			}
 
-			recordBytesRegen, err := json.Marshal(record)
+			encodedRecordRegen, err := json.Marshal(record)
 			if err != nil {
 				failedCount++
 				failedHashes = append(failedHashes, oldHash)
+
+				continue
 			}
 
-			err = storageProvider.InsertRecords([]string{hash}, [][]byte{recordBytesRegen})
+			err = storageProvider.InsertRecords([]string{hash}, [][]byte{encodedRecordRegen})
 			if err != nil {
 				failedCount++
 				failedHashes = append(failedHashes, oldHash)
+
+				continue
 			}
 
 			regenCount++

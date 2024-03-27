@@ -52,12 +52,12 @@ func GenerateRecord(ctx *fiber.Ctx, config config.Records, server string, curl s
 		},
 	}
 
-	recordBytes, err := json.Marshal(record)
+	encodedRecord, err := json.Marshal(record)
 	if err != nil {
 		return nil, fmt.Errorf("GenerateRecord: failed marshaling record: %v", err)
 	}
 
-	return recordBytes, nil
+	return encodedRecord, nil
 }
 
 func filterRequestHeaders(headers map[string][]string, exclude []string) map[string][]string {
@@ -81,10 +81,10 @@ func contains(slice []string, value string) bool {
 	return false
 }
 
-func prepareBody(bodyBytes []byte) (interface{}, error) {
+func prepareBody(encodedBody []byte) (interface{}, error) {
 	var body interface{}
 
-	err := json.Unmarshal(bodyBytes, &body)
+	err := json.Unmarshal(encodedBody, &body)
 	if err != nil {
 		return body, fmt.Errorf("GenerateRecord: failed unmarshaling body: %v", err)
 	}

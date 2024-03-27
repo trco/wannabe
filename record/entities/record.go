@@ -35,8 +35,3 @@ type Timestamp struct {
 	Unix int64     `json:"unix"`
 	UTC  time.Time `json:"utc"`
 }
-
-type Validation struct {
-	Valid bool   `json:"valid"`
-	Error string `json:"error"`
-}

@@ -19,8 +19,8 @@ func checkDuplicates(slice []string, value string) bool {
 	return false
 }
 
-func handleRecordProcessing(processingDetails *[]ProcessingDetails, hash string, message string, valueToIncrement *int) {
-	*processingDetails = append(*processingDetails, ProcessingDetails{
+func processRecordValidation(recordProcessingDetails *[]RecordProcessingDetails, hash string, message string, valueToIncrement *int) {
+	*recordProcessingDetails = append(*recordProcessingDetails, RecordProcessingDetails{
 		Hash:    hash,
 		Message: message,
 	})
