@@ -9,7 +9,6 @@ import (
 	curl "wannabe/curl/services"
 	hash "wannabe/hash/services"
 	"wannabe/providers"
-	"wannabe/record/entities"
 	recordEntities "wannabe/record/entities"
 
 	"github.com/gofiber/fiber/v2"
@@ -38,7 +37,7 @@ func Regenerate(config config.Config, storageProvider providers.StorageProvider)
 		}
 
 		for _, encodedRecord := range records {
-			var record entities.Record
+			var record recordEntities.Record
 
 			err := json.Unmarshal(encodedRecord, &record)
 			oldHash := record.Request.Hash
