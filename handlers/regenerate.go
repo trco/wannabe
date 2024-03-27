@@ -13,7 +13,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func Regenerate(app *fiber.App, config config.Config, storageProvider providers.StorageProvider) WannabeHandler {
+func Regenerate(config config.Config, storageProvider providers.StorageProvider) WannabeHandler {
 	return func(ctx *fiber.Ctx) error {
 		if !config.StorageProvider.Regenerate {
 			return internalError(ctx, fmt.Errorf("regenerate set to false in config"))

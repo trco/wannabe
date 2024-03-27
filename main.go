@@ -33,7 +33,7 @@ func main() {
 	app.Post("/wannabe/api/records", handlers.PostRecords(config, storageProvider))
 	app.Delete("/wannabe/api/records/:hash", handlers.DeleteRecords(storageProvider))
 	app.Delete("/wannabe/api/records", handlers.DeleteRecords(storageProvider))
-	app.Get("/wannabe/api/regenerate", handlers.Regenerate(app, config, storageProvider))
+	app.Get("/wannabe/api/regenerate", handlers.Regenerate(config, storageProvider))
 
 	// Wannabe endpoints
 	app.Get("/*", handlers.Wannabe(config, storageProvider))
