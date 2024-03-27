@@ -14,9 +14,7 @@ func DecodeRecords(encodedRecords [][]byte) ([]entities.Record, error) {
 
 		err := json.Unmarshal(encodedRecord, &record)
 		if err != nil {
-			// REVIEW
-			// return also corrupted records ?
-			// return valid records and corrupted records with errors
+			// REVIEW return valid records and corrupted records with errors ?
 			return nil, fmt.Errorf("DecodeRecords: failed unmarshaling record: %v", err)
 		}
 

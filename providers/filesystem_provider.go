@@ -38,7 +38,6 @@ func (fsp FilesystemProvider) ReadRecords(hashes []string) ([][]byte, error) {
 	for _, hash := range hashes {
 		filepath := fsp.GenerateFilepath(hash, false)
 
-		// check if file exists
 		_, err := os.Stat(filepath)
 		if err != nil {
 			return nil, filesystemProviderErr("failed checking if file exists", err)
