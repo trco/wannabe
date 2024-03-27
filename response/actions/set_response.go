@@ -9,10 +9,10 @@ import (
 )
 
 // set statusCode, headers and body from record to ctx *fiber.Ctx
-func SetResponse(ctx *fiber.Ctx, recordBytes []byte) error {
+func SetResponse(ctx *fiber.Ctx, encodedRecord []byte) error {
 	var record entities.Record
 
-	err := json.Unmarshal(recordBytes, &record)
+	err := json.Unmarshal(encodedRecord, &record)
 	if err != nil {
 		return fmt.Errorf("SetResponse: failed unmarshaling record: %v", err)
 	}

@@ -5,7 +5,7 @@ import (
 	"wannabe/curl/actions"
 )
 
-func GenerateCurl(method string, path string, queries map[string]string, headers map[string][]string, bodyBytes []byte, config config.Config) (string, error) {
+func GenerateCurl(method string, path string, queries map[string]string, headers map[string][]string, requestBody []byte, config config.Config) (string, error) {
 	httpMethod := actions.ProcessHttpMethod(method)
 
 	processedHost, err := actions.ProcessHost(config.Server, config.RequestMatching.Host)
@@ -25,7 +25,7 @@ func GenerateCurl(method string, path string, queries map[string]string, headers
 
 	processedHeaders := actions.ProcessHeaders(headers, config.RequestMatching.Headers)
 
-	processedBody, err := actions.ProcessBody(bodyBytes, config.RequestMatching.Body)
+	processedBody, err := actions.ProcessBody(requestBody, config.RequestMatching.Body)
 	if err != nil {
 		return "", err
 	}

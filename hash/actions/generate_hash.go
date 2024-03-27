@@ -13,7 +13,7 @@ func GenerateHash(curl string) (string, error) {
 		return "", fmt.Errorf("GenerateHash: failed writing hash: %v", err)
 	}
 
-	hashBytes := hash.Sum(nil)
+	encodedHash := hash.Sum(nil)
 
-	return hex.EncodeToString(hashBytes), nil
+	return hex.EncodeToString(encodedHash), nil
 }

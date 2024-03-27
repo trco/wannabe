@@ -6,22 +6,22 @@ import (
 	"wannabe/config"
 )
 
-func ProcessBody(bodyBytes []byte, config config.Body) (string, error) {
-	if len(bodyBytes) == 0 {
+func ProcessBody(requestBody []byte, config config.Body) (string, error) {
+	if len(requestBody) == 0 {
 		return "", nil
 	}
 
 	var body interface{}
 
 	// results in alphabetically ordered json
-	json.Unmarshal(bodyBytes, &body)
+	json.Unmarshal(requestBody, &body)
 
-	bodyBytes, err := json.Marshal(body)
+	requestBody, err := json.Marshal(body)
 	if err != nil {
 		return "", fmt.Errorf("ProcessBody: failed marshaling request body: %v", err)
 	}
 
-	bodyString := string(bodyBytes)
+	bodyString := string(requestBody)
 
 	processedBodyString, err := replaceRegexPatterns(bodyString, config.Regexes)
 	if err != nil {
