@@ -2,6 +2,21 @@ package entities
 
 import "time"
 
+type GenerateRecordPayload struct {
+	Hash            string
+	Curl            string
+	HttpMethod      string
+	Host            string
+	Path            string
+	Query           map[string]string
+	RequestHeaders  map[string][]string
+	ResponseHeaders map[string][]string
+	RequestBody     []byte
+	StatusCode      int
+	ResponseBody    []byte
+	Timestamp       Timestamp
+}
+
 type Record struct {
 	Request  Request  `json:"request"`
 	Response Response `json:"response"`

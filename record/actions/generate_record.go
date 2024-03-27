@@ -6,44 +6,42 @@ import (
 	"time"
 	"wannabe/config"
 	"wannabe/record/entities"
-
-	"github.com/gofiber/fiber/v2"
 )
 
 // generates record from ctx *fiber.Ctx request and response, server, hash and curl
-func GenerateRecord(ctx *fiber.Ctx, config config.Records, server string, curl string, hash string) ([]byte, error) {
-	requestHeaders := filterRequestHeaders(ctx.GetReqHeaders(), config.Headers.Exclude)
+func GenerateRecord(config config.Records, payload entities.GenerateRecordPayload) ([]byte, error) {
+	requestHeaders := filterRequestHeaders(payload.RequestHeaders, config.Headers.Exclude)
 
-	requestBody, err := prepareBody(ctx.Body())
+	requestBody, err := prepareBody(payload.RequestBody)
 	if err != nil {
 		return nil, err
 	}
 
-	responseBody, err := prepareBody(ctx.Response().Body())
+	responseBody, err := prepareBody(payload.ResponseBody)
 	if err != nil {
 		return nil, err
 	}
 
 	record := entities.Record{
 		Request: entities.Request{
-			Hash:       hash,
-			Curl:       curl,
-			HttpMethod: ctx.Method(),
-			Host:       server,
-			Path:       ctx.Path(),
-			Query:      ctx.Queries(),
+			Hash:       payload.Hash,
+			Curl:       payload.Curl,
+			HttpMethod: payload.HttpMethod,
+			Host:       payload.Host,
+			Path:       payload.Path,
+			Query:      payload.Query,
 			Headers:    requestHeaders,
 			Body:       requestBody,
 		},
 		Response: entities.Response{
-			StatusCode: ctx.Response().StatusCode(),
-			Headers:    ctx.GetRespHeaders(),
+			StatusCode: payload.StatusCode,
+			Headers:    payload.ResponseHeaders,
 			Body:       responseBody,
 		},
 		Metadata: entities.Metadata{
 			RequestedAt: entities.Timestamp{
-				Unix: ctx.Context().Time().Unix(),
-				UTC:  ctx.Context().Time().UTC(),
+				Unix: payload.Timestamp.Unix,
+				UTC:  payload.Timestamp.UTC,
 			},
 			GeneratedAt: entities.Timestamp{
 				Unix: time.Now().Unix(),
