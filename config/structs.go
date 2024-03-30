@@ -1,11 +1,7 @@
 package config
 
 type Config struct {
-	// // pointers are used for "required_without_all" validation to work on structs
-	// FilesystemStorage *FilesystemStorage `koanf:"filesystemStorage" validate:"required_without_all=RedisStorage"`
-	// RedisStorage      *RedisStorage      `koanf:"redis" validate:"required_without_all=FilesystemStorage"`
 	StorageProvider StorageProvider `koanf:"storageProvider" validate:"required"`
-	// REVIEW add Read as default, does it get overriden when config is loaded from file
 	Read            Read            `koanf:"read" validate:"required"`
 	Server          string          `koanf:"server" validate:"required,http_url"`
 	RequestMatching RequestMatching `koanf:"requestMatching"`
@@ -17,13 +13,9 @@ type StorageProvider struct {
 	Regenerate       bool             `koanf:"regenerate"`
 	FilesystemConfig FilesystemConfig `koanf:"filesystemConfig" validate:"required_if=Type filesystem,omitempty"`
 	RedisConfig      RedisConfig      `koanf:"redisConfig" validate:"required_if=Type redis,omitempty"`
-	// Folder   string `koanf:"folder" validate:"required_if=Type filesystem"`
-	// Format   string `koanf:"format" validate:"required_if=Type filesystem,oneof=json"`
-	// Database string `koanf:"database" validate:"required_if=Type redis"`
 }
 
 type FilesystemConfig struct {
-	// REVIEW validate:"dirpath" demands existing folder
 	Folder           string `koanf:"folder" validate:"required"`
 	RegenerateFolder string `koanf:"regenerateFolder"`
 	Format           string `koanf:"format" validate:"required,oneof=json"`
@@ -33,26 +25,8 @@ type RedisConfig struct {
 	Database string `koanf:"database" validate:"required"`
 }
 
-// type FilesystemStorage struct {
-// 	// REVIEW validate:"dirpath" demands existing folder
-// 	Folder string `koanf:"folder" validate:"required"`
-// 	Format string `koanf:"format" validate:"required,oneof=json"`
-// }
-
-// type RedisStorage struct {
-// 	// REVIEW do allowed database names consist of alphanum characters only ?
-// 	Database int `koanf:"db" validate:"required"`
-// }
-
 type Read struct {
-	// no need to validate as "required" since the default boolean values are set
-	Enabled bool `koanf:"enabled" validate:"boolean"`
-	// REVIEW prepare command ??? that will validate config and return warning in case Read.Enable: true and Read.FailOnError: true
-	// when Read.FailOnError: true the app returns 500 internal error:
-	// - if record is not found in storage
-	// - if file can't be opened
-	// - if file can't be read
-	// - if record can't be unmarshaled in PrepareResponse
+	Enabled     bool `koanf:"enabled" validate:"boolean"`
 	FailOnError bool `koanf:"failOnError" validate:"boolean"`
 }
 
