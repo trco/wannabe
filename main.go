@@ -11,7 +11,7 @@ import (
 
 func main() {
 	// TODO read config path from env variable
-	config, err := config.Load("config.json")
+	config, err := config.LoadConfig("config.json")
 	if err != nil {
 		log.Fatalf("fatal error starting app: %v", err)
 	}

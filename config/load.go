@@ -9,17 +9,17 @@ import (
 	"github.com/knadh/koanf/providers/file"
 )
 
-func Load(configFilepath string) (Config, error) {
+func LoadConfig(configFilepath string) (Config, error) {
 	config := setConfigDefaults()
 
 	config, err := loadConfigFromFile(configFilepath, config)
 	if err != nil {
-		return Config{}, fmt.Errorf("Load: failed loading config: %v", err)
+		return Config{}, fmt.Errorf("failed loading config: %v", err)
 	}
 
 	err = validateConfig(config)
 	if err != nil {
-		return Config{}, fmt.Errorf("Load: failed validating config: %v", err)
+		return Config{}, fmt.Errorf("failed validating config: %v", err)
 	}
 
 	return config, nil
