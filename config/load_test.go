@@ -8,57 +8,20 @@ import (
 	"testing"
 )
 
-func testConfig() Config {
-	zero := 0
-	return Config{
-		StorageProvider: StorageProvider{
-			Type:       "filesystem",
-			Regenerate: false,
-			FilesystemConfig: FilesystemConfig{
-				Folder:           "records",
-				RegenerateFolder: "",
-				Format:           "json",
-			},
-		},
-		Read: Read{
-			Enabled:     true,
-			FailOnError: true,
-		},
-		Server: "https://analyticsdata.googleapis.com",
-		RequestMatching: RequestMatching{
-			Host: Host{
-				Wildcards: []WildcardIndex{
-					{Index: &zero, Placeholder: "{placeholder}"},
-				},
-			},
-			Query: Query{
-				Wildcards: []WildcardKey{
-					{Key: "status", Placeholder: "{placeholder}"},
-				},
-				Regexes: []Regex{
-					{Pattern: "app=1", Placeholder: "app=123"},
-				},
-			},
-		},
-	}
-}
-
-func TestLoad(t *testing.T) {
+func TestLoadConfig(t *testing.T) {
 	configFilepath, _ := createTestConfigFile("config.json")
 
-	config, _ := Load(configFilepath)
+	config, _ := LoadConfig(configFilepath)
 
-	expectedConfig := testConfig()
-
-	if !reflect.DeepEqual(expectedConfig, config) {
-		t.Errorf("Expected config: %v, Actual config: %v", expectedConfig, config)
+	if !reflect.DeepEqual(testConfig, config) {
+		t.Errorf("expected config: %v, actual config: %v", testConfig, config)
 	}
 }
 
 func TestSetConfigDefaults(t *testing.T) {
 	config := setConfigDefaults()
 
-	expectedConfig := Config{
+	defaultConfig := Config{
 		StorageProvider: StorageProvider{
 			Type:       "filesystem",
 			Regenerate: false,
@@ -74,37 +37,37 @@ func TestSetConfigDefaults(t *testing.T) {
 		},
 	}
 
-	if !reflect.DeepEqual(expectedConfig, config) {
-		t.Errorf("Expected config: %v, Actual config: %v", expectedConfig, config)
+	if !reflect.DeepEqual(defaultConfig, config) {
+		t.Errorf("expected config: %v, actual config: %v", defaultConfig, config)
 	}
 }
 
 func TestLoadConfigFromFile(t *testing.T) {
 	// load config from non-existing config.json
 	configWithDefaults := setConfigDefaults()
+
 	_, err := loadConfigFromFile("config.json", configWithDefaults)
-
 	if err == nil {
-		t.Errorf("Loading of config from non-existing file did not throw error.")
+		t.Errorf("loading of config from non-existing file did not throw error")
 	}
-
-	configFilepath, _ := createTestConfigFile("config.json")
 
 	// load config from existing config.json
+	configFilepath, _ := createTestConfigFile("config.json")
+	defer os.Remove(configFilepath)
+
 	config, err := loadConfigFromFile(configFilepath, configWithDefaults)
 
-	expectedConfig := testConfig()
-
 	if err != nil {
-		t.Errorf("Loading of config from existing config.json failed.")
+		t.Errorf("loading of config from existing config.json failed")
 	}
 
-	if !reflect.DeepEqual(expectedConfig, config) {
-		t.Errorf("Expected config: %v, Actual config: %v", expectedConfig, config)
+	if !reflect.DeepEqual(testConfig, config) {
+		t.Errorf("expected config: %v, actual config: %v", testConfig, config)
 	}
 }
 
 func TestValidateConfig(t *testing.T) {
+	// invalid config
 	invalidConfig := Config{
 		StorageProvider: StorageProvider{
 			Type:       "filesystem",
@@ -119,67 +82,89 @@ func TestValidateConfig(t *testing.T) {
 
 	err := validateConfig(invalidConfig)
 	if err == nil {
-		t.Errorf("Invalid config validated as valid.")
+		t.Errorf("invalid config validated as valid")
 	}
 
-	validConfig := testConfig()
+	// invalid config failing on custom validation
+	invalidConfig = testConfig
+	invalidConfig.RequestMatching = RequestMatching{
+		Headers: Headers{
+			Include: []string{"Authorization"},
+		},
+	}
 
-	err = validateConfig(validConfig)
+	expectedErr := "Key: 'Config.RequestMatching.Headers.Include' Error:Field validation for 'Include' failed on the 'the_same_header_defined_in_records_headers_exclude' tag"
+	err = validateConfig(invalidConfig)
+
+	if err.Error() != expectedErr {
+		t.Errorf("expected error: %s, actual error: %s", expectedErr, err.Error())
+	}
+
+	// valid config
+	err = validateConfig(testConfig)
 	if err != nil {
-		t.Errorf("Valid config validated as invalid.")
+		t.Errorf("valid config validated as invalid")
 	}
+
+}
+
+// reusable variables and methods
+
+var zero = 0
+var testConfig = Config{
+	StorageProvider: StorageProvider{
+		Type:       "filesystem",
+		Regenerate: false,
+		FilesystemConfig: FilesystemConfig{
+			Folder:           "records",
+			RegenerateFolder: "",
+			Format:           "json",
+		},
+	},
+	Read: Read{
+		Enabled:     true,
+		FailOnError: true,
+	},
+	Server: "https://analyticsdata.googleapis.com",
+	RequestMatching: RequestMatching{
+		Host: Host{
+			Wildcards: []WildcardIndex{
+				{Index: &zero, Placeholder: "{placeholder}"},
+			},
+		},
+		Query: Query{
+			Wildcards: []WildcardKey{
+				{Key: "status", Placeholder: "{placeholder}"},
+			},
+			Regexes: []Regex{
+				{Pattern: "app=1", Placeholder: "app=123"},
+			},
+		},
+	},
+	Records: Records{
+		Headers: HeadersToExclude{
+			Exclude: []string{"Authorization"},
+		},
+	},
 }
 
 func createTestConfigFile(filename string) (string, error) {
 	tempFile, err := os.CreateTemp("", filename)
 	if err != nil {
-		fmt.Println("Error creating temporary config.json file:", err)
+		fmt.Println("error creating temporary config.json file:", err)
 		return "", err
 	}
 	defer tempFile.Close()
 
-	zero := 0
-	config := Config{
-		StorageProvider: StorageProvider{
-			Type:       "filesystem",
-			Regenerate: false,
-			FilesystemConfig: FilesystemConfig{
-				Folder:           "records",
-				RegenerateFolder: "",
-				Format:           "json",
-			},
-		},
-		Read: Read{
-			Enabled:     true,
-			FailOnError: true,
-		},
-		Server: "https://analyticsdata.googleapis.com",
-		RequestMatching: RequestMatching{
-			Host: Host{
-				Wildcards: []WildcardIndex{
-					{Index: &zero, Placeholder: "{placeholder}"},
-				},
-			},
-			Query: Query{
-				Wildcards: []WildcardKey{
-					{Key: "status", Placeholder: "{placeholder}"},
-				},
-				Regexes: []Regex{
-					{Pattern: "app=1", Placeholder: "app=123"},
-				},
-			},
-		},
-	}
-
-	jsonData, err := json.Marshal(config)
+	jsonData, err := json.Marshal(testConfig)
 	if err != nil {
-		fmt.Println("Error encoding config to json:", err)
+		fmt.Println("error encoding config to json:", err)
 		return "", err
 	}
 
 	err = os.WriteFile(tempFile.Name(), jsonData, 0644)
 	if err != nil {
-		fmt.Println("Error writing config json to temporary config.json file:", err)
+		fmt.Println("error writing config json to temporary config.json file:", err)
 		return "", nil
 	}
 
