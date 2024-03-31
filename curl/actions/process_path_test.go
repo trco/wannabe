@@ -44,10 +44,27 @@ func TestProcessPath(t *testing.T) {
 			},
 			Expected: "",
 		},
+		"invalidRegex": {
+			Path: "/v1beta/properties/375748157:runReport",
+			Config: config.Path{
+				Regexes: []config.Regex{{Pattern: "(?P<foo"}},
+			},
+			Expected: "",
+		},
 	}
 
 	for testKey, tc := range testCases {
-		processedPath, _ := ProcessPath(tc.Path, tc.Config)
+		processedPath, err := ProcessPath(tc.Path, tc.Config)
+
+		if testKey == "invalidRegex" && err != nil {
+			expectedErr := "ProcessPath: failed compiling regex: error parsing regexp: invalid named capture: `(?P<foo`"
+
+			if err.Error() != expectedErr {
+				t.Errorf("expected error: %s, actual error: %s", expectedErr, err.Error())
+			}
+
+			continue
+		}
 
 		if !reflect.DeepEqual(tc.Expected, processedPath) {
 			t.Errorf("Failed test case: %v, Expected: %v, Actual: %v", testKey, tc.Expected, processedPath)

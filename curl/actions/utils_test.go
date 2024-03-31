@@ -48,7 +48,7 @@ func TestSetWildcardsByIndex(t *testing.T) {
 		setWildcardsByIndex(tc.Slice, tc.Wildcards)
 
 		if !reflect.DeepEqual(tc.Expected, tc.Slice) {
-			t.Errorf("Failed test case: %v, Expected: %v, Actual: %v", testKey, tc.Expected, tc.Slice)
+			t.Errorf("failed test case: %v, expected slice: %v, actual slice: %v", testKey, tc.Expected, tc.Slice)
 		}
 	}
 }
@@ -103,7 +103,7 @@ func TestSetWildcardsByKey(t *testing.T) {
 		setWildcardsByKey(tc.Map, tc.Wildcards)
 
 		if !reflect.DeepEqual(tc.Expected, tc.Map) {
-			t.Errorf("Failed test case: %v, Expected: %v, Actual: %v", testKey, tc.Expected, tc.Map)
+			t.Errorf("failed test case: %v, expected map: %v, actual map: %v", testKey, tc.Expected, tc.Map)
 		}
 	}
 }
@@ -134,7 +134,7 @@ func TestSetPlaceholderByIndex(t *testing.T) {
 		setPlaceholderByIndex(tc.Slice, tc.Wildcards)
 
 		if !reflect.DeepEqual(tc.Expected, tc.Slice) {
-			t.Errorf("Failed test case: %v, Expected: %v, Actual: %v", testKey, tc.Expected, tc.Slice)
+			t.Errorf("failed test case: %v, expected slice: %v, actual slice: %v", testKey, tc.Expected, tc.Slice)
 		}
 	}
 }
@@ -169,7 +169,7 @@ func TestSetPlaceholderByKey(t *testing.T) {
 		setPlaceholderByKey(tc.Map, tc.Wildcard)
 
 		if !reflect.DeepEqual(tc.Expected, tc.Map) {
-			t.Errorf("Failed test case: %v, Expected: %v, Actual: %v", testKey, tc.Expected, tc.Map)
+			t.Errorf("failed test case: %v, expected map: %v, actual map: %v", testKey, tc.Expected, tc.Map)
 		}
 	}
 }
@@ -203,7 +203,7 @@ func TestReplaceRegexPatterns(t *testing.T) {
 		processedString, _ := replaceRegexPatterns(tc.String, tc.Regexes)
 
 		if processedString != tc.Expected {
-			t.Errorf("Failed test case: %v, Expected: %v, Actual: %v", testKey, tc.Expected, processedString)
+			t.Errorf("failed test case: %v, expected string: %v, actual string: %v", testKey, tc.Expected, processedString)
 		}
 	}
 }
@@ -214,7 +214,7 @@ func TestBuildQuery(t *testing.T) {
 	expected := "?appId=test&status=test"
 
 	if rebuiltQuery != expected {
-		t.Errorf("Expected: %s, Actual: %s", expected, rebuiltQuery)
+		t.Errorf("expected query: %s, actual query: %s", expected, rebuiltQuery)
 	}
 }
 
@@ -272,7 +272,7 @@ func TestFilterHeadersToInclude(t *testing.T) {
 		headers := filterHeadersToInclude(tc.Map, tc.Include)
 
 		if !reflect.DeepEqual(tc.Expected, headers) {
-			t.Errorf("Failed test case: %v, Expected: %v, Actual: %v", testName, tc.Expected, headers)
+			t.Errorf("failed test case: %v, expected headers: %v, actual headers: %v", testName, tc.Expected, headers)
 		}
 	}
 }
@@ -313,11 +313,11 @@ func TestHeadersMapToSlice(t *testing.T) {
 		sortedSlice := sortHeaderSlice(headers)
 
 		if testName == "emptyHeadersMap" && !(len(tc.Map) == 0 && len(sortedSlice) == 0) {
-			t.Errorf("Failed test case: %v, Expected: %v, Actual: %v", testName, tc.Expected, sortedSlice)
+			t.Errorf("failed test case: %v, expected slice: %v, actual slice: %v", testName, tc.Expected, sortedSlice)
 		}
 
 		if testName != "emptyHeadersMap" && !reflect.DeepEqual(tc.Expected, sortedSlice) {
-			t.Errorf("Failed test case: %v, Expected: %v, Actual: %v", testName, tc.Expected, sortedSlice)
+			t.Errorf("failed test case: %v, expected slice: %v, actual slice: %v", testName, tc.Expected, sortedSlice)
 		}
 	}
 }
@@ -353,7 +353,7 @@ func TestSortHeaderSlice(t *testing.T) {
 		sortedSlice := sortHeaderSlice(tc.Slice)
 
 		if !reflect.DeepEqual(tc.Expected, sortedSlice) {
-			t.Errorf("Failed test case: %v, Expected: %v, Actual: %v", testName, tc.Expected, sortedSlice)
+			t.Errorf("failed test case: %v, expected slice: %v, actual slice: %v", testName, tc.Expected, sortedSlice)
 		}
 	}
 }
@@ -361,23 +361,23 @@ func TestSortHeaderSlice(t *testing.T) {
 func TestIsIndexOutOfBounds(t *testing.T) {
 	indexOutOfBounds := isIndexOutOfBounds(testSlice(), 1)
 	if indexOutOfBounds {
-		t.Errorf("Invalid. Index out of bounds although it's not.")
+		t.Errorf("index out of bounds although it's not")
 	}
 
 	indexOutOfBounds = isIndexOutOfBounds(testSlice(), 5)
 	if !indexOutOfBounds {
-		t.Errorf("Invalid. Index within the bounds although it's not.")
+		t.Errorf("index within the bounds although it's not")
 	}
 }
 
 func TestKeyExists(t *testing.T) {
 	exists := keyExists(testMap(), "status")
 	if !exists {
-		t.Errorf("Invalid. Key doesn't exist, but it should exists.")
+		t.Errorf("key doesn't exist, but it should exists")
 	}
 
 	exists = keyExists(testMap(), "test")
 	if exists {
-		t.Errorf("Invalid. Key exists, but it shouldn't.")
+		t.Errorf("key exists, but it shouldn't")
 	}
 }

@@ -9,6 +9,6 @@ func TestProcessHttpMethod(t *testing.T) {
 	expected := "GET"
 
 	if httpMethod != expected {
-		t.Errorf("Expected: %s, Actual: %s", expected, httpMethod)
+		t.Errorf("expected http method: %s, actual http method: %s", expected, httpMethod)
 	}
 }

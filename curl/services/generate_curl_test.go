@@ -36,6 +36,6 @@ func TestGenerateCurl(t *testing.T) {
 	curl, _ := GenerateCurl(testConfigA, curlPayload)
 
 	if !reflect.DeepEqual(expcetedCurl, curl) {
-		t.Errorf("Expected curl: %v, Actual curl: %v", expcetedCurl, curl)
+		t.Errorf("expected curl: %v, actual curl: %v", expcetedCurl, curl)
 	}
 }

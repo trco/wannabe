@@ -45,13 +45,30 @@ func TestProcessHost(t *testing.T) {
 			},
 			Expected: "{placeholder}.regexPlaceholder.com",
 		},
+		"invalidRegex": {
+			Host: "https://analyticsdata.googleapis.com",
+			Config: config.Host{
+				Regexes: []config.Regex{{Pattern: "(?P<foo", Placeholder: "regexPlaceholder"}},
+			},
+			Expected: "",
+		},
 	}
 
 	for testKey, tc := range testCases {
-		processedHost, _ := ProcessHost(tc.Host, tc.Config)
+		processedHost, err := ProcessHost(tc.Host, tc.Config)
+
+		if testKey == "invalidRegex" && err != nil {
+			expectedErr := "ProcessHost: failed compiling regex: error parsing regexp: invalid named capture: `(?P<foo`"
+
+			if err.Error() != expectedErr {
+				t.Errorf("expected error: %s, actual error: %s", expectedErr, err.Error())
+			}
+
+			continue
+		}
 
 		if !reflect.DeepEqual(tc.Expected, processedHost) {
-			t.Errorf("Failed test case: %v, Expected: %v, Actual: %v", testKey, tc.Expected, processedHost)
+			t.Errorf("failed test case: %v, expected host: %v, actual host: %v", testKey, tc.Expected, processedHost)
 		}
 	}
 }

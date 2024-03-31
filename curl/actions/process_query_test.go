@@ -12,36 +12,28 @@ type TestCaseProcessQuery struct {
 	Expected string
 }
 
-func testMapQuery() map[string]string {
-	return map[string]string{
-		"status": "new",
-		"user":   "paid",
-		"app":    "1",
-	}
-}
-
 func TestProcessQuery(t *testing.T) {
 	testCases := map[string]TestCaseProcessQuery{
 		"withPlaceholder": {
-			Query: testMapQuery(),
+			Query: testMapQuery,
 			Config: config.Query{
 				Wildcards: []config.WildcardKey{{Key: "user", Placeholder: "{placeholder}"}},
 			},
 			Expected: "?app=1&status=new&user=%7Bplaceholder%7D",
 		},
 		"withoutPlaceholder": {
-			Query: testMapQuery(),
+			Query: testMapQuery,
 			Config: config.Query{
 				Wildcards: []config.WildcardKey{{Key: "user"}},
 			},
 			Expected: "?app=1&status=new&user=%7Bwannabe%7D",
 		},
 		"withRegex": {
-			Query: testMapQuery(),
+			Query: testMapQuery,
 			Config: config.Query{
 				Regexes: []config.Regex{{Pattern: "app=1", Placeholder: "app=123"}},
 			},
-			Expected: "?app=123&status=new&user=paid",
+			Expected: "?app=123&status=new&user=%7Bwannabe%7D",
 		},
 		"emptyString": {
 			Query: make(map[string]string),
@@ -50,13 +42,38 @@ func TestProcessQuery(t *testing.T) {
 			},
 			Expected: "",
 		},
+		"invalidRegex": {
+			Query: testMapQuery,
+			Config: config.Query{
+				Regexes: []config.Regex{{Pattern: "(?P<foo"}},
+			},
+			Expected: "",
+		},
 	}
 
 	for testKey, tc := range testCases {
-		processedQuery, _ := ProcessQuery(tc.Query, tc.Config)
+		processedQuery, err := ProcessQuery(tc.Query, tc.Config)
+
+		if testKey == "invalidRegex" && err != nil {
+			expectedErr := "ProcessQuery: failed compiling regex: error parsing regexp: invalid named capture: `(?P<foo`"
+
+			if err.Error() != expectedErr {
+				t.Errorf("expected error: %s, actual error: %s", expectedErr, err.Error())
+			}
+
+			continue
+		}
 
 		if !reflect.DeepEqual(tc.Expected, processedQuery) {
-			t.Errorf("Failed test case: %v, Expected: %v, Actual: %v", testKey, tc.Expected, processedQuery)
+			t.Errorf("failed test case: %v, expected query: %v, actual query: %v", testKey, tc.Expected, processedQuery)
 		}
 	}
+}
+
+// reusable variables
+
+var testMapQuery = map[string]string{
+	"status": "new",
+	"user":   "paid",
+	"app":    "1",
 }

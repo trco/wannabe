@@ -12,6 +12,6 @@ func TestPrepareUrl(t *testing.T) {
 	expectedUrl := "analyticsdata.googleapis.com/v1beta/properties/{propertyId}:runReport?app=1&status=new&user=%7Bplaceholder%7D"
 
 	if expectedUrl != url {
-		t.Errorf("Expected url: %s, Actual url: %s", expectedUrl, url)
+		t.Errorf("expected url: %s, actual url: %s", expectedUrl, url)
 	}
 }

@@ -63,11 +63,11 @@ func TestProcessHeaders(t *testing.T) {
 		sortedHeaders := ProcessHeaders(tc.Map, tc.Config)
 
 		if testKey == "emptyHeadersMap" && !(len(tc.Map) == 0 && len(sortedHeaders) == 0) {
-			t.Errorf("Failed test case: %v, Expected: %v, Actual: %v", testKey, tc.Expected, sortedHeaders)
+			t.Errorf("failed test case: %v, expected headers: %v, actual headers: %v", testKey, tc.Expected, sortedHeaders)
 		}
 
 		if testKey != "emptyHeadersMap" && !reflect.DeepEqual(tc.Expected, sortedHeaders) {
-			t.Errorf("Failed test case: %v, Expected: %v, Actual: %v", testKey, tc.Expected, sortedHeaders)
+			t.Errorf("failed test case: %v, expected headers: %v, actual headers: %v", testKey, tc.Expected, sortedHeaders)
 		}
 	}
 }

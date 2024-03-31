@@ -13,16 +13,16 @@ func TestPrepareRequest(t *testing.T) {
 	request, _ := PrepareRequest(httpMethod, url, body)
 
 	if request.Method != httpMethod {
-		t.Errorf("Expected httpMethod: %s, Actual httpMethod: %s", httpMethod, request.Method)
+		t.Errorf("expected httpMethod: %s, actual httpMethod: %s", httpMethod, request.Method)
 	}
 
 	if request.URL.String() != url {
-		t.Errorf("Expected url: %s, Actual url: %s", url, request.URL)
+		t.Errorf("expected url: %s, actual url: %s", url, request.URL)
 	}
 
 	requestBody, _ := io.ReadAll(request.Body)
 
 	if string(requestBody) != body {
-		t.Errorf("Expected body: %s, Actual body: %s", body, string(requestBody))
+		t.Errorf("expected body: %s, actual body: %s", body, string(requestBody))
 	}
 }
