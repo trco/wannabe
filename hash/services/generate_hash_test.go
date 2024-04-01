@@ -12,6 +12,6 @@ func TestGenerateHash(t *testing.T) {
 	expectedHash := "598532c061134aa3e816350fa27298931b72f80117541555edc1f0ad77d67566"
 
 	if hash != expectedHash {
-		t.Errorf("Expected hash: %s, Actual hash: %s", expectedHash, hash)
+		t.Errorf("expected hash: %s, actual hash: %s", expectedHash, hash)
 	}
 }
