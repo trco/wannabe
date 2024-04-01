@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"reflect"
 	"testing"
 
@@ -49,8 +48,6 @@ func TestCheckDuplicates(t *testing.T) {
 
 	// no duplicates
 	duplicatesExist = checkDuplicates(slice, "d")
-
-	fmt.Println(duplicatesExist)
 
 	if duplicatesExist == true {
 		t.Errorf("duplicates detected although they are not present")
