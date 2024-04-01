@@ -51,27 +51,27 @@ func TestSetResponse(t *testing.T) {
 		"test": "test",
 	}
 
-	// Invalid record
+	// invalid record
 	err := SetResponse(ctx, []byte{53})
 	if err == nil {
-		t.Errorf("Invalid record didn't return error.")
+		t.Errorf("invalid record didn't return error.")
 	}
 
-	// Valid record
+	// valid record
 	_ = SetResponse(ctx, record)
 
 	if !reflect.DeepEqual(expectedStatusCode, ctx.Response().StatusCode()) {
-		t.Errorf("Expected status code: %v, Actual status code: %v", expectedStatusCode, ctx.Response().StatusCode())
+		t.Errorf("expected status code: %v, actual status code: %v", expectedStatusCode, ctx.Response().StatusCode())
 	}
 
 	if !reflect.DeepEqual(expectedResponseHeaders, ctx.GetRespHeaders()) {
-		t.Errorf("Expected response headers: %v, Actual response headers: %v", expectedResponseHeaders, ctx.GetRespHeaders())
+		t.Errorf("expected response headers: %v, actual response headers: %v", expectedResponseHeaders, ctx.GetRespHeaders())
 	}
 
 	var responseBody map[string]interface{}
 	json.Unmarshal(ctx.Response().Body(), &responseBody)
 
 	if !reflect.DeepEqual(expectedResponseBody, responseBody) {
-		t.Errorf("Expected response body: %v, Actual response body: %v", expectedResponseBody, responseBody)
+		t.Errorf("expected response body: %v, actual response body: %v", expectedResponseBody, responseBody)
 	}
 }

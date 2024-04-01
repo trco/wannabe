@@ -25,7 +25,7 @@ func TestFetchResponse(t *testing.T) {
 	// invalid testServer.URL
 	err := FetchResponse(ctx, "invalidUrl")
 	if err == nil {
-		t.Errorf("Invalid url didn't return error.")
+		t.Errorf("invalid url didn't return error.")
 	}
 
 	// valid testServer.URL
@@ -37,18 +37,18 @@ func TestFetchResponse(t *testing.T) {
 	expectedResponseBody := []byte{84, 101, 115, 116, 10}
 
 	if !reflect.DeepEqual(expectedStatusCode, ctx.Response().StatusCode()) {
-		t.Errorf("Expected status code: %v, Actual status code: %v", expectedStatusCode, ctx.Response().StatusCode())
+		t.Errorf("expected status code: %v, actual status code: %v", expectedStatusCode, ctx.Response().StatusCode())
 	}
 
 	if !reflect.DeepEqual(expectedResponseHeaderContentType, ctx.GetRespHeader("Content-Type")) {
-		t.Errorf("Expected response header Content-Type: %v, Actual response header Content-Type: %v", expectedResponseHeaderContentType, ctx.GetRespHeader("Content-Type"))
+		t.Errorf("expected response header Content-Type: %v, actual response header Content-Type: %v", expectedResponseHeaderContentType, ctx.GetRespHeader("Content-Type"))
 	}
 
 	if !reflect.DeepEqual(expectedResponseHeaderAccept, ctx.GetRespHeader("Accept")) {
-		t.Errorf("Expected response header Accept: %v, Actual response header Accept: %v", expectedResponseHeaderAccept, ctx.GetRespHeader("Accept"))
+		t.Errorf("expected response header Accept: %v, actual response header Accept: %v", expectedResponseHeaderAccept, ctx.GetRespHeader("Accept"))
 	}
 
 	if !reflect.DeepEqual(expectedResponseBody, ctx.Response().Body()) {
-		t.Errorf("Expected response body: %v, Actual response body: %v", expectedResponseBody, string(ctx.Response().Body()))
+		t.Errorf("expected response body: %v, actual response body: %v", expectedResponseBody, string(ctx.Response().Body()))
 	}
 }
