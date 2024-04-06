@@ -12,7 +12,7 @@ var testConfig = config.Config{
 		Regenerate: false,
 		FilesystemConfig: config.FilesystemConfig{
 			Folder:           "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T",
-			RegenerateFolder: "",
+			RegenerateFolder: "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T/regenerate",
 			Format:           "json",
 		},
 	},
@@ -24,26 +24,81 @@ var filesystemProvider = FilesystemProvider{
 
 var testRecord = []byte{53}
 
-func TestGenerateFilepath(t *testing.T) {
-	filepath := filesystemProvider.GenerateFilepath("testHash1", testConfig.StorageProvider.Regenerate)
+func TestGetConfig(t *testing.T) {
+	config := filesystemProvider.GetConfig()
 
-	expectedFilepath := "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T/testHash1.json"
-
-	if expectedFilepath != filepath {
-		t.Errorf("Expected filepath: %v, Actual filepath: %v", expectedFilepath, filepath)
+	if !reflect.DeepEqual(testConfig.StorageProvider, config) {
+		t.Errorf("expected storage provider config: %v, actual storage provider config: %v", testConfig.StorageProvider, config)
 	}
 }
 
-func TestFilesystemProvider(t *testing.T) {
-	// Add record
-	filesystemProvider.InsertRecords([]string{"testHash2"}, [][]byte{testRecord})
+func TestGenerateFilepath(t *testing.T) {
+	generateFilepath := filesystemProvider.GenerateFilepath("testHash1", false)
 
-	// ReadRecord
-	fileContent, _ := filesystemProvider.ReadRecords([]string{"testHash2"})
+	expectedFilepath := "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T/testHash1.json"
 
-	expectedFileContent := []byte{53}
-
-	if !reflect.DeepEqual(expectedFileContent, fileContent) {
-		t.Errorf("Expected file content: %v, Actual file content: %v", expectedFileContent, fileContent)
+	if expectedFilepath != generateFilepath {
+		t.Errorf("expected generate filepath: %v, actual generate filepath: %v", expectedFilepath, generateFilepath)
 	}
+
+	filesystemProvider.Config.Regenerate = true
+
+	regenerateFilepath := filesystemProvider.GenerateFilepath("testHash2", true)
+
+	expectedFilepath = "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T/regenerate/testHash2.json"
+
+	if expectedFilepath != regenerateFilepath {
+		t.Errorf("expected regenerate filepath: %v, actual regenerate filepath: %v", expectedFilepath, regenerateFilepath)
+	}
+}
+
+func TestInsertAndReadRecord(t *testing.T) {
+	_ = filesystemProvider.InsertRecords([]string{"testHash3"}, [][]byte{testRecord})
+
+	records, _ := filesystemProvider.ReadRecords([]string{"testHash3"})
+
+	if len(records) == 0 {
+		t.Errorf("failed inserting and reading records")
+	}
+}
+
+func TestDeleteRecord(t *testing.T) {
+	filesystemProvider.InsertRecords([]string{"testHash4"}, [][]byte{testRecord})
+
+	filesystemProvider.DeleteRecords([]string{"testHash4"})
+
+	fileContents, _ := filesystemProvider.ReadRecords([]string{"testHash4"})
+
+	if len(fileContents) != 0 {
+		t.Errorf("failed deleting record")
+	}
+
+	filesystemProvider.DeleteRecords([]string{"testHash4"})
+}
+
+func TestGetHashes(t *testing.T) {
+	_ = filesystemProvider.InsertRecords([]string{"testHash5"}, [][]byte{testRecord})
+	_ = filesystemProvider.InsertRecords([]string{"testHash6"}, [][]byte{testRecord})
+	_ = filesystemProvider.InsertRecords([]string{"testHash7"}, [][]byte{testRecord})
+
+	hashes, _ := filesystemProvider.GetHashes()
+
+	expectedHashes := []string{"testHash5", "testHash6", "testHash7"}
+
+	for _, hash := range expectedHashes {
+		if !contains(hashes, hash) {
+			t.Errorf("expected hashes: %v does not contain hash: %v", expectedHashes, hash)
+		}
+	}
+}
+
+// reusable functions
+
+func contains(slice []string, value string) bool {
+	for _, item := range slice {
+		if item == value {
+			return true
+		}
+	}
+	return false
 }

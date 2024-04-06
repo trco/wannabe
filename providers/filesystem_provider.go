@@ -22,9 +22,11 @@ func (fsp FilesystemProvider) CreateFolders() error {
 		return err
 	}
 
-	err = os.Mkdir(fsp.Config.FilesystemConfig.RegenerateFolder, 0750)
-	if err != nil && !os.IsExist(err) {
-		return err
+	if fsp.Config.Regenerate {
+		err = os.Mkdir(fsp.Config.FilesystemConfig.RegenerateFolder, 0750)
+		if err != nil && !os.IsExist(err) {
+			return err
+		}
 	}
 
 	return nil

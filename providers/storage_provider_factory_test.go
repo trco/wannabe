@@ -13,13 +13,13 @@ func TestStorageProviderFactory(t *testing.T) {
 
 	_, err := StorageProviderFactory(configInvalid)
 	if err == nil {
-		t.Errorf("Generation of storage provider with invalid config did not throw error.")
+		t.Errorf("generation of storage provider with invalid config did not throw error")
 	}
 
 	configFilesystem := config.StorageProvider{
 		Type: "filesystem",
 		FilesystemConfig: config.FilesystemConfig{
-			Folder:           "records",
+			Folder:           "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T",
 			RegenerateFolder: "",
 			Format:           "json",
 		},
@@ -31,7 +31,26 @@ func TestStorageProviderFactory(t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(expectedFilesystemProvider, storageProvider) {
-		t.Errorf("Expected storage provider: %v, Actual storage provider: %v", expectedFilesystemProvider, storageProvider)
+		t.Errorf("expected storage provider: %v, actual storage provider: %v", expectedFilesystemProvider, storageProvider)
+	}
+
+	configRegenerate := config.StorageProvider{
+		Type:       "filesystem",
+		Regenerate: true,
+		FilesystemConfig: config.FilesystemConfig{
+			Folder:           "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T",
+			RegenerateFolder: "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T/regenerate",
+			Format:           "json",
+		},
+	}
+
+	storageProvider, _ = StorageProviderFactory(configRegenerate)
+	expectedRegenerateProvider := FilesystemProvider{
+		Config: configRegenerate,
+	}
+
+	if !reflect.DeepEqual(expectedRegenerateProvider, storageProvider) {
+		t.Errorf("expected storage provider: %v, actual storage provider: %v", expectedRegenerateProvider, storageProvider)
 	}
 
 	configRedis := config.StorageProvider{
@@ -45,6 +64,6 @@ func TestStorageProviderFactory(t *testing.T) {
 	expectedRedisProvider := RedisProvider{}
 
 	if !reflect.DeepEqual(expectedRedisProvider, storageProvider) {
-		t.Errorf("Expected storage provider: %v, Actual storage provider: %v", expectedRedisProvider, storageProvider)
+		t.Errorf("expected storage provider: %v, actual storage provider: %v", expectedRedisProvider, storageProvider)
 	}
 }
