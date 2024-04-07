@@ -39,8 +39,9 @@ func Regenerate(config config.Config, storageProvider providers.StorageProvider)
 		for _, encodedRecord := range records {
 			var record recordEntities.Record
 
-			err := json.Unmarshal(encodedRecord, &record)
 			oldHash := record.Request.Hash
+
+			err := json.Unmarshal(encodedRecord, &record)
 			if err != nil {
 				failedCount++
 				failedHashes = append(failedHashes, oldHash)
