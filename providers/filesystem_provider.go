@@ -12,10 +12,6 @@ type FilesystemProvider struct {
 	Config config.StorageProvider
 }
 
-func (fsp FilesystemProvider) GetConfig() config.StorageProvider {
-	return fsp.Config
-}
-
 func (fsp FilesystemProvider) CreateFolders() error {
 	err := os.Mkdir(fsp.Config.FilesystemConfig.Folder, 0750)
 	if err != nil && !os.IsExist(err) {
@@ -38,7 +34,7 @@ func (fsp FilesystemProvider) ReadRecords(hashes []string) ([][]byte, error) {
 
 	// TODO all or nothing ?
 	for _, hash := range hashes {
-		filepath := fsp.GenerateFilepath(hash, false)
+		filepath := fsp.generateFilepath(hash)
 
 		_, err := os.Stat(filepath)
 		if err != nil {
@@ -66,7 +62,7 @@ func (fsp FilesystemProvider) ReadRecords(hashes []string) ([][]byte, error) {
 func (fsp FilesystemProvider) InsertRecords(hashes []string, records [][]byte) error {
 	// TODO all or nothing ?
 	for index, record := range records {
-		filepath := fsp.GenerateFilepath(hashes[index], true)
+		filepath := fsp.generateFilepath(hashes[index])
 
 		_, err := os.Create(filepath)
 		if err != nil {
@@ -85,7 +81,7 @@ func (fsp FilesystemProvider) InsertRecords(hashes []string, records [][]byte) e
 // TODO ? bulk delete using goroutines and channels
 func (fsp FilesystemProvider) DeleteRecords(hashes []string) error {
 	for _, hash := range hashes {
-		filepath := fsp.GenerateFilepath(hash, false)
+		filepath := fsp.generateFilepath(hash)
 
 		err := os.Remove(filepath)
 		if err != nil {
@@ -97,7 +93,7 @@ func (fsp FilesystemProvider) DeleteRecords(hashes []string) error {
 }
 
 func (fsp FilesystemProvider) GetHashes() ([]string, error) {
-	folder := fsp.Config.FilesystemConfig.Folder
+	folder := fsp.getFolder()
 
 	files, err := os.ReadDir(folder)
 	if err != nil {
@@ -120,12 +116,20 @@ func (fsp FilesystemProvider) GetHashes() ([]string, error) {
 	return hashes, nil
 }
 
-func (fsp FilesystemProvider) GenerateFilepath(hash string, insert bool) string {
-	if fsp.Config.Regenerate && insert {
-		return fsp.Config.FilesystemConfig.RegenerateFolder + "/" + hash + "." + fsp.Config.FilesystemConfig.Format
+func (fsp FilesystemProvider) generateFilepath(hash string) string {
+	folder := fsp.getFolder()
+	format := fsp.Config.FilesystemConfig.Format
+
+	return folder + "/" + hash + "." + format
+}
+
+func (fsp FilesystemProvider) getFolder() string {
+	folder := fsp.Config.FilesystemConfig.Folder
+	if fsp.Config.Regenerate {
+		folder = fsp.Config.FilesystemConfig.RegenerateFolder
 	}
 
-	return fsp.Config.FilesystemConfig.Folder + "/" + hash + "." + fsp.Config.FilesystemConfig.Format
+	return folder
 }
 
 func filesystemProviderErr(message string, err error) error {
