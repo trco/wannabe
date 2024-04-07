@@ -1,7 +1,6 @@
 package providers
 
 import (
-	"reflect"
 	"testing"
 	"wannabe/config"
 )
@@ -23,34 +22,6 @@ var filesystemProvider = FilesystemProvider{
 }
 
 var testRecord = []byte{53}
-
-func TestGetConfig(t *testing.T) {
-	config := filesystemProvider.GetConfig()
-
-	if !reflect.DeepEqual(testConfig.StorageProvider, config) {
-		t.Errorf("expected storage provider config: %v, actual storage provider config: %v", testConfig.StorageProvider, config)
-	}
-}
-
-func TestGenerateFilepath(t *testing.T) {
-	generateFilepath := filesystemProvider.GenerateFilepath("testHash1", false)
-
-	expectedFilepath := "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T/testHash1.json"
-
-	if expectedFilepath != generateFilepath {
-		t.Errorf("expected generate filepath: %v, actual generate filepath: %v", expectedFilepath, generateFilepath)
-	}
-
-	filesystemProvider.Config.Regenerate = true
-
-	regenerateFilepath := filesystemProvider.GenerateFilepath("testHash2", true)
-
-	expectedFilepath = "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T/regenerate/testHash2.json"
-
-	if expectedFilepath != regenerateFilepath {
-		t.Errorf("expected regenerate filepath: %v, actual regenerate filepath: %v", expectedFilepath, regenerateFilepath)
-	}
-}
 
 func TestInsertAndReadRecord(t *testing.T) {
 	_ = filesystemProvider.InsertRecords([]string{"testHash3"}, [][]byte{testRecord})
@@ -89,6 +60,48 @@ func TestGetHashes(t *testing.T) {
 		if !contains(hashes, hash) {
 			t.Errorf("expected hashes: %v does not contain hash: %v", expectedHashes, hash)
 		}
+	}
+}
+
+func TestGenerateFilepath(t *testing.T) {
+	generateFilepath := filesystemProvider.generateFilepath("testHash1")
+
+	expectedFilepath := "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T/testHash1.json"
+
+	if expectedFilepath != generateFilepath {
+		t.Errorf("expected generate filepath: %v, actual generate filepath: %v", expectedFilepath, generateFilepath)
+	}
+
+	filesystemProvider.Config.Regenerate = true
+
+	regenerateFilepath := filesystemProvider.generateFilepath("testHash2")
+
+	expectedFilepath = "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T/regenerate/testHash2.json"
+
+	if expectedFilepath != regenerateFilepath {
+		t.Errorf("expected regenerate filepath: %v, actual regenerate filepath: %v", expectedFilepath, regenerateFilepath)
+	}
+
+	filesystemProvider.Config.Regenerate = false
+}
+
+func TestGetFolder(t *testing.T) {
+	filesystemProvider.Config.Regenerate = false
+
+	folder := filesystemProvider.getFolder()
+	expectedFolder := "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T"
+
+	if expectedFolder != folder {
+		t.Errorf("expected folder: %v, actual folder: %v", expectedFolder, folder)
+	}
+
+	filesystemProvider.Config.Regenerate = true
+
+	regenerateFolder := filesystemProvider.getFolder()
+	expectedRegenerateFolder := "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T/regenerate"
+
+	if expectedRegenerateFolder != regenerateFolder {
+		t.Errorf("expected regenerate folder: %v, actual regenerate folder: %v", expectedRegenerateFolder, regenerateFolder)
 	}
 }
 
