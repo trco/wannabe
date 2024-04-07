@@ -85,7 +85,7 @@ func Wannabe(config config.Config, storageProvider providers.StorageProvider) Wa
 
 		err = storageProvider.InsertRecords([]string{hash}, [][]byte{record})
 		if err != nil {
-			return err
+			return internalError(ctx, err)
 		}
 
 		return nil
