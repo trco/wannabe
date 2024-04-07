@@ -21,7 +21,7 @@ func (fsp FilesystemProvider) CreateFolders() error {
 	if fsp.Config.Regenerate {
 		err = os.Mkdir(fsp.Config.FilesystemConfig.RegenerateFolder, 0750)
 		if err != nil && !os.IsExist(err) {
-			return err
+			return filesystemProviderErr("failed creating regenerate folder or missing 'storageProvider.filesystemConfig.regenerateFolder' config", err)
 		}
 	}
 
@@ -63,6 +63,9 @@ func (fsp FilesystemProvider) InsertRecords(hashes []string, records [][]byte) e
 	// TODO all or nothing ?
 	for index, record := range records {
 		filepath := fsp.generateFilepath(hashes[index])
+		if fsp.Config.Regenerate {
+			filepath = fsp.generateFilepathRegenerate(hashes[index])
+		}
 
 		_, err := os.Create(filepath)
 		if err != nil {
@@ -93,7 +96,7 @@ func (fsp FilesystemProvider) DeleteRecords(hashes []string) error {
 }
 
 func (fsp FilesystemProvider) GetHashes() ([]string, error) {
-	folder := fsp.getFolder()
+	folder := fsp.Config.FilesystemConfig.Folder
 
 	files, err := os.ReadDir(folder)
 	if err != nil {
@@ -117,19 +120,17 @@ func (fsp FilesystemProvider) GetHashes() ([]string, error) {
 }
 
 func (fsp FilesystemProvider) generateFilepath(hash string) string {
-	folder := fsp.getFolder()
+	folder := fsp.Config.FilesystemConfig.Folder
 	format := fsp.Config.FilesystemConfig.Format
 
 	return folder + "/" + hash + "." + format
 }
 
-func (fsp FilesystemProvider) getFolder() string {
-	folder := fsp.Config.FilesystemConfig.Folder
-	if fsp.Config.Regenerate {
-		folder = fsp.Config.FilesystemConfig.RegenerateFolder
-	}
+func (fsp FilesystemProvider) generateFilepathRegenerate(hash string) string {
+	folder := fsp.Config.FilesystemConfig.RegenerateFolder
+	format := fsp.Config.FilesystemConfig.Format
 
-	return folder
+	return folder + "/" + hash + "." + format
 }
 
 func filesystemProviderErr(message string, err error) error {

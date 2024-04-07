@@ -71,38 +71,20 @@ func TestGenerateFilepath(t *testing.T) {
 	if expectedFilepath != generateFilepath {
 		t.Errorf("expected generate filepath: %v, actual generate filepath: %v", expectedFilepath, generateFilepath)
 	}
+}
 
+func TestGenerateFilepathRegenerate(t *testing.T) {
 	filesystemProvider.Config.Regenerate = true
 
-	regenerateFilepath := filesystemProvider.generateFilepath("testHash2")
+	regenerateFilepath := filesystemProvider.generateFilepathRegenerate("testHash2")
 
-	expectedFilepath = "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T/regenerate/testHash2.json"
+	expectedFilepath := "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T/regenerate/testHash2.json"
 
 	if expectedFilepath != regenerateFilepath {
 		t.Errorf("expected regenerate filepath: %v, actual regenerate filepath: %v", expectedFilepath, regenerateFilepath)
 	}
 
 	filesystemProvider.Config.Regenerate = false
-}
-
-func TestGetFolder(t *testing.T) {
-	filesystemProvider.Config.Regenerate = false
-
-	folder := filesystemProvider.getFolder()
-	expectedFolder := "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T"
-
-	if expectedFolder != folder {
-		t.Errorf("expected folder: %v, actual folder: %v", expectedFolder, folder)
-	}
-
-	filesystemProvider.Config.Regenerate = true
-
-	regenerateFolder := filesystemProvider.getFolder()
-	expectedRegenerateFolder := "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T/regenerate"
-
-	if expectedRegenerateFolder != regenerateFolder {
-		t.Errorf("expected regenerate folder: %v, actual regenerate folder: %v", expectedRegenerateFolder, regenerateFolder)
-	}
 }
 
 // reusable functions
