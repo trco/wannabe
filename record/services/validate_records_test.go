@@ -27,6 +27,8 @@ func TestValidateRecords(t *testing.T) {
 // reusable variables
 
 var testConfigB = config.Config{
+	Mode:            "server",
+	FailOnReadError: true,
 	StorageProvider: config.StorageProvider{
 		Type:       "filesystem",
 		Regenerate: false,
@@ -35,10 +37,6 @@ var testConfigB = config.Config{
 			RegenerateFolder: "",
 			Format:           "json",
 		},
-	},
-	Read: config.Read{
-		Enabled:     true,
-		FailOnError: true,
 	},
 	Server: "https://analyticsdata.googleapis.com",
 }

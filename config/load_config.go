@@ -27,6 +27,8 @@ func LoadConfig(configFilepath string) (Config, error) {
 
 func setConfigDefaults() Config {
 	return Config{
+		Mode:            "mixed",
+		FailOnReadError: false,
 		StorageProvider: StorageProvider{
 			Type:       "filesystem",
 			Regenerate: false,
@@ -35,10 +37,6 @@ func setConfigDefaults() Config {
 				RegenerateFolder: "",
 				Format:           "json",
 			},
-		},
-		Read: Read{
-			Enabled:     true,
-			FailOnError: false,
 		},
 	}
 }

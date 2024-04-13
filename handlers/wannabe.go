@@ -34,16 +34,17 @@ func Wannabe(config config.Config, storageProvider providers.StorageProvider) Wa
 			return internalError(ctx, err)
 		}
 
-		if config.Read.Enabled {
+		// server, mixed
+		if config.Mode != "proxy" {
 			records, err := storageProvider.ReadRecords([]string{hash})
-			if err != nil && config.Read.FailOnError {
+			if err != nil && config.FailOnReadError {
 				return internalError(ctx, err)
 			}
 
 			if records != nil {
 				// response from record is set directly to ctx
 				err = response.SetResponse(ctx, records[0])
-				if err != nil && config.Read.FailOnError {
+				if err != nil && config.FailOnReadError {
 					return internalError(ctx, err)
 				}
 
@@ -51,6 +52,10 @@ func Wannabe(config config.Config, storageProvider providers.StorageProvider) Wa
 				fmt.Println("GetResponse >>> READ and return")
 
 				return nil
+			}
+
+			if config.Mode == "server" {
+				return internalError(ctx, fmt.Errorf("no record found for the request"))
 			}
 		}
 

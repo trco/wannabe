@@ -22,6 +22,8 @@ func TestSetConfigDefaults(t *testing.T) {
 	config := setConfigDefaults()
 
 	defaultConfig := Config{
+		Mode:            "mixed",
+		FailOnReadError: false,
 		StorageProvider: StorageProvider{
 			Type:       "filesystem",
 			Regenerate: false,
@@ -30,10 +32,6 @@ func TestSetConfigDefaults(t *testing.T) {
 				RegenerateFolder: "",
 				Format:           "json",
 			},
-		},
-		Read: Read{
-			Enabled:     true,
-			FailOnError: false,
 		},
 	}
 
@@ -112,6 +110,8 @@ func TestValidateConfig(t *testing.T) {
 
 var zero = 0
 var testConfig = Config{
+	Mode:            "mixed",
+	FailOnReadError: false,
 	StorageProvider: StorageProvider{
 		Type:       "filesystem",
 		Regenerate: false,
@@ -120,10 +120,6 @@ var testConfig = Config{
 			RegenerateFolder: "",
 			Format:           "json",
 		},
-	},
-	Read: Read{
-		Enabled:     true,
-		FailOnError: true,
 	},
 	Server: "https://analyticsdata.googleapis.com",
 	RequestMatching: RequestMatching{

@@ -1,8 +1,9 @@
 package config
 
 type Config struct {
+	Mode            string          `koanf:"mode" validate:"required,oneof=proxy server mixed"`
+	FailOnReadError bool            `koanf:"failOnReadError" validate:"boolean"`
 	StorageProvider StorageProvider `koanf:"storageProvider" validate:"required"`
-	Read            Read            `koanf:"read" validate:"required"`
 	Server          string          `koanf:"server" validate:"required,http_url"`
 	RequestMatching RequestMatching `koanf:"requestMatching"`
 	Records         Records         `koanf:"records"`
@@ -23,11 +24,6 @@ type FilesystemConfig struct {
 
 type RedisConfig struct {
 	Database string `koanf:"database" validate:"required"`
-}
-
-type Read struct {
-	Enabled     bool `koanf:"enabled" validate:"boolean"`
-	FailOnError bool `koanf:"failOnError" validate:"boolean"`
 }
 
 type RequestMatching struct {
