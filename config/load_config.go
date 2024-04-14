@@ -34,7 +34,7 @@ func setConfigDefaults() Config {
 			Regenerate: false,
 			FilesystemConfig: FilesystemConfig{
 				Folder:           "records",
-				RegenerateFolder: "",
+				RegenerateFolder: "records/regenerated",
 				Format:           "json",
 			},
 		},
