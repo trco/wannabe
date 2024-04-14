@@ -50,8 +50,7 @@ type Query struct {
 }
 
 type Body struct {
-	Wildcards []WildcardPath `koanf:"wildcards" validate:"gte=0,dive"`
-	Regexes   []Regex        `koanf:"regexes" validate:"gte=0,dive"`
+	Regexes []Regex `koanf:"regexes" validate:"gte=0,dive"`
 }
 
 type Headers struct {
