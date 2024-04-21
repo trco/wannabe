@@ -40,5 +40,5 @@ func main() {
 	app.Post("/*", handlers.Wannabe(config, storageProvider))
 
 	// TODO read host and port from env variable
-	app.Listen("localhost:1234")
+	app.Listen(":1234")
 }
