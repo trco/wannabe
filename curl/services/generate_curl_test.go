@@ -7,8 +7,7 @@ import (
 	"wannabe/curl/entities"
 )
 
-var testConfigA = config.Config{
-	Server: "https:/test.com",
+var wannabeA = config.Wannabe{
 	RequestMatching: config.RequestMatching{
 		Headers: config.Headers{
 			Include: []string{"Content-Type", "Accept"},
@@ -18,6 +17,7 @@ var testConfigA = config.Config{
 
 var curlPayload = entities.GenerateCurlPayload{
 	HttpMethod: "POST",
+	Host:       "test.com",
 	Path:       "test",
 	Query: map[string]string{
 		"test": "test",
@@ -31,9 +31,9 @@ var curlPayload = entities.GenerateCurlPayload{
 }
 
 func TestGenerateCurl(t *testing.T) {
-	expcetedCurl := "curl -X 'POST' -d '{\"test\":\"test\"}' -H 'Accept: test' -H 'Content-Type: application/json' 'https:/test.com/test?test=test'"
+	expcetedCurl := "curl -X 'POST' -d '{\"test\":\"test\"}' -H 'Accept: test' -H 'Content-Type: application/json' 'test.com/test?test=test'"
 
-	curl, _ := GenerateCurl(testConfigA, curlPayload)
+	curl, _ := GenerateCurl(curlPayload, wannabeA)
 
 	if !reflect.DeepEqual(expcetedCurl, curl) {
 		t.Errorf("expected curl: %v, actual curl: %v", expcetedCurl, curl)
