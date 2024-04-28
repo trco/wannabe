@@ -9,19 +9,37 @@ import (
 )
 
 type FilesystemProvider struct {
-	Config config.StorageProvider
+	Config config.Config
 }
 
 func (fsp FilesystemProvider) CreateFolders() error {
-	err := os.Mkdir(fsp.Config.FilesystemConfig.Folder, 0750)
+	err := os.Mkdir(fsp.Config.StorageProvider.FilesystemConfig.Folder, 0750)
 	if err != nil && !os.IsExist(err) {
-		return err
+		return filesystemProviderErr("failed creating folder defined in 'storageProvider.filesystemConfig.folder' config", err)
 	}
 
-	if fsp.Config.Regenerate {
-		err = os.Mkdir(fsp.Config.FilesystemConfig.RegenerateFolder, 0750)
+	wannabeKeys := fsp.getMapKeys(fsp.Config.Wannabes)
+
+	for _, host := range wannabeKeys {
+		err := os.Mkdir(filepath.Join(fsp.Config.StorageProvider.FilesystemConfig.Folder, host), 0750)
+		if err != nil && !os.IsExist(err) {
+			message := fmt.Sprintf("failed creating folder %v", filepath.Join(fsp.Config.StorageProvider.FilesystemConfig.Folder, host))
+			return filesystemProviderErr(message, err)
+		}
+	}
+
+	if fsp.Config.StorageProvider.Regenerate {
+		err = os.Mkdir(fsp.Config.StorageProvider.FilesystemConfig.RegenerateFolder, 0750)
 		if err != nil && !os.IsExist(err) {
 			return filesystemProviderErr("failed creating regenerate folder or missing 'storageProvider.filesystemConfig.regenerateFolder' config", err)
+		}
+
+		for _, host := range wannabeKeys {
+			err := os.Mkdir(filepath.Join(fsp.Config.StorageProvider.FilesystemConfig.RegenerateFolder, host), 0750)
+			if err != nil && !os.IsExist(err) {
+				message := fmt.Sprintf("failed creating folder %v", filepath.Join(fsp.Config.StorageProvider.FilesystemConfig.RegenerateFolder, host))
+				return filesystemProviderErr(message, err)
+			}
 		}
 	}
 
@@ -29,12 +47,12 @@ func (fsp FilesystemProvider) CreateFolders() error {
 }
 
 // TODO ? bulk read using goroutines and channels
-func (fsp FilesystemProvider) ReadRecords(hashes []string) ([][]byte, error) {
+func (fsp FilesystemProvider) ReadRecords(hashes []string, subfolder string) ([][]byte, error) {
 	var records [][]byte
 
 	// TODO all or nothing ?
 	for _, hash := range hashes {
-		filepath := fsp.generateFilepath(hash)
+		filepath := fsp.generateFilepath(hash, subfolder)
 
 		_, err := os.Stat(filepath)
 		if err != nil {
@@ -59,12 +77,12 @@ func (fsp FilesystemProvider) ReadRecords(hashes []string) ([][]byte, error) {
 }
 
 // TODO ? bulk insert using goroutines and channels
-func (fsp FilesystemProvider) InsertRecords(hashes []string, records [][]byte) error {
+func (fsp FilesystemProvider) InsertRecords(records [][]byte, hashes []string, subfolder string) error {
 	// TODO all or nothing ?
 	for index, record := range records {
-		filepath := fsp.generateFilepath(hashes[index])
-		if fsp.Config.Regenerate {
-			filepath = fsp.generateFilepathRegenerate(hashes[index])
+		filepath := fsp.generateFilepath(hashes[index], subfolder)
+		if fsp.Config.StorageProvider.Regenerate {
+			filepath = fsp.generateFilepathRegenerate(hashes[index], subfolder)
 		}
 
 		_, err := os.Create(filepath)
@@ -82,9 +100,9 @@ func (fsp FilesystemProvider) InsertRecords(hashes []string, records [][]byte) e
 }
 
 // TODO ? bulk delete using goroutines and channels
-func (fsp FilesystemProvider) DeleteRecords(hashes []string) error {
+func (fsp FilesystemProvider) DeleteRecords(hashes []string, subfolder string) error {
 	for _, hash := range hashes {
-		filepath := fsp.generateFilepath(hash)
+		filepath := fsp.generateFilepath(hash, subfolder)
 
 		err := os.Remove(filepath)
 		if err != nil {
@@ -95,8 +113,8 @@ func (fsp FilesystemProvider) DeleteRecords(hashes []string) error {
 	return nil
 }
 
-func (fsp FilesystemProvider) GetHashes() ([]string, error) {
-	folder := fsp.Config.FilesystemConfig.Folder
+func (fsp FilesystemProvider) GetHashes(subfolder string) ([]string, error) {
+	folder := fsp.Config.StorageProvider.FilesystemConfig.Folder + "/" + subfolder
 
 	files, err := os.ReadDir(folder)
 	if err != nil {
@@ -119,18 +137,28 @@ func (fsp FilesystemProvider) GetHashes() ([]string, error) {
 	return hashes, nil
 }
 
-func (fsp FilesystemProvider) generateFilepath(hash string) string {
-	folder := fsp.Config.FilesystemConfig.Folder
-	format := fsp.Config.FilesystemConfig.Format
+func (fsp FilesystemProvider) getMapKeys(wannabes map[string]config.Wannabe) []string {
+	keys := make([]string, 0, len(wannabes))
 
-	return folder + "/" + hash + "." + format
+	for key := range wannabes {
+		keys = append(keys, key)
+	}
+
+	return keys
 }
 
-func (fsp FilesystemProvider) generateFilepathRegenerate(hash string) string {
-	folder := fsp.Config.FilesystemConfig.RegenerateFolder
-	format := fsp.Config.FilesystemConfig.Format
+func (fsp FilesystemProvider) generateFilepath(hash string, subfolder string) string {
+	folder := fsp.Config.StorageProvider.FilesystemConfig.Folder
+	format := fsp.Config.StorageProvider.FilesystemConfig.Format
 
-	return folder + "/" + hash + "." + format
+	return folder + "/" + subfolder + "/" + hash + "." + format
+}
+
+func (fsp FilesystemProvider) generateFilepathRegenerate(hash string, subfolder string) string {
+	folder := fsp.Config.StorageProvider.FilesystemConfig.RegenerateFolder
+	format := fsp.Config.StorageProvider.FilesystemConfig.Format
+
+	return folder + "/" + subfolder + "/" + hash + "." + format
 }
 
 func filesystemProviderErr(message string, err error) error {
