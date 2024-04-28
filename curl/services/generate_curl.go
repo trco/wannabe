@@ -6,27 +6,27 @@ import (
 	"wannabe/curl/entities"
 )
 
-func GenerateCurl(config config.Config, payload entities.GenerateCurlPayload) (string, error) {
+func GenerateCurl(payload entities.GenerateCurlPayload, wannabe config.Wannabe) (string, error) {
 	httpMethod := actions.ProcessHttpMethod(payload.HttpMethod)
 
-	processedHost, err := actions.ProcessHost(config.Server, config.RequestMatching.Host)
+	processedHost, err := actions.ProcessHost(payload.Host, wannabe.RequestMatching.Host)
 	if err != nil {
 		return "", err
 	}
 
-	processedPath, err := actions.ProcessPath(payload.Path, config.RequestMatching.Path)
+	processedPath, err := actions.ProcessPath(payload.Path, wannabe.RequestMatching.Path)
 	if err != nil {
 		return "", err
 	}
 
-	processedQuery, err := actions.ProcessQuery(payload.Query, config.RequestMatching.Query)
+	processedQuery, err := actions.ProcessQuery(payload.Query, wannabe.RequestMatching.Query)
 	if err != nil {
 		return "", err
 	}
 
-	processedHeaders := actions.ProcessHeaders(payload.RequestHeaders, config.RequestMatching.Headers)
+	processedHeaders := actions.ProcessHeaders(payload.RequestHeaders, wannabe.RequestMatching.Headers)
 
-	processedBody, err := actions.ProcessBody(payload.RequestBody, config.RequestMatching.Body)
+	processedBody, err := actions.ProcessBody(payload.RequestBody, wannabe.RequestMatching.Body)
 	if err != nil {
 		return "", err
 	}
