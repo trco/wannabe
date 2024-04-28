@@ -27,7 +27,7 @@ type Request struct {
 	Hash       string              `json:"hash"`
 	Curl       string              `json:"curl"`
 	HttpMethod string              `json:"httpMethod" validate:"required,oneof=GET POST PUT DELETE PATCH HEAD CONNECT OPTIONS TRACE"`
-	Host       string              `json:"host" validate:"required,host_not_matching_config_server"`
+	Host       string              `json:"host" validate:"required,host_not_matching_wannabe_server"`
 	Path       string              `json:"path"`
 	Query      map[string]string   `json:"query"`
 	Headers    map[string][]string `json:"headers"`

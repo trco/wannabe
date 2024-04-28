@@ -17,6 +17,7 @@ func GenerateRecord(config config.Records, payload entities.GenerateRecordPayloa
 		return nil, err
 	}
 
+	// FIXME case when response body is text should also be handled
 	responseBody, err := prepareBody(payload.ResponseBody)
 	if err != nil {
 		return nil, err
@@ -81,6 +82,10 @@ func contains(slice []string, value string) bool {
 
 func prepareBody(encodedBody []byte) (interface{}, error) {
 	var body interface{}
+
+	if len(encodedBody) == 0 {
+		return body, nil
+	}
 
 	err := json.Unmarshal(encodedBody, &body)
 	if err != nil {
