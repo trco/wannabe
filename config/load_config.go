@@ -75,7 +75,7 @@ var validate *validator.Validate
 func validateConfig(config Config) error {
 	validate = validator.New()
 
-	validate.RegisterValidation("the_same_header_defined_in_records_headers_exclude", validateHeadersConfig)
+	validate.RegisterValidation("headers_included_excluded", validateWannabeHeadersConfig)
 
 	err := validate.Struct(config)
 	if err != nil {
@@ -86,17 +86,19 @@ func validateConfig(config Config) error {
 }
 
 // custom validation functions
-func validateHeadersConfig(fl validator.FieldLevel) bool {
-	fieldInclude := fl.Parent().FieldByName(fl.StructFieldName())
-	include := fieldInclude.Interface().([]string)
+func validateWannabeHeadersConfig(fl validator.FieldLevel) bool {
 
-	fieldExclude := fl.Top().FieldByName("Records").FieldByName("Headers").FieldByName("Exclude")
-	exclude := fieldExclude.Interface().([]string)
+	wannabes := fl.Field().Interface().(map[string]Wannabe)
 
-	for _, i := range include {
-		for _, e := range exclude {
-			if i == e {
-				return false
+	for _, wannabe := range wannabes {
+		headersInclude := wannabe.RequestMatching.Headers.Include
+		headersExclude := wannabe.Records.Headers.Exclude
+
+		for _, i := range headersInclude {
+			for _, e := range headersExclude {
+				if i == e {
+					return false
+				}
 			}
 		}
 	}

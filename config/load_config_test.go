@@ -65,6 +65,12 @@ func TestLoadConfigFromFile(t *testing.T) {
 }
 
 func TestValidateConfig(t *testing.T) {
+	// valid config
+	err := validateConfig(testConfig)
+	if err != nil {
+		t.Errorf("valid config validated as invalid")
+	}
+
 	// invalid config
 	invalidConfig := Config{
 		StorageProvider: StorageProvider{
@@ -78,32 +84,27 @@ func TestValidateConfig(t *testing.T) {
 		},
 	}
 
-	err := validateConfig(invalidConfig)
+	err = validateConfig(invalidConfig)
 	if err == nil {
 		t.Errorf("invalid config validated as valid")
 	}
 
 	// invalid config failing on custom validation
 	invalidConfig = testConfig
-	invalidConfig.RequestMatching = RequestMatching{
+	wannabe := invalidConfig.Wannabes["testApi"]
+	wannabe.RequestMatching = RequestMatching{
 		Headers: Headers{
 			Include: []string{"Authorization"},
 		},
 	}
+	invalidConfig.Wannabes["testApi"] = wannabe
 
-	expectedErr := "Key: 'Config.RequestMatching.Headers.Include' Error:Field validation for 'Include' failed on the 'the_same_header_defined_in_records_headers_exclude' tag"
+	expectedErr := "Key: 'Config.Wannabes' Error:Field validation for 'Wannabes' failed on the 'headers_included_excluded' tag"
 	err = validateConfig(invalidConfig)
 
 	if err.Error() != expectedErr {
 		t.Errorf("expected error: %s, actual error: %s", expectedErr, err.Error())
 	}
-
-	// valid config
-	err = validateConfig(testConfig)
-	if err != nil {
-		t.Errorf("valid config validated as invalid")
-	}
-
 }
 
 // reusable variables and methods
@@ -121,25 +122,28 @@ var testConfig = Config{
 			Format:           "json",
 		},
 	},
-	Server: "https://analyticsdata.googleapis.com",
-	RequestMatching: RequestMatching{
-		Host: Host{
-			Wildcards: []WildcardIndex{
-				{Index: &zero, Placeholder: "{placeholder}"},
+	Wannabes: map[string]Wannabe{
+		"testApi": {
+			RequestMatching: RequestMatching{
+				Host: Host{
+					Wildcards: []WildcardIndex{
+						{Index: &zero, Placeholder: "{placeholder}"},
+					},
+				},
+				Query: Query{
+					Wildcards: []WildcardKey{
+						{Key: "status", Placeholder: "{placeholder}"},
+					},
+					Regexes: []Regex{
+						{Pattern: "app=1", Placeholder: "app=123"},
+					},
+				},
 			},
-		},
-		Query: Query{
-			Wildcards: []WildcardKey{
-				{Key: "status", Placeholder: "{placeholder}"},
+			Records: Records{
+				Headers: HeadersToExclude{
+					Exclude: []string{"Authorization"},
+				},
 			},
-			Regexes: []Regex{
-				{Pattern: "app=1", Placeholder: "app=123"},
-			},
-		},
-	},
-	Records: Records{
-		Headers: HeadersToExclude{
-			Exclude: []string{"Authorization"},
 		},
 	},
 }
