@@ -23,13 +23,13 @@ func TestFetchResponse(t *testing.T) {
 	ctx := app.AcquireCtx(&fasthttp.RequestCtx{})
 
 	// invalid testServer.URL
-	err := FetchResponse(ctx, "invalidUrl")
+	err := FetchResponse(ctx, "http", "invalidUrl")
 	if err == nil {
 		t.Errorf("invalid url didn't return error.")
 	}
 
 	// valid testServer.URL
-	_ = FetchResponse(ctx, testServer.URL)
+	_ = FetchResponse(ctx, "http", testServer.URL)
 
 	expectedStatusCode := 200
 	expectedResponseHeaderContentType := "application/json"
