@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"strings"
 	"wannabe/config"
 	curlEntities "wannabe/curl/entities"
 	curl "wannabe/curl/services"
@@ -16,15 +17,24 @@ import (
 
 func Wannabe(config config.Config, storageProvider providers.StorageProvider) WannabeHandler {
 	return func(ctx *fiber.Ctx) error {
+		fmt.Println("ctx", ctx)
+
+		host := strings.Join(ctx.GetReqHeaders()["Host"], "")
+		wannabe := config.Wannabes[host]
+
+		fmt.Println("host", host)
+		// fmt.Println("wannabe", wannabe)
+
 		curlPayload := curlEntities.GenerateCurlPayload{
 			HttpMethod:     ctx.Method(),
+			Host:           host,
 			Path:           ctx.Path(),
 			Query:          ctx.Queries(),
 			RequestHeaders: ctx.GetReqHeaders(),
 			RequestBody:    ctx.Body(),
 		}
 
-		curl, err := curl.GenerateCurl(config, curlPayload)
+		curl, err := curl.GenerateCurl(curlPayload, wannabe)
 		if err != nil {
 			return internalError(ctx, err)
 		}
@@ -36,7 +46,7 @@ func Wannabe(config config.Config, storageProvider providers.StorageProvider) Wa
 
 		// server, mixed
 		if config.Mode != "proxy" {
-			records, err := storageProvider.ReadRecords([]string{hash})
+			records, err := storageProvider.ReadRecords([]string{hash}, host)
 			if err != nil && config.FailOnReadError {
 				return internalError(ctx, err)
 			}
@@ -60,7 +70,7 @@ func Wannabe(config config.Config, storageProvider providers.StorageProvider) Wa
 		}
 
 		// response is set directly to ctx
-		err = response.FetchResponse(ctx, config.Server)
+		err = response.FetchResponse(ctx, wannabe.Protocol, host)
 		if err != nil {
 			return internalError(ctx, err)
 		}
@@ -69,7 +79,7 @@ func Wannabe(config config.Config, storageProvider providers.StorageProvider) Wa
 			Hash:            hash,
 			Curl:            curl,
 			HttpMethod:      ctx.Method(),
-			Host:            config.Server,
+			Host:            host,
 			Path:            ctx.Path(),
 			Query:           ctx.Queries(),
 			RequestHeaders:  ctx.GetReqHeaders(),
@@ -83,12 +93,12 @@ func Wannabe(config config.Config, storageProvider providers.StorageProvider) Wa
 			},
 		}
 
-		record, err := record.GenerateRecord(config.Records, recordPayload)
+		record, err := record.GenerateRecord(wannabe.Records, recordPayload)
 		if err != nil {
 			return internalError(ctx, err)
 		}
 
-		err = storageProvider.InsertRecords([]string{hash}, [][]byte{record})
+		err = storageProvider.InsertRecords([][]byte{record}, []string{hash}, host)
 		if err != nil {
 			return internalError(ctx, err)
 		}
