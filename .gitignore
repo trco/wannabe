@@ -1,3 +1,9 @@
 /data
 config*
+!config_structs.go
 !config/
+x_example_requests.txt
+x_notes.txt
+/x_proxy_setup
+demo.crt
+demo.key
