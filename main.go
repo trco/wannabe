@@ -6,6 +6,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/json"
+	"io"
 	"log"
 	"net"
 	"net/http"
@@ -91,17 +92,22 @@ func main() {
 				wannabe := config.Wannabes[host]
 				log.Printf("host: %s", host)
 
+				body, err := io.ReadAll(req.Body)
+				if err != nil {
+					return
+				}
+				defer req.Body.Close() // ensure the body stream is closed after reading
+
+				// FIXME move to separate service
 				curlPayload := curlEntities.GenerateCurlPayload{
 					HttpMethod: req.Method,
 					Host:       host,
 					Path:       req.URL.Path,
-					// FIXME
-					// Query:          req.URL.Query(),
-					Query:          make(map[string]string),
+					// FIXME ProcessQuery -> query is map[string][]string and not map[string]string anymore
+					Query: req.URL.Query(),
+					// Query:          make(map[string]string),
 					RequestHeaders: req.Header,
-					// FIXME
-					// RequestBody:    req.Body,
-					RequestBody: nil,
+					RequestBody:    body,
 				}
 
 				curl, err := curl.GenerateCurl(curlPayload, wannabe)
