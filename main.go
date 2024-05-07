@@ -2,9 +2,6 @@ package main
 
 import (
 	"bytes"
-	"crypto/rsa"
-	"crypto/tls"
-	"crypto/x509"
 	"encoding/json"
 	"io"
 	"log"
@@ -13,15 +10,13 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
-	"wannabe/config"
+	config "wannabe/config"
 	curlEntities "wannabe/curl/entities"
 	curl "wannabe/curl/services"
 	hash "wannabe/hash/services"
 	"wannabe/providers"
 
 	"github.com/AdguardTeam/gomitmproxy"
-	"github.com/AdguardTeam/gomitmproxy/mitm"
 	"github.com/AdguardTeam/gomitmproxy/proxyutil"
 )
 
@@ -44,36 +39,20 @@ import (
 
 func main() {
 	// TODO read config path from env variable
-	config, err := config.LoadConfig("config.json")
+	configuration, err := config.LoadConfig("config.json")
 	if err != nil {
 		log.Fatalf("fatal error starting app: %v", err)
 	}
 
-	storageProvider, err := providers.StorageProviderFactory(config)
+	storageProvider, err := providers.StorageProviderFactory(configuration)
 	if err != nil {
 		log.Fatalf("fatal error starting app: %v", err)
 	}
 
-	// setup mitm config for TLC interception
-	// ref: https://github.com/AdguardTeam/gomitmproxy?tab=readme-ov-file#tls-interception
-	tlsCert, err := tls.LoadX509KeyPair("demo.crt", "demo.key")
+	mitmConfig, err := config.LoadMitmConfig("demo.crt", "demo.key")
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("fatal error starting app: %v", err)
 	}
-	privateKey := tlsCert.PrivateKey.(*rsa.PrivateKey)
-
-	x509c, err := x509.ParseCertificate(tlsCert.Certificate[0])
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	mitmConfig, err := mitm.NewConfig(x509c, privateKey, nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	mitmConfig.SetValidity(time.Hour * 24 * 7) // generate certs valid for 7 days
-	mitmConfig.SetOrganization("gomitmproxy")  // cert organization
 
 	proxy := gomitmproxy.NewProxy(gomitmproxy.Config{
 		ListenAddr: &net.TCPAddr{
@@ -89,7 +68,7 @@ func main() {
 				log.Printf("onRequest: %s %s %s", req.Method, req.URL.String(), req.URL.Host)
 
 				host := req.URL.Host
-				wannabe := config.Wannabes[host]
+				wannabe := configuration.Wannabes[host]
 				log.Printf("host: %s", host)
 
 				body, err := io.ReadAll(req.Body)
@@ -123,10 +102,10 @@ func main() {
 				}
 
 				// server, mixed
-				if config.Mode != "proxy" {
+				if configuration.Mode != "proxy" {
 					// records, err := storageProvider.ReadRecords([]string{hash}, host)
 					_, err := storageProvider.ReadRecords([]string{hash}, host)
-					if err != nil && config.FailOnReadError {
+					if err != nil && configuration.FailOnReadError {
 						return internalError(session, req, err)
 					}
 
