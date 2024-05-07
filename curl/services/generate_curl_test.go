@@ -19,8 +19,8 @@ var curlPayload = entities.GenerateCurlPayload{
 	HttpMethod: "POST",
 	Host:       "test.com",
 	Path:       "test",
-	Query: map[string]string{
-		"test": "test",
+	Query: map[string][]string{
+		"test": {"test"},
 	},
 	RequestHeaders: map[string][]string{
 		"Content-Type": {"application/json"},
