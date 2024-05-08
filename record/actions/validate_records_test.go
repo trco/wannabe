@@ -25,7 +25,6 @@ func TestValidateRecords(t *testing.T) {
 }
 
 // reusable variables
-
 var wannabeA = config.Wannabe{}
 
 var validRecord = entities.Record{
