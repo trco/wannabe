@@ -6,7 +6,8 @@ import (
 	"github.com/AdguardTeam/gomitmproxy"
 )
 
-type WannabeHandler func(session *gomitmproxy.Session) (request *http.Request, response *http.Response)
+type WannabeOnRequestHandler func(session *gomitmproxy.Session) (request *http.Request, response *http.Response)
+type WannabeOnResponseHandler func(session *gomitmproxy.Session) *http.Response
 
 type InternalError struct {
 	Error string `json:"error"`

@@ -11,7 +11,7 @@ import (
 	"github.com/AdguardTeam/gomitmproxy"
 )
 
-func WannabeOnRequest(configuration config.Config, storageProvider providers.StorageProvider) WannabeHandler {
+func WannabeOnRequest(configuration config.Config, storageProvider providers.StorageProvider) WannabeOnRequestHandler {
 	return func(session *gomitmproxy.Session) (request *http.Request, response *http.Response) {
 		originalRequest := session.Request()
 

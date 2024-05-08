@@ -54,16 +54,7 @@ func main() {
 		},
 		MITMConfig: mitmConfig,
 		OnRequest:  handlers.WannabeOnRequest(configuration, storageProvider),
-		// OnResponse: func(session *gomitmproxy.Session) *http.Response {
-		// 	log.Printf("onResponse: %s", session.Request().URL.String())
-
-		// FIXME block processing based on sessions.Prop
-		// 	if _, ok := session.GetProp("blocked"); ok {
-		// 		log.Printf("onResponse: was blocked")
-		// 	}
-
-		// 	return nil
-		// },
+		OnResponse: handlers.WannabeOnResponse(storageProvider),
 	})
 	err = proxy.Start()
 	if err != nil {
