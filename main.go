@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"io"
 	"log"
 	"net"
 	"net/http"
@@ -11,7 +10,6 @@ import (
 	"os/signal"
 	"syscall"
 	config "wannabe/config"
-	curlEntities "wannabe/curl/entities"
 	curl "wannabe/curl/services"
 	hash "wannabe/hash/services"
 	"wannabe/providers"
@@ -61,44 +59,26 @@ func main() {
 		},
 		MITMConfig: mitmConfig,
 		OnRequest: func(session *gomitmproxy.Session) (request *http.Request, response *http.Response) {
-			req := session.Request()
+			originalRequest := session.Request()
 
-			if req.Method != "CONNECT" {
-				log.Printf("request:", req)
-				log.Printf("onRequest: %s %s %s", req.Method, req.URL.String(), req.URL.Host)
-
-				host := req.URL.Host
+			if originalRequest.Method != "CONNECT" {
+				host := originalRequest.URL.Host
 				wannabe := configuration.Wannabes[host]
+
+				log.Printf("originalRequest:", originalRequest)
+				log.Printf("onRequest: %s %s %s", originalRequest.Method, originalRequest.URL.String(), originalRequest.URL.Host)
 				log.Printf("host: %s", host)
 
-				body, err := io.ReadAll(req.Body)
-				if err != nil {
-					return
-				}
-				defer req.Body.Close() // ensure the body stream is closed after reading
-
-				// FIXME move to separate service
-				curlPayload := curlEntities.GenerateCurlPayload{
-					HttpMethod: req.Method,
-					Host:       host,
-					Path:       req.URL.Path,
-					// FIXME ProcessQuery -> query is map[string][]string and not map[string]string anymore
-					Query: req.URL.Query(),
-					// Query:          make(map[string]string),
-					RequestHeaders: req.Header,
-					RequestBody:    body,
-				}
-
-				curl, err := curl.GenerateCurl(curlPayload, wannabe)
+				curl, err := curl.GenerateCurl(originalRequest, wannabe)
 				log.Printf("curl: %s", curl)
 				if err != nil {
-					return internalError(session, req, err)
+					return internalError(session, originalRequest, err)
 				}
 
 				hash, err := hash.GenerateHash(curl)
 				log.Printf("hash: %s", hash)
 				if err != nil {
-					return internalError(session, req, err)
+					return internalError(session, originalRequest, err)
 				}
 
 				// server, mixed
@@ -106,7 +86,7 @@ func main() {
 					// records, err := storageProvider.ReadRecords([]string{hash}, host)
 					_, err := storageProvider.ReadRecords([]string{hash}, host)
 					if err != nil && configuration.FailOnReadError {
-						return internalError(session, req, err)
+						return internalError(session, originalRequest, err)
 					}
 
 					// if records != nil {
