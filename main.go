@@ -6,7 +6,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	config "wannabe/config"
+	configPackage "wannabe/config"
 	"wannabe/handlers"
 	"wannabe/providers"
 
@@ -32,17 +32,17 @@ import (
 
 func main() {
 	// TODO read config path from env variable
-	configuration, err := config.LoadConfig("config.json")
+	config, err := configPackage.LoadConfig("config.json")
 	if err != nil {
 		log.Fatalf("fatal error starting app: %v", err)
 	}
 
-	storageProvider, err := providers.StorageProviderFactory(configuration)
+	storageProvider, err := providers.StorageProviderFactory(config)
 	if err != nil {
 		log.Fatalf("fatal error starting app: %v", err)
 	}
 
-	mitmConfig, err := config.LoadMitmConfig("demo.crt", "demo.key")
+	mitmConfig, err := configPackage.LoadMitmConfig("demo.crt", "demo.key")
 	if err != nil {
 		log.Fatalf("fatal error starting app: %v", err)
 	}
@@ -53,7 +53,7 @@ func main() {
 			Port: 6789,
 		},
 		MITMConfig: mitmConfig,
-		OnRequest:  handlers.WannabeOnRequest(configuration, storageProvider),
+		OnRequest:  handlers.WannabeOnRequest(config, storageProvider),
 		OnResponse: handlers.WannabeOnResponse(storageProvider),
 	})
 	err = proxy.Start()

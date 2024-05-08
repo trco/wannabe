@@ -11,7 +11,7 @@ import (
 	"github.com/AdguardTeam/gomitmproxy"
 )
 
-func WannabeOnRequest(configuration config.Config, storageProvider providers.StorageProvider) WannabeOnRequestHandler {
+func WannabeOnRequest(config config.Config, storageProvider providers.StorageProvider) WannabeOnRequestHandler {
 	return func(session *gomitmproxy.Session) (request *http.Request, response *http.Response) {
 		originalRequest := session.Request()
 
@@ -20,7 +20,7 @@ func WannabeOnRequest(configuration config.Config, storageProvider providers.Sto
 		}
 
 		host := originalRequest.URL.Host
-		wannabe := configuration.Wannabes[host]
+		wannabe := config.Wannabes[host]
 
 		log.Printf("originalRequest:", originalRequest)
 		log.Printf("onRequest: %s %s %s", originalRequest.Method, originalRequest.URL.String(), originalRequest.URL.Host)
@@ -39,10 +39,10 @@ func WannabeOnRequest(configuration config.Config, storageProvider providers.Sto
 		}
 
 		// server, mixed
-		if configuration.Mode != "proxy" {
+		if config.Mode != "proxy" {
 			// records, err := storageProvider.ReadRecords([]string{hash}, host)
 			_, err := storageProvider.ReadRecords([]string{hash}, host)
-			if err != nil && configuration.FailOnReadError {
+			if err != nil && config.FailOnReadError {
 				return internalError(session, originalRequest, err)
 			}
 
