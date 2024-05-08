@@ -1,18 +1,20 @@
 package handlers
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"wannabe/config"
 	curl "wannabe/curl/services"
 	hash "wannabe/hash/services"
 	"wannabe/providers"
+	response "wannabe/response/services"
 
 	"github.com/AdguardTeam/gomitmproxy"
 )
 
 func WannabeOnRequest(config config.Config, storageProvider providers.StorageProvider) WannabeOnRequestHandler {
-	return func(session *gomitmproxy.Session) (request *http.Request, response *http.Response) {
+	return func(session *gomitmproxy.Session) (wannabeRequest *http.Request, wannabeResponse *http.Response) {
 		originalRequest := session.Request()
 
 		if originalRequest.Method == "CONNECT" {
@@ -40,33 +42,35 @@ func WannabeOnRequest(config config.Config, storageProvider providers.StoragePro
 
 		// server, mixed
 		if config.Mode != "proxy" {
-			// records, err := storageProvider.ReadRecords([]string{hash}, host)
-			_, err := storageProvider.ReadRecords([]string{hash}, host)
+			records, err := storageProvider.ReadRecords([]string{hash}, host)
 			if err != nil && config.FailOnReadError {
 				return internalError(session, originalRequest, err)
 			}
 
-			// if records != nil {
-			// 	// response from record is set directly to ctx
-			// 	res, err = response.SetResponse(ctx, records[0])
-			// 	if err != nil && config.FailOnReadError {
-			// 		return internalError(session, req, err)
-			// 	}
+			if records != nil {
+				wannabeResponse, err := response.SetResponse(records[0], originalRequest)
+				if err != nil && config.FailOnReadError {
+					return internalError(session, originalRequest, err)
+				}
 
-			// 	// TODO remove log
-			// 	fmt.Println("GetResponse >>> READ and return")
+				// TODO remove log
+				fmt.Println("GetResponse >>> READ and return")
 
-			// 	// FIXME probably not OK
-			// 	// FIXME
-			// 	// 1. add info to session.props that response was prepared from record
-			// 	// 2. read prop in OnResponse handler and simply return response prepared from record
-			//  // 3. see "session.SetProp("blocked", true)" in internal error
-			// 	return nil, res
-			// }
+				// FIXME probably not OK
+				// FIXME
+				// 1. add info to session.props that response was prepared from record
+				// 2. read prop in OnResponse handler and simply return response prepared from record
+				// 3. see "session.SetProp("blocked", true)" in internal error
+				session.SetProp("responseReadFromStorageProvider", true)
 
-			// if config.Mode == "server" {
-			// 	return internalError(session, req, fmt.Errorf("no record found for the request"))
-			// }
+				return nil, wannabeResponse
+			}
+
+			if config.Mode == "server" {
+				session.SetProp("blocked", true)
+				return internalError(session, originalRequest, fmt.Errorf("no record found for the request"))
+			}
+
 			return nil, nil
 		}
 
