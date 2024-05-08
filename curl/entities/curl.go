@@ -1,6 +1,6 @@
 package entities
 
-type GenerateCurlPayload struct {
+type CurlPayload struct {
 	HttpMethod     string
 	Host           string
 	Path           string
