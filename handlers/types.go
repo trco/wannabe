@@ -1,12 +1,15 @@
 package handlers
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"net/http"
 
-type WannabeHandler func(ctx *fiber.Ctx) error
+	"github.com/AdguardTeam/gomitmproxy"
+)
+
+type WannabeHandler func(session *gomitmproxy.Session) (request *http.Request, response *http.Response)
 
 type InternalError struct {
-	StatusCode int    `json:"statusCode"`
-	Error      string `json:"error"`
+	Error string `json:"error"`
 }
 
 type RecordProcessingDetails struct {
