@@ -13,8 +13,11 @@ func WannabeOnResponse(storageProvider providers.StorageProvider) WannabeOnRespo
 		log.Printf("onResponse: %s", session.Request().URL.String())
 
 		// FIXME block processing based on sessions.Prop
-		if _, ok := session.GetProp("blocked"); ok {
-			log.Printf("onResponse: was blocked")
+		if _, blocked := session.GetProp("blocked"); blocked {
+			return nil
+		}
+		if _, responseFromRecord := session.GetProp("responseFromRecord"); responseFromRecord {
+			return nil
 		}
 
 		// response := session.Response()
