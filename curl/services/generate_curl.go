@@ -1,12 +1,17 @@
 package services
 
 import (
+	"net/http"
 	"wannabe/config"
 	"wannabe/curl/actions"
-	"wannabe/curl/entities"
 )
 
-func GenerateCurl(payload entities.GenerateCurlPayload, wannabe config.Wannabe) (string, error) {
+func GenerateCurl(originalRequest *http.Request, wannabe config.Wannabe) (string, error) {
+	payload, err := actions.GenerateCurlPayload(originalRequest)
+	if err != nil {
+		return "", err
+	}
+
 	httpMethod := actions.ProcessHttpMethod(payload.HttpMethod)
 
 	processedHost, err := actions.ProcessHost(payload.Host, wannabe.RequestMatching.Host)
