@@ -21,7 +21,7 @@ func internalErrorOnRequest(session *gomitmproxy.Session, request *http.Request,
 	return nil, response
 }
 
-func internalErrorOnResponse(session *gomitmproxy.Session, request *http.Request, err error) *http.Response {
+func internalErrorOnResponse(request *http.Request, err error) *http.Response {
 	body := prepareResponseBody(err)
 	response := proxyutil.NewResponse(http.StatusInternalServerError, body, request)
 	response.Header.Set("Content-Type", "application/json")

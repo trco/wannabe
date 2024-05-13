@@ -23,12 +23,12 @@ func WannabeOnResponse(config config.Config, storageProvider providers.StoragePr
 
 		hash, curl, err := getHashAndCurlFromSession(session)
 		if err != nil {
-			return internalErrorOnResponse(session, request, err)
+			return internalErrorOnResponse(request, err)
 		}
 
 		recordPayload, err := record.GenerateRecordPayload(session, hash, curl)
 		if err != nil {
-			return internalErrorOnResponse(session, request, err)
+			return internalErrorOnResponse(request, err)
 		}
 
 		host := request.URL.Host
@@ -36,12 +36,12 @@ func WannabeOnResponse(config config.Config, storageProvider providers.StoragePr
 
 		record, err := record.GenerateRecord(wannabe.Records, recordPayload)
 		if err != nil {
-			return internalErrorOnResponse(session, request, err)
+			return internalErrorOnResponse(request, err)
 		}
 
 		err = storageProvider.InsertRecords([][]byte{record}, []string{hash}, host)
 		if err != nil {
-			return internalErrorOnResponse(session, request, err)
+			return internalErrorOnResponse(request, err)
 		}
 
 		return nil
