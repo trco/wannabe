@@ -54,7 +54,7 @@ func main() {
 		},
 		MITMConfig: mitmConfig,
 		OnRequest:  handlers.WannabeOnRequest(config, storageProvider),
-		OnResponse: handlers.WannabeOnResponse(storageProvider),
+		OnResponse: handlers.WannabeOnResponse(config, storageProvider),
 	})
 	err = proxy.Start()
 	if err != nil {
