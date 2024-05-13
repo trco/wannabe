@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"testing"
+
+	"github.com/AdguardTeam/gomitmproxy"
 )
 
 type TestError struct {
@@ -59,5 +61,27 @@ func TestProcessRecordValidation(t *testing.T) {
 
 	if recordProcessingDetails[0].Hash != "test hash" || recordProcessingDetails[0].Message != "test message" || count != 1 {
 		t.Errorf("record processing details not valid, expected: hash: 'test hash', message: 'test message', count: 1, actual: hash: '%v', message: '%v', count: %v", recordProcessingDetails[0].Hash, recordProcessingDetails[0].Message, count)
+	}
+}
+func TestGetHashAndCurlFromSession(t *testing.T) {
+	session := &gomitmproxy.Session{}
+	session.SetProp("hash", "test hash")
+	session.SetProp("curl", "test curl")
+
+	hash, curl, err := getHashAndCurlFromSession(session)
+
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+
+	expectedHash := "test hash"
+	expectedCurl := "test curl"
+
+	if hash != expectedHash {
+		t.Errorf("expected hash: %v, actual hash: %v", expectedHash, hash)
+	}
+
+	if curl != expectedCurl {
+		t.Errorf("expected curl: %v, actual curl: %v", expectedCurl, curl)
 	}
 }
