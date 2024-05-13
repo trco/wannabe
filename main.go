@@ -13,25 +13,10 @@ import (
 	"github.com/AdguardTeam/gomitmproxy"
 )
 
-// 1. create self-signed certificate
-// openssl genrsa -out demo.key 2048
-// openssl req -new -x509 -key demo.key -out demo.crt -days 3650
-
-// 2. add it to client container
-// docker cp ./demo.crt integrations-core.local:/usr/local/share/ca-certificates/
-
-// 3. enter client container and add certificate to ca-certificates & check that it was added
-// update-ca-certificates
-// cat /etc/ssl/certs/ca-certificates.crt
-
 // FIXME
-// !!! when request is proxied from IC container it doesn't exit after response is returned
-// curl -x http://host.docker.internal:6789 https://api.github.com
-// !!! this works as expected with basic example, see go/wannabe-proxy project
-// curl -x http://host.docker.internal:6667 https://api.github.com
-
+// when request is proxied from IC container connection is not closed after response is received
+// github issue opened: https://github.com/AdguardTeam/gomitmproxy/issues/27
 func main() {
-	// TODO read config path from env variable
 	config, err := configPackage.LoadConfig("config.json")
 	if err != nil {
 		log.Fatalf("fatal error starting app: %v", err)
@@ -56,6 +41,7 @@ func main() {
 		OnRequest:  handlers.WannabeOnRequest(config, storageProvider),
 		OnResponse: handlers.WannabeOnResponse(config, storageProvider),
 	})
+
 	err = proxy.Start()
 	if err != nil {
 		log.Fatal(err)
@@ -65,6 +51,5 @@ func main() {
 	signal.Notify(signalChannel, syscall.SIGINT, syscall.SIGTERM)
 	<-signalChannel
 
-	// Clean up
 	proxy.Close()
 }
