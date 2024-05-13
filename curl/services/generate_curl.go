@@ -6,8 +6,8 @@ import (
 	"wannabe/curl/actions"
 )
 
-func GenerateCurl(originalRequest *http.Request, wannabe config.Wannabe) (string, error) {
-	payload, err := actions.GenerateCurlPayload(originalRequest)
+func GenerateCurl(request *http.Request, wannabe config.Wannabe) (string, error) {
+	payload, err := actions.GenerateCurlPayload(request)
 	if err != nil {
 		return "", err
 	}
@@ -38,14 +38,14 @@ func GenerateCurl(originalRequest *http.Request, wannabe config.Wannabe) (string
 
 	url := actions.PrepareUrl(processedHost, processedPath, processedQuery)
 
-	request, err := actions.PrepareRequest(httpMethod, url, processedBody)
+	processedRequest, err := actions.PrepareRequest(httpMethod, url, processedBody)
 	if err != nil {
 		return "", err
 	}
 
-	actions.SetHeaders(request, processedHeaders)
+	actions.SetHeaders(processedRequest, processedHeaders)
 
-	curl, err := actions.PrepareCurl(request)
+	curl, err := actions.PrepareCurl(processedRequest)
 	if err != nil {
 		return "", err
 	}
