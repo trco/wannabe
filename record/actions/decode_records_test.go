@@ -31,8 +31,8 @@ var expectedRecordA = entities.Record{
 		HttpMethod: "POST",
 		Host:       "test.com",
 		Path:       "/test",
-		Query: map[string]string{
-			"test": "test",
+		Query: map[string][]string{
+			"test": {"test"},
 		},
 		Headers: map[string][]string{
 			"Content-Type": {"application/json"},

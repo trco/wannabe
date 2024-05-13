@@ -24,8 +24,8 @@ var expectedRecordB = entities.Record{
 		HttpMethod: "POST",
 		Host:       "https://analyticsdata.googleapis.com",
 		Path:       "test",
-		Query: map[string]string{
-			"test": "test",
+		Query: map[string][]string{
+			"test": {"test"},
 		},
 		Headers: map[string][]string{
 			"Content-Type": {"application/json"},

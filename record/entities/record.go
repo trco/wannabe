@@ -8,7 +8,7 @@ type GenerateRecordPayload struct {
 	HttpMethod      string
 	Host            string
 	Path            string
-	Query           map[string]string
+	Query           map[string][]string
 	RequestHeaders  map[string][]string
 	ResponseHeaders map[string][]string
 	RequestBody     []byte
@@ -29,7 +29,7 @@ type Request struct {
 	HttpMethod string              `json:"httpMethod" validate:"required,oneof=GET POST PUT DELETE PATCH HEAD CONNECT OPTIONS TRACE"`
 	Host       string              `json:"host" validate:"required,host_not_matching_wannabe_server"`
 	Path       string              `json:"path"`
-	Query      map[string]string   `json:"query"`
+	Query      map[string][]string `json:"query"`
 	Headers    map[string][]string `json:"headers"`
 	Body       interface{}         `json:"body" validate:"required_if=HttpMethod POST,required_if=HttpMethod PUT,required_if=HttpMethod PATCH"`
 }

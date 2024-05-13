@@ -37,8 +37,8 @@ var payload = entities.GenerateRecordPayload{
 	HttpMethod: "POST",
 	Host:       "test.com",
 	Path:       "/test",
-	Query: map[string]string{
-		"test": "test",
+	Query: map[string][]string{
+		"test": {"test"},
 	},
 	RequestHeaders: map[string][]string{
 		"Content-Type": {"application/json"},
@@ -62,8 +62,8 @@ var expectedRecordC = entities.Record{
 		HttpMethod: "POST",
 		Host:       "test.com",
 		Path:       "/test",
-		Query: map[string]string{
-			"test": "test",
+		Query: map[string][]string{
+			"test": {"test"},
 		},
 		Headers: map[string][]string{
 			"Content-Type": {"application/json"},
