@@ -11,39 +11,43 @@ import (
 
 func WannabeOnResponse(config config.Config, storageProvider providers.StorageProvider) WannabeOnResponseHandler {
 	return func(session *gomitmproxy.Session) *http.Response {
-		request := session.Request()
+		return processSessionOnResponse(session, config, storageProvider)
+	}
+}
 
-		if request.Method == "CONNECT" {
-			return nil
-		}
+func processSessionOnResponse(session *gomitmproxy.Session, config config.Config, storageProvider providers.StorageProvider) *http.Response {
+	request := session.Request()
 
-		if shouldSkipResponseProcessing(session) {
-			return nil
-		}
-
-		hash, curl, err := getHashAndCurlFromSession(session)
-		if err != nil {
-			return internalErrorOnResponse(request, err)
-		}
-
-		recordPayload, err := record.GenerateRecordPayload(session, hash, curl)
-		if err != nil {
-			return internalErrorOnResponse(request, err)
-		}
-
-		host := request.URL.Host
-		wannabe := config.Wannabes[host]
-
-		record, err := record.GenerateRecord(wannabe.Records, recordPayload)
-		if err != nil {
-			return internalErrorOnResponse(request, err)
-		}
-
-		err = storageProvider.InsertRecords([][]byte{record}, []string{hash}, host)
-		if err != nil {
-			return internalErrorOnResponse(request, err)
-		}
-
+	if request.Method == "CONNECT" {
 		return nil
 	}
+
+	if shouldSkipResponseProcessing(session) {
+		return nil
+	}
+
+	hash, curl, err := getHashAndCurlFromSession(session)
+	if err != nil {
+		return internalErrorOnResponse(request, err)
+	}
+
+	recordPayload, err := record.GenerateRecordPayload(session, hash, curl)
+	if err != nil {
+		return internalErrorOnResponse(request, err)
+	}
+
+	host := request.URL.Host
+	wannabe := config.Wannabes[host]
+
+	record, err := record.GenerateRecord(wannabe.Records, recordPayload)
+	if err != nil {
+		return internalErrorOnResponse(request, err)
+	}
+
+	err = storageProvider.InsertRecords([][]byte{record}, []string{hash}, host)
+	if err != nil {
+		return internalErrorOnResponse(request, err)
+	}
+
+	return nil
 }
