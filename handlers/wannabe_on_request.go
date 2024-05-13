@@ -14,10 +14,11 @@ import (
 )
 
 func WannabeOnRequest(config config.Config, storageProvider providers.StorageProvider) WannabeOnRequestHandler {
-	return func(session *gomitmproxy.Session) (wannabeRequest *http.Request, wannabeResponse *http.Response) {
+	return func(session *gomitmproxy.Session) (*http.Request, *http.Response) {
 		originalRequest := session.Request()
 
 		if originalRequest.Method == "CONNECT" {
+			// FIXME what's right here ???
 			return nil, nil
 		}
 
@@ -33,22 +34,28 @@ func WannabeOnRequest(config config.Config, storageProvider providers.StoragePro
 		if err != nil {
 			return internalError(session, originalRequest, err)
 		}
+		session.SetProp("curl", curl)
 
 		hash, err := hash.GenerateHash(curl)
 		log.Printf("hash: %s", hash)
 		if err != nil {
 			return internalError(session, originalRequest, err)
 		}
+		session.SetProp("hash", hash)
+
+		log.Printf("XXX 1")
 
 		// server, mixed
 		if config.Mode != "proxy" {
+			log.Printf("XXX 2")
 			records, err := storageProvider.ReadRecords([]string{hash}, host)
 			if err != nil && config.FailOnReadError {
 				return internalError(session, originalRequest, err)
 			}
 
 			if records != nil {
-				wannabeResponse, err := response.SetResponse(records[0], originalRequest)
+				log.Printf("XXX 3")
+				responseFromRecord, err := response.SetResponse(records[0], originalRequest)
 				if err != nil && config.FailOnReadError {
 					return internalError(session, originalRequest, err)
 				}
@@ -61,18 +68,21 @@ func WannabeOnRequest(config config.Config, storageProvider providers.StoragePro
 				// 1. add info to session.props that response was prepared from record
 				// 2. read prop in OnResponse handler and simply return response prepared from record
 				// 3. see "session.SetProp("blocked", true)" in internal error
-				session.SetProp("responseReadFromStorageProvider", true)
+				session.SetProp("responseFromRecord", true)
 
-				return nil, wannabeResponse
+				// FIXME what's right here ???
+				return nil, responseFromRecord
 			}
+
+			log.Printf("XXX 4")
 
 			if config.Mode == "server" {
 				session.SetProp("blocked", true)
 				return internalError(session, originalRequest, fmt.Errorf("no record found for the request"))
 			}
-
-			return nil, nil
 		}
+
+		log.Printf("XXX 5")
 
 		return nil, nil
 	}
