@@ -1,40 +1,32 @@
 package handlers
 
-import (
-	"fmt"
-	"wannabe/providers"
-	record "wannabe/record/services"
+// func GetRecords(storageProvider providers.StorageProvider) WannabeHandler {
+// 	return func(ctx *fiber.Ctx) error {
+// 		hash := ctx.Params("hash")
+// 		hashes := []string{hash}
+// 		host := ctx.Params("host")
 
-	"github.com/gofiber/fiber/v2"
-)
+// 		if hash == "" {
+// 			var err error
+// 			hashes, err = storageProvider.GetHashes(host)
+// 			if err != nil {
+// 				return internalError(ctx, err)
+// 			}
+// 		}
 
-func GetRecords(storageProvider providers.StorageProvider) WannabeHandler {
-	return func(ctx *fiber.Ctx) error {
-		hash := ctx.Params("hash")
-		hashes := []string{hash}
-		host := ctx.Params("host")
+// 		encodedRecords, err := storageProvider.ReadRecords(hashes, host)
+// 		if err != nil {
+// 			return internalError(ctx, err)
+// 		}
 
-		if hash == "" {
-			var err error
-			hashes, err = storageProvider.GetHashes(host)
-			if err != nil {
-				return internalError(ctx, err)
-			}
-		}
+// 		records, err := record.DecodeRecords(encodedRecords)
+// 		if err != nil {
+// 			return internalError(ctx, err)
+// 		}
 
-		encodedRecords, err := storageProvider.ReadRecords(hashes, host)
-		if err != nil {
-			return internalError(ctx, err)
-		}
-
-		records, err := record.DecodeRecords(encodedRecords)
-		if err != nil {
-			return internalError(ctx, err)
-		}
-
-		return ctx.Status(fiber.StatusOK).JSON(records)
-	}
-}
+// 		return ctx.Status(fiber.StatusOK).JSON(records)
+// 	}
+// }
 
 // func PostRecords(config config.Config, storageProvider providers.StorageProvider) WannabeHandler {
 // 	return func(ctx *fiber.Ctx) error {
@@ -131,28 +123,28 @@ func GetRecords(storageProvider providers.StorageProvider) WannabeHandler {
 // 	}
 // }
 
-func DeleteRecords(storageProvider providers.StorageProvider) WannabeHandler {
-	return func(ctx *fiber.Ctx) error {
-		hash := ctx.Params("hash")
-		hashes := []string{hash}
-		host := ctx.Params("host")
+// func DeleteRecords(storageProvider providers.StorageProvider) WannabeHandler {
+// 	return func(ctx *fiber.Ctx) error {
+// 		hash := ctx.Params("hash")
+// 		hashes := []string{hash}
+// 		host := ctx.Params("host")
 
-		if hash == "" {
-			var err error
-			hashes, err = storageProvider.GetHashes(host)
-			if err != nil {
-				return internalError(ctx, err)
-			}
-		}
+// 		if hash == "" {
+// 			var err error
+// 			hashes, err = storageProvider.GetHashes(host)
+// 			if err != nil {
+// 				return internalError(ctx, err)
+// 			}
+// 		}
 
-		err := storageProvider.DeleteRecords(hashes, host)
-		if err != nil {
-			return internalError(ctx, err)
-		}
+// 		err := storageProvider.DeleteRecords(hashes, host)
+// 		if err != nil {
+// 			return internalError(ctx, err)
+// 		}
 
-		return ctx.Status(fiber.StatusCreated).JSON(DeleteRecordsResponse{
-			Message: fmt.Sprintf("%v records successfully deleted.", len(hashes)),
-			Hashes:  hashes,
-		})
-	}
-}
+// 		return ctx.Status(fiber.StatusCreated).JSON(DeleteRecordsResponse{
+// 			Message: fmt.Sprintf("%v records successfully deleted.", len(hashes)),
+// 			Hashes:  hashes,
+// 		})
+// 	}
+// }
