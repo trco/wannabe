@@ -14,45 +14,49 @@ import (
 
 func WannabeOnRequest(config config.Config, storageProvider providers.StorageProvider) WannabeOnRequestHandler {
 	return func(session *gomitmproxy.Session) (*http.Request, *http.Response) {
-		request := session.Request()
+		return processSessionOnRequest(session, config, storageProvider)
+	}
+}
 
-		if request.Method == "CONNECT" {
-			return nil, nil
-		}
+func processSessionOnRequest(session *gomitmproxy.Session, config config.Config, storageProvider providers.StorageProvider) (*http.Request, *http.Response) {
+	request := session.Request()
 
-		host := request.URL.Host
-		wannabe := config.Wannabes[host]
-
-		curl, err := curl.GenerateCurl(request, wannabe)
-		if err != nil {
-			return internalErrorOnRequest(session, request, err)
-		}
-		session.SetProp("curl", curl)
-
-		hash, err := hash.GenerateHash(curl)
-		if err != nil {
-			return internalErrorOnRequest(session, request, err)
-		}
-		session.SetProp("hash", hash)
-
-		// server, mixed
-		if config.Mode != "proxy" {
-			records, err := storageProvider.ReadRecords([]string{hash}, host)
-			if err != nil && config.FailOnReadError {
-				return internalErrorOnRequest(session, request, err)
-			}
-
-			if records != nil {
-				return processRecords(session, request, records, config.FailOnReadError)
-			}
-
-			if config.Mode == "server" {
-				return internalErrorOnRequest(session, request, fmt.Errorf("no record found for the request"))
-			}
-		}
-
+	if request.Method == "CONNECT" {
 		return nil, nil
 	}
+
+	host := request.URL.Host
+	wannabe := config.Wannabes[host]
+
+	curl, err := curl.GenerateCurl(request, wannabe)
+	if err != nil {
+		return internalErrorOnRequest(session, request, err)
+	}
+	session.SetProp("curl", curl)
+
+	hash, err := hash.GenerateHash(curl)
+	if err != nil {
+		return internalErrorOnRequest(session, request, err)
+	}
+	session.SetProp("hash", hash)
+
+	// server, mixed
+	if config.Mode != "proxy" {
+		records, err := storageProvider.ReadRecords([]string{hash}, host)
+		if err != nil && config.FailOnReadError {
+			return internalErrorOnRequest(session, request, err)
+		}
+
+		if records != nil {
+			return processRecords(session, request, records, config.FailOnReadError)
+		}
+
+		if config.Mode == "server" {
+			return internalErrorOnRequest(session, request, fmt.Errorf("no record found for the request"))
+		}
+	}
+
+	return nil, nil
 }
 
 func processRecords(session *gomitmproxy.Session, request *http.Request, records [][]byte, failOnReadError bool) (*http.Request, *http.Response) {
