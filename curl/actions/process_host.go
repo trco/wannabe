@@ -7,8 +7,7 @@ import (
 )
 
 func ProcessHost(host string, config config.Host) (string, error) {
-	strippedHost := strings.TrimPrefix(strings.TrimPrefix(host, "http://"), "https://")
-	hostParts := strings.Split(strippedHost, ".")
+	hostParts := strings.Split(host, ".")
 
 	setWildcardsByIndex(hostParts, config.Wildcards)
 	rebuiltHost := strings.Join(hostParts, ".")

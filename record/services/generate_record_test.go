@@ -31,14 +31,14 @@ var testConfigA = config.Records{
 	},
 }
 
-var payload = entities.GenerateRecordPayload{
+var payload = entities.RecordPayload{
 	Hash:       "testHash",
 	Curl:       "testCurl",
 	HttpMethod: "POST",
 	Host:       "test.com",
 	Path:       "/test",
-	Query: map[string]string{
-		"test": "test",
+	Query: map[string][]string{
+		"test": {"test"},
 	},
 	RequestHeaders: map[string][]string{
 		"Content-Type": {"application/json"},
@@ -62,8 +62,8 @@ var expectedRecordC = entities.Record{
 		HttpMethod: "POST",
 		Host:       "test.com",
 		Path:       "/test",
-		Query: map[string]string{
-			"test": "test",
+		Query: map[string][]string{
+			"test": {"test"},
 		},
 		Headers: map[string][]string{
 			"Content-Type": {"application/json"},

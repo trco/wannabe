@@ -1,9 +1,10 @@
 package entities
 
-type GenerateCurlPayload struct {
+type CurlPayload struct {
 	HttpMethod     string
+	Host           string
 	Path           string
-	Query          map[string]string
+	Query          map[string][]string
 	RequestHeaders map[string][]string
 	RequestBody    []byte
 }

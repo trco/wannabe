@@ -1,16 +1,15 @@
 package services
 
 import (
+	"net/http"
 	"wannabe/response/actions"
-
-	"github.com/gofiber/fiber/v2"
 )
 
-func SetResponse(ctx *fiber.Ctx, encodedRecord []byte) error {
-	err := actions.SetResponse(ctx, encodedRecord)
+func SetResponse(encodedRecord []byte, request *http.Request) (*http.Response, error) {
+	response, err := actions.SetResponse(encodedRecord, request)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return response, nil
 }

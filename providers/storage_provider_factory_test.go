@@ -7,34 +7,38 @@ import (
 )
 
 func TestStorageProviderFactory(t *testing.T) {
-	configInvalid := config.StorageProvider{
-		Type: "test",
+	invalidConfig := config.Config{
+		StorageProvider: config.StorageProvider{
+			Type: "test",
+		},
 	}
 
-	_, err := StorageProviderFactory(configInvalid)
+	_, err := StorageProviderFactory(invalidConfig)
 	if err == nil {
 		t.Errorf("generation of storage provider with invalid config did not throw error")
 	}
 
-	configFilesystem := config.StorageProvider{
-		Type: "filesystem",
-		FilesystemConfig: config.FilesystemConfig{
-			Folder:           "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T",
-			RegenerateFolder: "",
-			Format:           "json",
+	validConfig := config.Config{
+		StorageProvider: config.StorageProvider{
+			Type: "filesystem",
+			FilesystemConfig: config.FilesystemConfig{
+				Folder:           "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T",
+				RegenerateFolder: "",
+				Format:           "json",
+			},
 		},
 	}
 
-	storageProvider, _ := StorageProviderFactory(configFilesystem)
+	storageProvider, _ := StorageProviderFactory(validConfig)
 	expectedFilesystemProvider := FilesystemProvider{
-		Config: configFilesystem,
+		Config: validConfig,
 	}
 
 	if !reflect.DeepEqual(expectedFilesystemProvider, storageProvider) {
 		t.Errorf("expected storage provider: %v, actual storage provider: %v", expectedFilesystemProvider, storageProvider)
 	}
 
-	configRegenerate := config.StorageProvider{
+	validConfig.StorageProvider = config.StorageProvider{
 		Type:       "filesystem",
 		Regenerate: true,
 		FilesystemConfig: config.FilesystemConfig{
@@ -44,23 +48,23 @@ func TestStorageProviderFactory(t *testing.T) {
 		},
 	}
 
-	storageProvider, _ = StorageProviderFactory(configRegenerate)
+	storageProvider, _ = StorageProviderFactory(validConfig)
 	expectedRegenerateProvider := FilesystemProvider{
-		Config: configRegenerate,
+		Config: validConfig,
 	}
 
 	if !reflect.DeepEqual(expectedRegenerateProvider, storageProvider) {
 		t.Errorf("expected storage provider: %v, actual storage provider: %v", expectedRegenerateProvider, storageProvider)
 	}
 
-	configRedis := config.StorageProvider{
+	validConfig.StorageProvider = config.StorageProvider{
 		Type: "redis",
 		RedisConfig: config.RedisConfig{
 			Database: "db10",
 		},
 	}
 
-	storageProvider, _ = StorageProviderFactory(configRedis)
+	storageProvider, _ = StorageProviderFactory(validConfig)
 	expectedRedisProvider := RedisProvider{}
 
 	if !reflect.DeepEqual(expectedRedisProvider, storageProvider) {

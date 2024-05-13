@@ -2,43 +2,54 @@ package main
 
 import (
 	"log"
-	"wannabe/config"
+	"net"
+	"os"
+	"os/signal"
+	"syscall"
+	configPackage "wannabe/config"
 	"wannabe/handlers"
 	"wannabe/providers"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/AdguardTeam/gomitmproxy"
 )
 
+// FIXME
+// when request is proxied from IC container connection is not closed after response is received
+// github issue opened: https://github.com/AdguardTeam/gomitmproxy/issues/27
 func main() {
-	// TODO read config path from env variable
-	config, err := config.LoadConfig("config.json")
+	config, err := configPackage.LoadConfig("config.json")
 	if err != nil {
 		log.Fatalf("fatal error starting app: %v", err)
 	}
 
-	storageProvider, err := providers.StorageProviderFactory(config.StorageProvider)
+	storageProvider, err := providers.StorageProviderFactory(config)
 	if err != nil {
 		log.Fatalf("fatal error starting app: %v", err)
 	}
 
-	app := fiber.New()
+	mitmConfig, err := configPackage.LoadMitmConfig("demo.crt", "demo.key")
+	if err != nil {
+		log.Fatalf("fatal error starting app: %v", err)
+	}
 
-	// Probes endpoints
-	app.Get("/wannabe/liveness", handlers.Liveness)
-	app.Get("/wannabe/readiness", handlers.Readiness)
+	proxy := gomitmproxy.NewProxy(gomitmproxy.Config{
+		ListenAddr: &net.TCPAddr{
+			IP:   net.IPv4(0, 0, 0, 0),
+			Port: 6789,
+		},
+		MITMConfig: mitmConfig,
+		OnRequest:  handlers.WannabeOnRequest(config, storageProvider),
+		OnResponse: handlers.WannabeOnResponse(config, storageProvider),
+	})
 
-	// Api endpoints
-	app.Get("/wannabe/api/records/:hash", handlers.GetRecords(storageProvider))
-	app.Get("/wannabe/api/records", handlers.GetRecords(storageProvider))
-	app.Post("/wannabe/api/records", handlers.PostRecords(config, storageProvider))
-	app.Delete("/wannabe/api/records/:hash", handlers.DeleteRecords(storageProvider))
-	app.Delete("/wannabe/api/records", handlers.DeleteRecords(storageProvider))
-	app.Get("/wannabe/api/regenerate", handlers.Regenerate(config, storageProvider))
+	err = proxy.Start()
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	// Wannabe endpoints
-	app.Get("/*", handlers.Wannabe(config, storageProvider))
-	app.Post("/*", handlers.Wannabe(config, storageProvider))
+	signalChannel := make(chan os.Signal, 1)
+	signal.Notify(signalChannel, syscall.SIGINT, syscall.SIGTERM)
+	<-signalChannel
 
-	// TODO read host and port from env variable
-	app.Listen(":1234")
+	proxy.Close()
 }

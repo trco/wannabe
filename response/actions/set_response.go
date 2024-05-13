@@ -1,33 +1,41 @@
 package actions
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"wannabe/record/entities"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/AdguardTeam/gomitmproxy/proxyutil"
 )
 
-// set statusCode, headers and body from record to ctx *fiber.Ctx
-func SetResponse(ctx *fiber.Ctx, encodedRecord []byte) error {
+func SetResponse(encodedRecord []byte, request *http.Request) (*http.Response, error) {
 	var record entities.Record
 
 	err := json.Unmarshal(encodedRecord, &record)
 	if err != nil {
-		return fmt.Errorf("SetResponse: failed unmarshaling record: %v", err)
+		return nil, fmt.Errorf("SetResponse: failed unmarshaling record: %v", err)
 	}
 
-	ctx.Status(record.Response.StatusCode)
-	setHeaders(ctx, record.Response.Headers)
-	ctx.JSON(record.Response.Body)
+	statusCode := record.Response.StatusCode
+	headers := record.Response.Headers
 
-	return nil
+	body, err := json.Marshal(record.Response.Body)
+	if err != nil {
+		return nil, fmt.Errorf("SetResponse: failed marshaling body: %v", err)
+	}
+
+	response := proxyutil.NewResponse(statusCode, bytes.NewReader(body), request)
+	setHeaders(response, headers)
+
+	return response, nil
 }
 
-func setHeaders(ctx *fiber.Ctx, headers map[string][]string) {
+func setHeaders(response *http.Response, headers map[string][]string) {
 	for key, value := range headers {
 		for _, v := range value {
-			ctx.Set(key, v)
+			response.Header.Set(key, v)
 		}
 	}
 }

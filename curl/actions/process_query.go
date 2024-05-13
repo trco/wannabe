@@ -5,10 +5,12 @@ import (
 	"wannabe/config"
 )
 
-func ProcessQuery(query map[string]string, config config.Query) (string, error) {
-	if len(query) == 0 {
+func ProcessQuery(queryMap map[string][]string, config config.Query) (string, error) {
+	if len(queryMap) == 0 {
 		return "", nil
 	}
+
+	query := mapValuesToSingleString(queryMap)
 
 	setWildcardsByKey(query, config.Wildcards)
 	rebuiltQuery := buildQuery(query)

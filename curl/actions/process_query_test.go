@@ -7,7 +7,7 @@ import (
 )
 
 type TestCaseProcessQuery struct {
-	Query    map[string]string
+	QueryMap map[string][]string
 	Config   config.Query
 	Expected string
 }
@@ -15,35 +15,35 @@ type TestCaseProcessQuery struct {
 func TestProcessQuery(t *testing.T) {
 	testCases := map[string]TestCaseProcessQuery{
 		"withPlaceholder": {
-			Query: testMapQuery,
+			QueryMap: testMapQuery,
 			Config: config.Query{
 				Wildcards: []config.WildcardKey{{Key: "user", Placeholder: "{placeholder}"}},
 			},
 			Expected: "?app=1&status=new&user=%7Bplaceholder%7D",
 		},
 		"withoutPlaceholder": {
-			Query: testMapQuery,
+			QueryMap: testMapQuery,
 			Config: config.Query{
 				Wildcards: []config.WildcardKey{{Key: "user"}},
 			},
 			Expected: "?app=1&status=new&user=%7Bwannabe%7D",
 		},
 		"withRegex": {
-			Query: testMapQuery,
+			QueryMap: testMapQuery,
 			Config: config.Query{
 				Regexes: []config.Regex{{Pattern: "app=1", Placeholder: "app=123"}},
 			},
 			Expected: "?app=123&status=new&user=%7Bwannabe%7D",
 		},
 		"emptyString": {
-			Query: make(map[string]string),
+			QueryMap: make(map[string][]string),
 			Config: config.Query{
 				Wildcards: []config.WildcardKey{{Key: "user"}},
 			},
 			Expected: "",
 		},
 		"invalidRegex": {
-			Query: testMapQuery,
+			QueryMap: testMapQuery,
 			Config: config.Query{
 				Regexes: []config.Regex{{Pattern: "(?P<foo"}},
 			},
@@ -52,7 +52,7 @@ func TestProcessQuery(t *testing.T) {
 	}
 
 	for testKey, tc := range testCases {
-		processedQuery, err := ProcessQuery(tc.Query, tc.Config)
+		processedQuery, err := ProcessQuery(tc.QueryMap, tc.Config)
 
 		if testKey == "invalidRegex" && err != nil {
 			expectedErr := "ProcessQuery: failed compiling regex: error parsing regexp: invalid named capture: `(?P<foo`"
@@ -72,8 +72,8 @@ func TestProcessQuery(t *testing.T) {
 
 // reusable variables
 
-var testMapQuery = map[string]string{
-	"status": "new",
-	"user":   "paid",
-	"app":    "1",
+var testMapQuery = map[string][]string{
+	"status": {"new"},
+	"user":   {"paid"},
+	"app":    {"1"},
 }

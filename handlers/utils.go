@@ -1,12 +1,77 @@
 package handlers
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"log"
+	"net/http"
 
-func internalError(ctx *fiber.Ctx, err error) error {
-	return ctx.Status(fiber.StatusInternalServerError).JSON(InternalError{
-		StatusCode: fiber.StatusInternalServerError,
-		Error:      err.Error(),
+	"github.com/AdguardTeam/gomitmproxy"
+	"github.com/AdguardTeam/gomitmproxy/proxyutil"
+)
+
+func internalErrorOnRequest(session *gomitmproxy.Session, request *http.Request, err error) (*http.Request, *http.Response) {
+	session.SetProp("blocked", true)
+
+	body := prepareResponseBody(err)
+	response := proxyutil.NewResponse(http.StatusInternalServerError, body, request)
+	response.Header.Set("Content-Type", "application/json")
+
+	return nil, response
+}
+
+func internalErrorOnResponse(request *http.Request, err error) *http.Response {
+	body := prepareResponseBody(err)
+	response := proxyutil.NewResponse(http.StatusInternalServerError, body, request)
+	response.Header.Set("Content-Type", "application/json")
+
+	return response
+}
+
+func prepareResponseBody(err error) *bytes.Reader {
+	body, err := json.Marshal(InternalError{
+		Error: err.Error(),
 	})
+	if err != nil {
+		log.Fatalf("Error marshaling JSON: %v", err)
+	}
+
+	bodyReader := bytes.NewReader(body)
+
+	return bodyReader
+}
+
+func shouldSkipResponseProcessing(session *gomitmproxy.Session) bool {
+	if _, blocked := session.GetProp("blocked"); blocked {
+		return true
+	}
+	if _, responseFromRecord := session.GetProp("responseFromRecord"); responseFromRecord {
+		return true
+	}
+	return false
+}
+
+func getHashAndCurlFromSession(session *gomitmproxy.Session) (string, string, error) {
+	hashProp, ok := session.GetProp("hash")
+	if !ok {
+		return "", "", fmt.Errorf("no hash in session")
+	}
+	hash, ok := hashProp.(string)
+	if !ok {
+		return "", "", fmt.Errorf("hash is not a string")
+	}
+
+	curlProp, ok := session.GetProp("curl")
+	if !ok {
+		return "", "", fmt.Errorf("no curl in session")
+	}
+	curl, ok := curlProp.(string)
+	if !ok {
+		return "", "", fmt.Errorf("curl is not a string")
+	}
+
+	return hash, curl, nil
 }
 
 func checkDuplicates(slice []string, value string) bool {

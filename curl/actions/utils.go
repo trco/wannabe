@@ -71,6 +71,17 @@ func replaceRegexPatterns(processedString string, regexes []config.Regex) (strin
 }
 
 // Query
+// FIXME add test
+func mapValuesToSingleString(queryMap map[string][]string) map[string]string {
+	query := make(map[string]string)
+	for key, _ := range queryMap {
+		queryValue := strings.Join(queryMap[key], ",")
+		query[key] = queryValue
+	}
+
+	return query
+}
+
 func buildQuery(query map[string]string) string {
 	values := url.Values{}
 	for k, v := range query {

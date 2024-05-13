@@ -8,8 +8,7 @@ import (
 	"wannabe/record/entities"
 )
 
-// generates record from ctx *fiber.Ctx request and response, server, hash and curl
-func GenerateRecord(config config.Records, payload entities.GenerateRecordPayload) ([]byte, error) {
+func GenerateRecord(config config.Records, payload entities.RecordPayload) ([]byte, error) {
 	requestHeaders := filterRequestHeaders(payload.RequestHeaders, config.Headers.Exclude)
 
 	requestBody, err := prepareBody(payload.RequestBody)
@@ -17,6 +16,7 @@ func GenerateRecord(config config.Records, payload entities.GenerateRecordPayloa
 		return nil, err
 	}
 
+	// FIXME case when response body is text should also be handled
 	responseBody, err := prepareBody(payload.ResponseBody)
 	if err != nil {
 		return nil, err
@@ -81,6 +81,10 @@ func contains(slice []string, value string) bool {
 
 func prepareBody(encodedBody []byte) (interface{}, error) {
 	var body interface{}
+
+	if len(encodedBody) == 0 {
+		return body, nil
+	}
 
 	err := json.Unmarshal(encodedBody, &body)
 	if err != nil {

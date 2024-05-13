@@ -13,10 +13,10 @@ func (e *StorageProviderGenerationError) Error() string {
 	return fmt.Sprintf("Generation of '%v' storage provider failed.", e.Type)
 }
 
-func StorageProviderFactory(spc config.StorageProvider) (StorageProvider, error) {
-	if spc.Type == "filesystem" {
+func StorageProviderFactory(config config.Config) (StorageProvider, error) {
+	if config.StorageProvider.Type == "filesystem" {
 		storageProvider := FilesystemProvider{
-			Config: spc,
+			Config: config,
 		}
 
 		err := storageProvider.CreateFolders()
@@ -27,11 +27,11 @@ func StorageProviderFactory(spc config.StorageProvider) (StorageProvider, error)
 		return storageProvider, nil
 	}
 
-	if spc.Type == "redis" {
+	if config.StorageProvider.Type == "redis" {
 		return RedisProvider{}, nil
 	}
 
 	return nil, &StorageProviderGenerationError{
-		Type: spc.Type,
+		Type: config.StorageProvider.Type,
 	}
 }

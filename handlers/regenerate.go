@@ -1,123 +1,109 @@
 package handlers
 
-import (
-	"encoding/json"
-	"fmt"
-	"time"
-	"wannabe/config"
-	curlEntities "wannabe/curl/entities"
-	curl "wannabe/curl/services"
-	hash "wannabe/hash/services"
-	"wannabe/providers"
-	recordEntities "wannabe/record/entities"
+// func Regenerate(config config.Config, storageProvider providers.StorageProvider) WannabeHandler {
+// 	return func(ctx *fiber.Ctx) error {
+// 		if !config.StorageProvider.Regenerate {
+// 			return internalError(ctx, fmt.Errorf("regenerate set to false in config"))
+// 		}
 
-	"github.com/gofiber/fiber/v2"
-)
+// 		regenCount := 0
+// 		regenHashes := []string{}
+// 		failedCount := 0
+// 		failedHashes := []string{}
 
-func Regenerate(config config.Config, storageProvider providers.StorageProvider) WannabeHandler {
-	return func(ctx *fiber.Ctx) error {
-		if !config.StorageProvider.Regenerate {
-			return internalError(ctx, fmt.Errorf("regenerate set to false in config"))
-		}
+// 		hashes, err := storageProvider.GetHashes()
+// 		if err != nil {
+// 			return internalError(ctx, err)
+// 		}
 
-		regenCount := 0
-		regenHashes := []string{}
-		failedCount := 0
-		failedHashes := []string{}
+// 		// REVIEW mem issue in case of too many records ?
+// 		records, err := storageProvider.ReadRecords(hashes)
+// 		if err != nil {
+// 			return internalError(ctx, err)
+// 		}
 
-		hashes, err := storageProvider.GetHashes()
-		if err != nil {
-			return internalError(ctx, err)
-		}
+// 		for _, encodedRecord := range records {
+// 			var record recordEntities.Record
 
-		// REVIEW mem issue in case of too many records ?
-		records, err := storageProvider.ReadRecords(hashes)
-		if err != nil {
-			return internalError(ctx, err)
-		}
+// 			oldHash := record.Request.Hash
 
-		for _, encodedRecord := range records {
-			var record recordEntities.Record
+// 			err := json.Unmarshal(encodedRecord, &record)
+// 			if err != nil {
+// 				failedCount++
+// 				failedHashes = append(failedHashes, oldHash)
 
-			oldHash := record.Request.Hash
+// 				continue
+// 			}
 
-			err := json.Unmarshal(encodedRecord, &record)
-			if err != nil {
-				failedCount++
-				failedHashes = append(failedHashes, oldHash)
+// 			requestBody, err := json.Marshal(record.Request.Body)
+// 			if err != nil {
+// 				failedCount++
+// 				failedHashes = append(failedHashes, oldHash)
 
-				continue
-			}
+// 				continue
+// 			}
 
-			requestBody, err := json.Marshal(record.Request.Body)
-			if err != nil {
-				failedCount++
-				failedHashes = append(failedHashes, oldHash)
+// 			curlPayload := curlEntities.GenerateCurlPayload{
+// 				HttpMethod:     record.Request.HttpMethod,
+// 				Path:           record.Request.Path,
+// 				Query:          record.Request.Query,
+// 				RequestHeaders: record.Request.Headers,
+// 				RequestBody:    requestBody,
+// 			}
 
-				continue
-			}
+// 			curl, err := curl.GenerateCurl(config, curlPayload)
+// 			if err != nil {
+// 				failedCount++
+// 				failedHashes = append(failedHashes, oldHash)
 
-			curlPayload := curlEntities.GenerateCurlPayload{
-				HttpMethod:     record.Request.HttpMethod,
-				Path:           record.Request.Path,
-				Query:          record.Request.Query,
-				RequestHeaders: record.Request.Headers,
-				RequestBody:    requestBody,
-			}
+// 				continue
+// 			}
 
-			curl, err := curl.GenerateCurl(config, curlPayload)
-			if err != nil {
-				failedCount++
-				failedHashes = append(failedHashes, oldHash)
+// 			hash, err := hash.GenerateHash(curl)
+// 			if err != nil {
+// 				failedCount++
+// 				failedHashes = append(failedHashes, oldHash)
 
-				continue
-			}
+// 				continue
+// 			}
 
-			hash, err := hash.GenerateHash(curl)
-			if err != nil {
-				failedCount++
-				failedHashes = append(failedHashes, oldHash)
+// 			isDuplicateHash := checkDuplicates(hashes, hash)
+// 			isDuplicateRegenHash := checkDuplicates(regenHashes, hash)
+// 			if isDuplicateHash || isDuplicateRegenHash {
+// 				continue
+// 			}
 
-				continue
-			}
+// 			record.Request.Hash = hash
+// 			record.Request.Curl = curl
+// 			record.Metadata.RegeneratedAt = recordEntities.Timestamp{
+// 				Unix: time.Now().Unix(),
+// 				UTC:  time.Now().UTC(),
+// 			}
 
-			isDuplicateHash := checkDuplicates(hashes, hash)
-			isDuplicateRegenHash := checkDuplicates(regenHashes, hash)
-			if isDuplicateHash || isDuplicateRegenHash {
-				continue
-			}
+// 			encodedRecordRegen, err := json.Marshal(record)
+// 			if err != nil {
+// 				failedCount++
+// 				failedHashes = append(failedHashes, oldHash)
 
-			record.Request.Hash = hash
-			record.Request.Curl = curl
-			record.Metadata.RegeneratedAt = recordEntities.Timestamp{
-				Unix: time.Now().Unix(),
-				UTC:  time.Now().UTC(),
-			}
+// 				continue
+// 			}
 
-			encodedRecordRegen, err := json.Marshal(record)
-			if err != nil {
-				failedCount++
-				failedHashes = append(failedHashes, oldHash)
+// 			err = storageProvider.InsertRecords([]string{hash}, [][]byte{encodedRecordRegen})
+// 			if err != nil {
+// 				failedCount++
+// 				failedHashes = append(failedHashes, oldHash)
 
-				continue
-			}
+// 				continue
+// 			}
 
-			err = storageProvider.InsertRecords([]string{hash}, [][]byte{encodedRecordRegen})
-			if err != nil {
-				failedCount++
-				failedHashes = append(failedHashes, oldHash)
+// 			regenCount++
+// 			regenHashes = append(regenHashes, hash)
+// 		}
 
-				continue
-			}
-
-			regenCount++
-			regenHashes = append(regenHashes, hash)
-		}
-
-		return ctx.Status(fiber.StatusCreated).JSON(RegenerateResponse{
-			Message:           fmt.Sprintf("%v records succeeded in regenerating, %v records failed in regenerating", regenCount, failedCount),
-			RegeneratedHashes: regenHashes,
-			FailedHashes:      failedHashes,
-		})
-	}
-}
+// 		return ctx.Status(fiber.StatusCreated).JSON(RegenerateResponse{
+// 			Message:           fmt.Sprintf("%v records succeeded in regenerating, %v records failed in regenerating", regenCount, failedCount),
+// 			RegeneratedHashes: regenHashes,
+// 			FailedHashes:      failedHashes,
+// 		})
+// 	}
+// }

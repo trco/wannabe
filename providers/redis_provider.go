@@ -12,18 +12,18 @@ func (redis RedisProvider) GetConfig() config.StorageProvider {
 	return redis.Config
 }
 
-func (redis RedisProvider) ReadRecords(hashes []string) ([][]byte, error) {
+func (redis RedisProvider) ReadRecords(hashes []string, key string) ([][]byte, error) {
 	return [][]byte{}, nil
 }
 
-func (redis RedisProvider) InsertRecords(hashes []string, records [][]byte) error {
+func (redis RedisProvider) InsertRecords(records [][]byte, hashes []string, key string) error {
 	return nil
 }
 
-func (redis RedisProvider) DeleteRecords(hashes []string) error {
+func (redis RedisProvider) DeleteRecords(hashes []string, key string) error {
 	return nil
 }
 
-func (redis RedisProvider) GetHashes() ([]string, error) {
+func (redis RedisProvider) GetHashes(key string) ([]string, error) {
 	return []string{}, nil
 }

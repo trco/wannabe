@@ -1,12 +1,10 @@
 package config
 
 type Config struct {
-	Mode            string          `koanf:"mode" validate:"required,oneof=proxy server mixed"`
-	FailOnReadError bool            `koanf:"failOnReadError" validate:"boolean"`
-	StorageProvider StorageProvider `koanf:"storageProvider" validate:"required"`
-	Server          string          `koanf:"server" validate:"required,http_url"`
-	RequestMatching RequestMatching `koanf:"requestMatching"`
-	Records         Records         `koanf:"records"`
+	Mode            string             `koanf:"mode" validate:"required,oneof=proxy server mixed"`
+	FailOnReadError bool               `koanf:"failOnReadError" validate:"boolean"`
+	StorageProvider StorageProvider    `koanf:"storageProvider" validate:"required"`
+	Wannabes        map[string]Wannabe `koanf:"wannabes" validate:"required,headers_included_excluded,dive"`
 }
 
 type StorageProvider struct {
@@ -24,6 +22,12 @@ type FilesystemConfig struct {
 
 type RedisConfig struct {
 	Database string `koanf:"database" validate:"required"`
+}
+
+type Wannabe struct {
+	Protocol        string          `koanf:"protocol" validate:"required,oneof=http https"`
+	RequestMatching RequestMatching `koanf:"requestMatching"`
+	Records         Records         `koanf:"records"`
 }
 
 type RequestMatching struct {
@@ -54,7 +58,7 @@ type Body struct {
 }
 
 type Headers struct {
-	Include   []string      `koanf:"include" validate:"the_same_header_defined_in_records_headers_exclude,gte=0,dive"`
+	Include   []string      `koanf:"include" validate:"gte=0,dive"`
 	Wildcards []WildcardKey `koanf:"wildcards" validate:"gte=0,dive"`
 }
 
