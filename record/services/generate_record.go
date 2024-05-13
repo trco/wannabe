@@ -6,7 +6,7 @@ import (
 	"wannabe/record/entities"
 )
 
-func GenerateRecord(config config.Records, payload entities.GenerateRecordPayload) ([]byte, error) {
+func GenerateRecord(config config.Records, payload entities.RecordPayload) ([]byte, error) {
 	record, err := actions.GenerateRecord(config, payload)
 	if err != nil {
 		return nil, err

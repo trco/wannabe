@@ -8,8 +8,7 @@ import (
 	"wannabe/record/entities"
 )
 
-// generates record from ctx *fiber.Ctx request and response, server, hash and curl
-func GenerateRecord(config config.Records, payload entities.GenerateRecordPayload) ([]byte, error) {
+func GenerateRecord(config config.Records, payload entities.RecordPayload) ([]byte, error) {
 	requestHeaders := filterRequestHeaders(payload.RequestHeaders, config.Headers.Exclude)
 
 	requestBody, err := prepareBody(payload.RequestBody)

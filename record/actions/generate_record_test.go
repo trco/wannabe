@@ -31,7 +31,7 @@ var testConfigA = config.Records{
 	},
 }
 
-var payload = entities.GenerateRecordPayload{
+var payload = entities.RecordPayload{
 	Hash:       "testHash",
 	Curl:       "testCurl",
 	HttpMethod: "POST",

@@ -2,7 +2,7 @@ package entities
 
 import "time"
 
-type GenerateRecordPayload struct {
+type RecordPayload struct {
 	Hash            string
 	Curl            string
 	HttpMethod      string
