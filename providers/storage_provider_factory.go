@@ -19,11 +19,6 @@ func StorageProviderFactory(config config.Config) (StorageProvider, error) {
 			Config: config,
 		}
 
-		err := storageProvider.CreateFolders()
-		if err != nil {
-			return nil, fmt.Errorf("StorageProviderFactory: failed creating folders: %v", err)
-		}
-
 		return storageProvider, nil
 	}
 

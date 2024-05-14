@@ -27,7 +27,6 @@ var filesystemProvider = FilesystemProvider{
 var testRecord = []byte{53}
 
 func TestInsertAndReadRecord(t *testing.T) {
-	_ = filesystemProvider.CreateFolders()
 	_ = filesystemProvider.InsertRecords([][]byte{testRecord}, []string{"testHash3"}, "test.api.com")
 
 	records, _ := filesystemProvider.ReadRecords([]string{"testHash3"}, "test.api.com")
@@ -38,7 +37,6 @@ func TestInsertAndReadRecord(t *testing.T) {
 }
 
 func TestDeleteRecord(t *testing.T) {
-	_ = filesystemProvider.CreateFolders()
 	filesystemProvider.InsertRecords([][]byte{testRecord}, []string{"testHash4"}, "test.api.com")
 
 	filesystemProvider.DeleteRecords([]string{"testHash4"}, "test.api.com")
@@ -53,7 +51,6 @@ func TestDeleteRecord(t *testing.T) {
 }
 
 func TestGetHashes(t *testing.T) {
-	_ = filesystemProvider.CreateFolders()
 	_ = filesystemProvider.InsertRecords([][]byte{testRecord}, []string{"testHash5"}, "test.api.com")
 	_ = filesystemProvider.InsertRecords([][]byte{testRecord}, []string{"testHash6"}, "test.api.com")
 	_ = filesystemProvider.InsertRecords([][]byte{testRecord}, []string{"testHash7"}, "test.api.com")
@@ -70,7 +67,9 @@ func TestGetHashes(t *testing.T) {
 }
 
 func TestGenerateFilepath(t *testing.T) {
-	generateFilepath := filesystemProvider.generateFilepath("testHash1", "test.api.com")
+	regenerate := filesystemProvider.Config.StorageProvider.Regenerate
+
+	generateFilepath := filesystemProvider.generateFilepath("test.api.com", "testHash1", regenerate)
 
 	expectedFilepath := "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T/test.api.com/testHash1.json"
 
@@ -82,7 +81,9 @@ func TestGenerateFilepath(t *testing.T) {
 func TestGenerateFilepathRegenerate(t *testing.T) {
 	filesystemProvider.Config.StorageProvider.Regenerate = true
 
-	regenerateFilepath := filesystemProvider.generateFilepathRegenerate("testHash2", "test.api.com")
+	regenerate := filesystemProvider.Config.StorageProvider.Regenerate
+
+	regenerateFilepath := filesystemProvider.generateFilepath("testHash2", "test.api.com", regenerate)
 
 	expectedFilepath := "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T/regenerate/test.api.com/testHash2.json"
 
