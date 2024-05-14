@@ -10,8 +10,6 @@ import (
 )
 
 func LoadMitmConfig(certificate string, key string) (*mitm.Config, error) {
-	// setup mitm config for TLC interception
-	// ref: https://github.com/AdguardTeam/gomitmproxy?tab=readme-ov-file#tls-interception
 	tlsCert, err := tls.LoadX509KeyPair(certificate, key)
 	if err != nil {
 		return nil, err
@@ -28,6 +26,7 @@ func LoadMitmConfig(certificate string, key string) (*mitm.Config, error) {
 		return nil, err
 	}
 
+	// REVIEW why is this needed?
 	mitmConfig.SetValidity(time.Hour * 24 * 7) // generate certs valid for 7 days
 	mitmConfig.SetOrganization("gomitmproxy")  // cert organization
 
