@@ -9,9 +9,9 @@ import (
 )
 
 func TestLoadConfig(t *testing.T) {
-	configFilepath, _ := createTestConfigFile("config.json")
+	configFile, _ := createTestConfigFile("config.json")
 
-	config, _ := LoadConfig(configFilepath)
+	config, _ := LoadConfig(configFile)
 
 	if !reflect.DeepEqual(testConfig, config) {
 		t.Errorf("expected config: %v, actual config: %v", testConfig, config)
@@ -50,10 +50,10 @@ func TestLoadConfigFromFile(t *testing.T) {
 	}
 
 	// load config from existing config.json
-	configFilepath, _ := createTestConfigFile("config.json")
-	defer os.Remove(configFilepath)
+	configFile, _ := createTestConfigFile("config.json")
+	defer os.Remove(configFile)
 
-	config, err := loadConfigFromFile(configFilepath, configWithDefaults)
+	config, err := loadConfigFromFile(configFile, configWithDefaults)
 
 	if err != nil {
 		t.Errorf("loading of config from existing config.json failed")

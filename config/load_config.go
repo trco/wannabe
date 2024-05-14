@@ -9,10 +9,10 @@ import (
 	"github.com/knadh/koanf/providers/file"
 )
 
-func LoadConfig(configFilepath string) (Config, error) {
+func LoadConfig(configFile string) (Config, error) {
 	config := setConfigDefaults()
 
-	config, err := loadConfigFromFile(configFilepath, config)
+	config, err := loadConfigFromFile(configFile, config)
 	if err != nil {
 		return Config{}, fmt.Errorf("failed loading config: %v", err)
 	}
@@ -41,8 +41,8 @@ func setConfigDefaults() Config {
 	}
 }
 
-func loadConfigFromFile(configFilepath string, config Config) (Config, error) {
-	f := file.Provider(configFilepath)
+func loadConfigFromFile(configFile string, config Config) (Config, error) {
+	f := file.Provider(configFile)
 	var k = koanf.New(".")
 
 	loadConfig := func() error {
