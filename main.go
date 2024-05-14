@@ -6,18 +6,15 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	configPackage "wannabe/config"
+	cfg "wannabe/config"
 	"wannabe/handlers"
 	"wannabe/providers"
 
 	"github.com/AdguardTeam/gomitmproxy"
 )
 
-// FIXME
-// when request is proxied from IC container connection is not closed after response is received
-// github issue opened: https://github.com/AdguardTeam/gomitmproxy/issues/27
 func main() {
-	config, err := configPackage.LoadConfig("config.json")
+	config, err := cfg.LoadConfig("config.json")
 	if err != nil {
 		log.Fatalf("fatal error starting app: %v", err)
 	}
@@ -27,7 +24,7 @@ func main() {
 		log.Fatalf("fatal error starting app: %v", err)
 	}
 
-	mitmConfig, err := configPackage.LoadMitmConfig("demo.crt", "demo.key")
+	mitmConfig, err := cfg.LoadMitmConfig("demo.crt", "demo.key")
 	if err != nil {
 		log.Fatalf("fatal error starting app: %v", err)
 	}
