@@ -25,7 +25,6 @@ type RedisConfig struct {
 }
 
 type Wannabe struct {
-	Protocol        string          `koanf:"protocol" validate:"required,oneof=http https"`
 	RequestMatching RequestMatching `koanf:"requestMatching"`
 	Records         Records         `koanf:"records"`
 }
