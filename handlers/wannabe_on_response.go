@@ -18,7 +18,8 @@ func WannabeOnResponse(config config.Config, storageProvider providers.StoragePr
 func processSessionOnResponse(config config.Config, storageProvider providers.StorageProvider, session *gomitmproxy.Session) *http.Response {
 	request := session.Request()
 
-	if request.Method == "CONNECT" {
+	isConnect := request.Method == "CONNECT"
+	if isConnect {
 		return nil
 	}
 
