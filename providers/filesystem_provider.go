@@ -109,7 +109,6 @@ func (fsp FilesystemProvider) GetHashes(subfolder string) ([]string, error) {
 
 func (fsp FilesystemProvider) generateFilepath(subfolder string, hash string, regenerate bool) string {
 	var folder string
-
 	if regenerate {
 		folder = fsp.Config.StorageProvider.FilesystemConfig.RegenerateFolder
 	} else {
