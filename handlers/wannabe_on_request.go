@@ -14,11 +14,11 @@ import (
 
 func WannabeOnRequest(config config.Config, storageProvider providers.StorageProvider) WannabeOnRequestHandler {
 	return func(session *gomitmproxy.Session) (*http.Request, *http.Response) {
-		return processSessionOnRequest(session, config, storageProvider)
+		return processSessionOnRequest(config, storageProvider, session)
 	}
 }
 
-func processSessionOnRequest(session *gomitmproxy.Session, config config.Config, storageProvider providers.StorageProvider) (*http.Request, *http.Response) {
+func processSessionOnRequest(config config.Config, storageProvider providers.StorageProvider, session *gomitmproxy.Session) (*http.Request, *http.Response) {
 	request := session.Request()
 
 	if request.Method == "CONNECT" {
@@ -43,6 +43,7 @@ func processSessionOnRequest(session *gomitmproxy.Session, config config.Config,
 	// server, mixed
 	if config.Mode != "proxy" {
 		records, err := storageProvider.ReadRecords([]string{hash}, host)
+		// REVIEW config.FailOnReadError usage in different modes
 		if err != nil && config.FailOnReadError {
 			return internalErrorOnRequest(session, request, err)
 		}

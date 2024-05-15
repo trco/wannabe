@@ -11,11 +11,11 @@ import (
 
 func WannabeOnResponse(config config.Config, storageProvider providers.StorageProvider) WannabeOnResponseHandler {
 	return func(session *gomitmproxy.Session) *http.Response {
-		return processSessionOnResponse(session, config, storageProvider)
+		return processSessionOnResponse(config, storageProvider, session)
 	}
 }
 
-func processSessionOnResponse(session *gomitmproxy.Session, config config.Config, storageProvider providers.StorageProvider) *http.Response {
+func processSessionOnResponse(config config.Config, storageProvider providers.StorageProvider, session *gomitmproxy.Session) *http.Response {
 	request := session.Request()
 
 	if request.Method == "CONNECT" {
