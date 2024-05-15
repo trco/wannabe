@@ -2,10 +2,15 @@ package config
 
 type Config struct {
 	Mode            string             `koanf:"mode" validate:"required,oneof=proxy server mixed"`
-	FailOnReadError bool               `koanf:"failOnReadError" validate:"boolean"`
 	StorageProvider StorageProvider    `koanf:"storageProvider" validate:"required"`
 	Wannabes        map[string]Wannabe `koanf:"wannabes" validate:"required,headers_included_excluded,dive"`
 }
+
+const (
+	ServerMode = "server"
+	MixedMode  = "mixed"
+	ProxyMode  = "proxy"
+)
 
 type StorageProvider struct {
 	Type             string           `koanf:"type" validate:"required,oneof=filesystem redis"`
