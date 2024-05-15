@@ -46,7 +46,7 @@ func shouldSkipResponseProcessing(session *gomitmproxy.Session) bool {
 	if _, blocked := session.GetProp("blocked"); blocked {
 		return true
 	}
-	if _, responseFromRecord := session.GetProp("responseFromRecord"); responseFromRecord {
+	if _, responseSetFromRecord := session.GetProp("responseSetFromRecord"); responseSetFromRecord {
 		return true
 	}
 	return false
