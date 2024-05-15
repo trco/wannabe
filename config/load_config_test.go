@@ -22,8 +22,7 @@ func TestSetConfigDefaults(t *testing.T) {
 	config := setConfigDefaults()
 
 	defaultConfig := Config{
-		Mode:            "mixed",
-		FailOnReadError: false,
+		Mode: "mixed",
 		StorageProvider: StorageProvider{
 			Type:       "filesystem",
 			Regenerate: false,
@@ -111,8 +110,7 @@ func TestValidateConfig(t *testing.T) {
 
 var zero = 0
 var testConfig = Config{
-	Mode:            "mixed",
-	FailOnReadError: false,
+	Mode: "mixed",
 	StorageProvider: StorageProvider{
 		Type:       "filesystem",
 		Regenerate: false,

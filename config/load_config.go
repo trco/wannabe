@@ -27,8 +27,7 @@ func LoadConfig(configFile string) (Config, error) {
 
 func setConfigDefaults() Config {
 	return Config{
-		Mode:            "mixed",
-		FailOnReadError: false,
+		Mode: "mixed",
 		StorageProvider: StorageProvider{
 			Type:       "filesystem",
 			Regenerate: false,
