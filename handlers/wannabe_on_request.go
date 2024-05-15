@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"wannabe/config"
+	cfg "wannabe/config"
 	curl "wannabe/curl/services"
 	hash "wannabe/hash/services"
 	"wannabe/providers"
@@ -21,7 +22,8 @@ func WannabeOnRequest(config config.Config, storageProvider providers.StoragePro
 func processSessionOnRequest(config config.Config, storageProvider providers.StorageProvider, session *gomitmproxy.Session) (*http.Request, *http.Response) {
 	request := session.Request()
 
-	if request.Method == "CONNECT" {
+	isConnect := request.Method == "CONNECT"
+	if isConnect {
 		return nil, nil
 	}
 
@@ -40,19 +42,20 @@ func processSessionOnRequest(config config.Config, storageProvider providers.Sto
 	}
 	session.SetProp("hash", hash)
 
-	// server, mixed
-	if config.Mode != "proxy" {
+	isNotProxyMode := config.Mode != cfg.ProxyMode
+	if isNotProxyMode {
 		records, err := storageProvider.ReadRecords([]string{hash}, host)
-		// REVIEW config.FailOnReadError usage in different modes
-		if err != nil && config.FailOnReadError {
+		if err != nil {
 			return internalErrorOnRequest(session, request, err)
 		}
 
-		if records != nil {
-			return processRecords(session, request, records, config.FailOnReadError)
+		isSingleRecord := len(records) == 1
+		if isSingleRecord {
+			return processRecords(session, request, records[0])
 		}
 
-		if config.Mode == "server" {
+		isServerMode := config.Mode == cfg.ServerMode
+		if isServerMode {
 			return internalErrorOnRequest(session, request, fmt.Errorf("no record found for the request"))
 		}
 	}
@@ -60,16 +63,16 @@ func processSessionOnRequest(config config.Config, storageProvider providers.Sto
 	return nil, nil
 }
 
-func processRecords(session *gomitmproxy.Session, request *http.Request, records [][]byte, failOnReadError bool) (*http.Request, *http.Response) {
-	responseFromRecord, err := response.SetResponse(records[0], request)
-	if err != nil && failOnReadError {
+func processRecords(session *gomitmproxy.Session, request *http.Request, record []byte) (*http.Request, *http.Response) {
+	responseSetFromRecord, err := response.SetResponse(record, request)
+	if err != nil {
 		return internalErrorOnRequest(session, request, err)
 	}
 
-	session.SetProp("responseFromRecord", true)
+	session.SetProp("responseSetFromRecord", true)
 
 	// TODO remove log
 	fmt.Println("GetResponse >>> READ and return")
 
-	return nil, responseFromRecord
+	return nil, responseSetFromRecord
 }
