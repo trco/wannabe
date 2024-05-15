@@ -3,7 +3,6 @@ package services
 import (
 	"bytes"
 	"io"
-	"time"
 	"wannabe/record/entities"
 
 	"github.com/AdguardTeam/gomitmproxy"
@@ -31,8 +30,6 @@ func GenerateRecordPayload(session *gomitmproxy.Session, hash string, curl strin
 	// set body back to response
 	response.Body = io.NopCloser(bytes.NewBuffer(responseBody))
 
-	timestamp := time.Now()
-
 	recordPayload := entities.RecordPayload{
 		Hash:            hash,
 		Curl:            curl,
@@ -45,10 +42,6 @@ func GenerateRecordPayload(session *gomitmproxy.Session, hash string, curl strin
 		StatusCode:      response.StatusCode,
 		ResponseHeaders: response.Header,
 		ResponseBody:    responseBody,
-		Timestamp: entities.Timestamp{
-			Unix: timestamp.Unix(),
-			UTC:  timestamp.UTC(),
-		},
 	}
 
 	return recordPayload, nil

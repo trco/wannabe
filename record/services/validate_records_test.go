@@ -53,10 +53,6 @@ var validRecord = entities.Record{
 		},
 	},
 	Metadata: entities.Metadata{
-		RequestedAt: entities.Timestamp{
-			Unix: 0,
-			UTC:  time.Time{},
-		},
 		GeneratedAt: entities.Timestamp{
 			Unix: 0,
 			UTC:  time.Time{},
@@ -93,10 +89,6 @@ var invalidRecord = entities.Record{
 		},
 	},
 	Metadata: entities.Metadata{
-		RequestedAt: entities.Timestamp{
-			Unix: 0,
-			UTC:  time.Time{},
-		},
 		GeneratedAt: entities.Timestamp{
 			Unix: 0,
 			UTC:  time.Time{},

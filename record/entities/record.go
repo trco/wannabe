@@ -14,7 +14,6 @@ type RecordPayload struct {
 	RequestBody     []byte
 	StatusCode      int
 	ResponseBody    []byte
-	Timestamp       Timestamp
 }
 
 type Record struct {
@@ -41,7 +40,6 @@ type Response struct {
 }
 
 type Metadata struct {
-	RequestedAt   Timestamp `json:"requestedAt"`
 	GeneratedAt   Timestamp `json:"generatedAt"`
 	RegeneratedAt Timestamp `json:"regeneratedAt"`
 }

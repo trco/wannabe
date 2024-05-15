@@ -22,6 +22,8 @@ func GenerateRecord(config config.Records, payload entities.RecordPayload) ([]by
 		return nil, err
 	}
 
+	timestamp := time.Now()
+
 	record := entities.Record{
 		Request: entities.Request{
 			Hash:       payload.Hash,
@@ -39,13 +41,9 @@ func GenerateRecord(config config.Records, payload entities.RecordPayload) ([]by
 			Body:       responseBody,
 		},
 		Metadata: entities.Metadata{
-			RequestedAt: entities.Timestamp{
-				Unix: payload.Timestamp.Unix,
-				UTC:  payload.Timestamp.UTC,
-			},
 			GeneratedAt: entities.Timestamp{
-				Unix: time.Now().Unix(),
-				UTC:  time.Now().UTC(),
+				Unix: timestamp.Unix(),
+				UTC:  timestamp.UTC(),
 			},
 		},
 	}
