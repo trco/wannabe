@@ -21,7 +21,9 @@ func (fsp FilesystemProvider) ReadRecords(hashes []string, subfolder string) ([]
 		filepath := fsp.generateFilepath(subfolder, hash, false)
 
 		_, err := os.Stat(filepath)
-		if err != nil {
+		if os.IsNotExist(err) {
+			continue
+		} else if err != nil {
 			return nil, filesystemProviderErr("failed checking if file exists", err)
 		}
 
