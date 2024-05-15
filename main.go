@@ -42,7 +42,6 @@ func startWannabeProxyServer(config cfg.Config, mitmConfig *mitm.Config, storage
 			Port: 6789,
 		},
 		MITMConfig: mitmConfig,
-		// NEXT continue here
 		OnRequest:  handlers.WannabeOnRequest(config, storageProvider),
 		OnResponse: handlers.WannabeOnResponse(config, storageProvider),
 	})
