@@ -8,7 +8,7 @@ import (
 	"wannabe/config"
 )
 
-// General
+// general
 func setWildcardsByIndex(slice []string, wildcards []config.WildcardIndex) {
 	for _, wildcard := range wildcards {
 		if isIndexOutOfBounds(slice, *wildcard.Index) {
@@ -70,8 +70,7 @@ func replaceRegexPatterns(processedString string, regexes []config.Regex) (strin
 	return processedString, nil
 }
 
-// Query
-// FIXME add test
+// query
 func mapValuesToSingleString(queryMap map[string][]string) map[string]string {
 	query := make(map[string]string)
 	for key, _ := range queryMap {
@@ -92,7 +91,7 @@ func buildQuery(query map[string]string) string {
 	return "?" + values.Encode()
 }
 
-// Headers
+// headers
 type Header struct {
 	Key   string
 	Value string
@@ -130,7 +129,7 @@ func sortHeaderSlice(headerSlice []Header) []Header {
 	return headerSlice
 }
 
-// Checks
+// checks
 func isIndexOutOfBounds[T interface{}](slice []T, index int) bool {
 	return index < 0 || index >= len(slice)
 }
