@@ -47,7 +47,7 @@ func setPlaceholderByKey(inputMap map[string]string, wildcard config.WildcardKey
 	}
 }
 
-func replaceRegexPatterns(processedString string, regexes []config.Regex) (string, error) {
+func replaceRegexPatterns(processedString string, regexes []config.Regex, isQuery bool) (string, error) {
 	for _, regex := range regexes {
 		compiledPattern, err := regexp.Compile(regex.Pattern)
 		if err != nil {
@@ -62,6 +62,10 @@ func replaceRegexPatterns(processedString string, regexes []config.Regex) (strin
 
 		if regex.Placeholder == "" {
 			regex.Placeholder = "{wannabe}"
+		}
+
+		if isQuery {
+			regex.Placeholder = url.QueryEscape(regex.Placeholder)
 		}
 
 		processedString = compiledPattern.ReplaceAllString(processedString, regex.Placeholder)

@@ -178,6 +178,7 @@ type TestCaseReplaceRegexPatterns struct {
 	String   string
 	Regexes  []config.Regex
 	Expected string
+	IsQuery  bool
 }
 
 func TestReplaceRegexPatterns(t *testing.T) {
@@ -186,21 +187,30 @@ func TestReplaceRegexPatterns(t *testing.T) {
 			String:   "/v1beta/properties/375748157:runReport?user=paid&status=new&app=1",
 			Regexes:  []config.Regex{{Pattern: "(\\d+):runReport", Placeholder: "{propertyId}:runReport"}},
 			Expected: "/v1beta/properties/{propertyId}:runReport?user=paid&status=new&app=1",
+			IsQuery:  false,
 		},
 		"matchWithoutPlaceholder": {
 			String:   "/v1beta/properties/375748157:runReport?user=paid&status=new&app=1",
 			Regexes:  []config.Regex{{Pattern: "(\\d+):runReport"}},
 			Expected: "/v1beta/properties/{wannabe}?user=paid&status=new&app=1",
+			IsQuery:  false,
+		},
+		"matchInQueryWithPlaceholder": {
+			String:   "/v1beta/properties/375748157:runReport?user=paid&status=new&app=1",
+			Regexes:  []config.Regex{{Pattern: "paid", Placeholder: "{placeholder}"}},
+			Expected: "/v1beta/properties/375748157:runReport?user=%7Bplaceholder%7D&status=new&app=1",
+			IsQuery:  true,
 		},
 		"noMatch": {
 			String:   "/v1beta/properties/375748157:runReport?user=paid&status=new&app=1",
 			Regexes:  []config.Regex{{Pattern: "\"dimensions\":\\s*\\[(.*?)\\][,}]"}},
 			Expected: "/v1beta/properties/375748157:runReport?user=paid&status=new&app=1",
+			IsQuery:  false,
 		},
 	}
 
 	for testKey, tc := range testCases {
-		processedString, _ := replaceRegexPatterns(tc.String, tc.Regexes)
+		processedString, _ := replaceRegexPatterns(tc.String, tc.Regexes, tc.IsQuery)
 
 		if processedString != tc.Expected {
 			t.Errorf("failed test case: %v, expected string: %v, actual string: %v", testKey, tc.Expected, processedString)

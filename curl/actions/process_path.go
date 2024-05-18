@@ -17,7 +17,7 @@ func ProcessPath(path string, config config.Path) (string, error) {
 	setWildcardsByIndex(pathParts, config.Wildcards)
 	rebuiltPath := "/" + strings.Join(pathParts, "/")
 
-	processedPath, err := replaceRegexPatterns(rebuiltPath, config.Regexes)
+	processedPath, err := replaceRegexPatterns(rebuiltPath, config.Regexes, false)
 	if err != nil {
 		return "", fmt.Errorf("ProcessPath: failed compiling regex: %v", err)
 	}

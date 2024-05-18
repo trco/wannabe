@@ -28,12 +28,19 @@ func TestProcessQuery(t *testing.T) {
 			},
 			Expected: "?app=1&status=new&user=%7Bwannabe%7D",
 		},
-		"withRegex": {
+		"withRegexWithPlaceholder": {
 			QueryMap: testMapQuery,
 			Config: config.Query{
-				Regexes: []config.Regex{{Pattern: "app=1", Placeholder: "app=123"}},
+				Regexes: []config.Regex{{Pattern: "paid", Placeholder: "{placeholder}"}},
 			},
-			Expected: "?app=123&status=new&user=%7Bwannabe%7D",
+			Expected: "?app=1&status=new&user=%7Bplaceholder%7D",
+		},
+		"withRegexWithoutPlaceholder": {
+			QueryMap: testMapQuery,
+			Config: config.Query{
+				Regexes: []config.Regex{{Pattern: "paid"}},
+			},
+			Expected: "?app=1&status=new&user=%7Bwannabe%7D",
 		},
 		"emptyString": {
 			QueryMap: make(map[string][]string),

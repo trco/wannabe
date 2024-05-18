@@ -12,7 +12,7 @@ func ProcessHost(host string, config config.Host) (string, error) {
 	setWildcardsByIndex(hostParts, config.Wildcards)
 	rebuiltHost := strings.Join(hostParts, ".")
 
-	processedHost, err := replaceRegexPatterns(rebuiltHost, config.Regexes)
+	processedHost, err := replaceRegexPatterns(rebuiltHost, config.Regexes, false)
 	if err != nil {
 		return "", fmt.Errorf("ProcessHost: failed compiling regex: %v", err)
 	}

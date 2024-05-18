@@ -23,7 +23,7 @@ func ProcessBody(requestBody []byte, config config.Body) (string, error) {
 
 	bodyString := string(requestBody)
 
-	processedBodyString, err := replaceRegexPatterns(bodyString, config.Regexes)
+	processedBodyString, err := replaceRegexPatterns(bodyString, config.Regexes, false)
 	if err != nil {
 		return "", fmt.Errorf("ProcessBody: failed compiling regex: %v", err)
 	}

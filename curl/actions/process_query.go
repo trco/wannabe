@@ -15,7 +15,7 @@ func ProcessQuery(queryMap map[string][]string, config config.Query) (string, er
 	setWildcardsByKey(query, config.Wildcards)
 	rebuiltQuery := buildQuery(query)
 
-	processedQuery, err := replaceRegexPatterns(rebuiltQuery, config.Regexes)
+	processedQuery, err := replaceRegexPatterns(rebuiltQuery, config.Regexes, true)
 	if err != nil {
 		return "", fmt.Errorf("ProcessQuery: failed compiling regex: %v", err)
 	}
