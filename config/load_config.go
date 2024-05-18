@@ -2,7 +2,6 @@ package config
 
 import (
 	"fmt"
-	"wannabe/utils"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/knadh/koanf"
@@ -93,7 +92,7 @@ func validateWannabeHeadersConfig(fl validator.FieldLevel) bool {
 		headersExclude := wannabe.Records.Headers.Exclude
 
 		for _, i := range headersInclude {
-			if utils.Contains(headersExclude, i) {
+			if contains(headersExclude, i) {
 				return false
 
 			}
@@ -101,4 +100,13 @@ func validateWannabeHeadersConfig(fl validator.FieldLevel) bool {
 	}
 
 	return true
+}
+
+func contains(slice []string, value string) bool {
+	for _, item := range slice {
+		if item == value {
+			return true
+		}
+	}
+	return false
 }
