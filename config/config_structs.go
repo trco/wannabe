@@ -3,7 +3,7 @@ package config
 type Config struct {
 	Mode            string             `koanf:"mode" validate:"required,oneof=proxy server mixed"`
 	StorageProvider StorageProvider    `koanf:"storageProvider" validate:"required"`
-	Wannabes        map[string]Wannabe `koanf:"wannabes" validate:"required,headers_included_excluded,dive"`
+	Wannabes        map[string]Wannabe `koanf:"wannabes" validate:"headers_included_excluded,dive"`
 }
 
 const (

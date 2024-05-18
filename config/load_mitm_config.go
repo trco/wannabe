@@ -4,7 +4,6 @@ import (
 	"crypto/rsa"
 	"crypto/tls"
 	"crypto/x509"
-	"time"
 
 	"github.com/AdguardTeam/gomitmproxy/mitm"
 )
@@ -25,10 +24,6 @@ func LoadMitmConfig(certificate string, key string) (*mitm.Config, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	// REVIEW why is this needed?
-	mitmConfig.SetValidity(time.Hour * 24 * 7) // generate certs valid for 7 days
-	mitmConfig.SetOrganization("gomitmproxy")  // cert organization
 
 	return mitmConfig, nil
 }

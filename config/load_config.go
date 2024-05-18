@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"wannabe/utils"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/knadh/koanf"
@@ -9,12 +10,12 @@ import (
 	"github.com/knadh/koanf/providers/file"
 )
 
-func LoadConfig(configFile string) (Config, error) {
+func LoadConfig(configFilename string) (Config, error) {
 	config := setConfigDefaults()
 
-	config, err := loadConfigFromFile(configFile, config)
+	config, err := loadConfigFromFile(configFilename, config)
 	if err != nil {
-		return Config{}, fmt.Errorf("failed loading config: %v", err)
+		return Config{}, fmt.Errorf("failed loading config from file: %v", err)
 	}
 
 	err = validateConfig(config)
@@ -40,8 +41,8 @@ func setConfigDefaults() Config {
 	}
 }
 
-func loadConfigFromFile(configFile string, config Config) (Config, error) {
-	f := file.Provider(configFile)
+func loadConfigFromFile(configFilename string, config Config) (Config, error) {
+	f := file.Provider(configFilename)
 	var k = koanf.New(".")
 
 	loadConfig := func() error {
@@ -84,9 +85,7 @@ func validateConfig(config Config) error {
 	return nil
 }
 
-// custom validation functions
 func validateWannabeHeadersConfig(fl validator.FieldLevel) bool {
-
 	wannabes := fl.Field().Interface().(map[string]Wannabe)
 
 	for _, wannabe := range wannabes {
@@ -94,10 +93,9 @@ func validateWannabeHeadersConfig(fl validator.FieldLevel) bool {
 		headersExclude := wannabe.Records.Headers.Exclude
 
 		for _, i := range headersInclude {
-			for _, e := range headersExclude {
-				if i == e {
-					return false
-				}
+			if utils.Contains(headersExclude, i) {
+				return false
+
 			}
 		}
 	}

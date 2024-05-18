@@ -9,9 +9,9 @@ import (
 )
 
 func TestLoadConfig(t *testing.T) {
-	configFile, _ := createTestConfigFile("config.json")
+	configFilename, _ := createTestConfigFile("config.json")
 
-	config, _ := LoadConfig(configFile)
+	config, _ := LoadConfig(configFilename)
 
 	if !reflect.DeepEqual(testConfig, config) {
 		t.Errorf("expected config: %v, actual config: %v", testConfig, config)
@@ -28,7 +28,7 @@ func TestSetConfigDefaults(t *testing.T) {
 			Regenerate: false,
 			FilesystemConfig: FilesystemConfig{
 				Folder:           "records",
-				RegenerateFolder: "",
+				RegenerateFolder: "records/regenerated",
 				Format:           "json",
 			},
 		},
@@ -49,10 +49,10 @@ func TestLoadConfigFromFile(t *testing.T) {
 	}
 
 	// load config from existing config.json
-	configFile, _ := createTestConfigFile("config.json")
-	defer os.Remove(configFile)
+	configFilename, _ := createTestConfigFile("config.json")
+	defer os.Remove(configFilename)
 
-	config, err := loadConfigFromFile(configFile, configWithDefaults)
+	config, err := loadConfigFromFile(configFilename, configWithDefaults)
 
 	if err != nil {
 		t.Errorf("loading of config from existing config.json failed")
