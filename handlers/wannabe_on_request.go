@@ -3,7 +3,6 @@ package handlers
 import (
 	"fmt"
 	"net/http"
-	"wannabe/config"
 	cfg "wannabe/config"
 	curl "wannabe/curl/services"
 	hash "wannabe/hash/services"
@@ -13,13 +12,13 @@ import (
 	"github.com/AdguardTeam/gomitmproxy"
 )
 
-func WannabeOnRequest(config config.Config, storageProvider providers.StorageProvider) WannabeOnRequestHandler {
+func WannabeOnRequest(config cfg.Config, storageProvider providers.StorageProvider) WannabeOnRequestHandler {
 	return func(session *gomitmproxy.Session) (*http.Request, *http.Response) {
 		return processSessionOnRequest(config, storageProvider, session)
 	}
 }
 
-func processSessionOnRequest(config config.Config, storageProvider providers.StorageProvider, session *gomitmproxy.Session) (*http.Request, *http.Response) {
+func processSessionOnRequest(config cfg.Config, storageProvider providers.StorageProvider, session *gomitmproxy.Session) (*http.Request, *http.Response) {
 	request := session.Request()
 
 	isConnect := request.Method == "CONNECT"
