@@ -6,10 +6,5 @@ import (
 )
 
 func GenerateRecord(config types.Records, payload types.RecordPayload) ([]byte, error) {
-	record, err := actions.GenerateRecord(config, payload)
-	if err != nil {
-		return nil, err
-	}
-
-	return record, nil
+	return actions.GenerateRecord(config, payload)
 }
