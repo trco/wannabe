@@ -3,12 +3,12 @@ package actions
 import (
 	"reflect"
 	"testing"
-	"wannabe/config"
+	"wannabe/types"
 )
 
 type TestCaseProcessQuery struct {
 	QueryMap map[string][]string
-	Config   config.Query
+	Config   types.Query
 	Expected string
 }
 
@@ -16,43 +16,43 @@ func TestProcessQuery(t *testing.T) {
 	testCases := map[string]TestCaseProcessQuery{
 		"withPlaceholder": {
 			QueryMap: testMapQuery,
-			Config: config.Query{
-				Wildcards: []config.WildcardKey{{Key: "user", Placeholder: "{placeholder}"}},
+			Config: types.Query{
+				Wildcards: []types.WildcardKey{{Key: "user", Placeholder: "{placeholder}"}},
 			},
 			Expected: "?app=1&status=new&user=%7Bplaceholder%7D",
 		},
 		"withoutPlaceholder": {
 			QueryMap: testMapQuery,
-			Config: config.Query{
-				Wildcards: []config.WildcardKey{{Key: "user"}},
+			Config: types.Query{
+				Wildcards: []types.WildcardKey{{Key: "user"}},
 			},
 			Expected: "?app=1&status=new&user=%7Bwannabe%7D",
 		},
 		"withRegexWithPlaceholder": {
 			QueryMap: testMapQuery,
-			Config: config.Query{
-				Regexes: []config.Regex{{Pattern: "paid", Placeholder: "{placeholder}"}},
+			Config: types.Query{
+				Regexes: []types.Regex{{Pattern: "paid", Placeholder: "{placeholder}"}},
 			},
 			Expected: "?app=1&status=new&user=%7Bplaceholder%7D",
 		},
 		"withRegexWithoutPlaceholder": {
 			QueryMap: testMapQuery,
-			Config: config.Query{
-				Regexes: []config.Regex{{Pattern: "paid"}},
+			Config: types.Query{
+				Regexes: []types.Regex{{Pattern: "paid"}},
 			},
 			Expected: "?app=1&status=new&user=%7Bwannabe%7D",
 		},
 		"emptyString": {
 			QueryMap: make(map[string][]string),
-			Config: config.Query{
-				Wildcards: []config.WildcardKey{{Key: "user"}},
+			Config: types.Query{
+				Wildcards: []types.WildcardKey{{Key: "user"}},
 			},
 			Expected: "",
 		},
 		"invalidRegex": {
 			QueryMap: testMapQuery,
-			Config: config.Query{
-				Regexes: []config.Regex{{Pattern: "(?P<foo"}},
+			Config: types.Query{
+				Regexes: []types.Regex{{Pattern: "(?P<foo"}},
 			},
 			Expected: "",
 		},

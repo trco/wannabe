@@ -5,12 +5,12 @@ import (
 	"net/http"
 	"reflect"
 	"testing"
-	"wannabe/config"
+	"wannabe/types"
 )
 
-var wannabeA = config.Wannabe{
-	RequestMatching: config.RequestMatching{
-		Headers: config.Headers{
+var wannabeA = types.Wannabe{
+	RequestMatching: types.RequestMatching{
+		Headers: types.Headers{
 			Include: []string{"Content-Type", "Accept"},
 		},
 	},

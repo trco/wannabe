@@ -1,14 +1,14 @@
 package providers
 
 import (
-	"wannabe/config"
+	"wannabe/types"
 )
 
 type RedisProvider struct {
-	Config config.StorageProvider
+	Config types.StorageProvider
 }
 
-func (redis RedisProvider) GetConfig() config.StorageProvider {
+func (redis RedisProvider) GetConfig() types.StorageProvider {
 	return redis.Config
 }
 

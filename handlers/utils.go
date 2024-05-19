@@ -6,13 +6,13 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"wannabe/types"
 
-	"github.com/AdguardTeam/gomitmproxy"
 	"github.com/AdguardTeam/gomitmproxy/proxyutil"
 )
 
-func internalErrorOnRequest(session *gomitmproxy.Session, request *http.Request, err error) (*http.Request, *http.Response) {
-	session.SetProp("blocked", true)
+func internalErrorOnRequest(wannabeSession types.WannabeSession, request *http.Request, err error) (*http.Request, *http.Response) {
+	wannabeSession.SetProp("blocked", true)
 
 	body := prepareResponseBody(err)
 	response := proxyutil.NewResponse(http.StatusInternalServerError, body, request)
@@ -30,7 +30,7 @@ func internalErrorOnResponse(request *http.Request, err error) *http.Response {
 }
 
 func prepareResponseBody(err error) *bytes.Reader {
-	body, err := json.Marshal(InternalError{
+	body, err := json.Marshal(types.InternalError{
 		Error: err.Error(),
 	})
 	if err != nil {
@@ -42,18 +42,18 @@ func prepareResponseBody(err error) *bytes.Reader {
 	return bodyReader
 }
 
-func shouldSkipResponseProcessing(session *gomitmproxy.Session) bool {
-	if _, blocked := session.GetProp("blocked"); blocked {
+func shouldSkipResponseProcessing(wannabeSession types.WannabeSession) bool {
+	if _, blocked := wannabeSession.GetProp("blocked"); blocked {
 		return true
 	}
-	if _, responseSetFromRecord := session.GetProp("responseSetFromRecord"); responseSetFromRecord {
+	if _, responseSetFromRecord := wannabeSession.GetProp("responseSetFromRecord"); responseSetFromRecord {
 		return true
 	}
 	return false
 }
 
-func getHashAndCurlFromSession(session *gomitmproxy.Session) (string, string, error) {
-	hashProp, ok := session.GetProp("hash")
+func getHashAndCurlFromSession(wannabeSession types.WannabeSession) (string, string, error) {
+	hashProp, ok := wannabeSession.GetProp("hash")
 	if !ok {
 		return "", "", fmt.Errorf("no hash in session")
 	}
@@ -62,7 +62,7 @@ func getHashAndCurlFromSession(session *gomitmproxy.Session) (string, string, er
 		return "", "", fmt.Errorf("hash is not a string")
 	}
 
-	curlProp, ok := session.GetProp("curl")
+	curlProp, ok := wannabeSession.GetProp("curl")
 	if !ok {
 		return "", "", fmt.Errorf("no curl in session")
 	}
@@ -84,8 +84,8 @@ func checkDuplicates(slice []string, value string) bool {
 	return false
 }
 
-func processRecordValidation(recordProcessingDetails *[]RecordProcessingDetails, hash string, message string, valueToIncrement *int) {
-	*recordProcessingDetails = append(*recordProcessingDetails, RecordProcessingDetails{
+func processRecordValidation(recordProcessingDetails *[]types.RecordProcessingDetails, hash string, message string, valueToIncrement *int) {
+	*recordProcessingDetails = append(*recordProcessingDetails, types.RecordProcessingDetails{
 		Hash:    hash,
 		Message: message,
 	})

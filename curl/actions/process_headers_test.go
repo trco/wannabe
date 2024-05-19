@@ -3,12 +3,12 @@ package actions
 import (
 	"reflect"
 	"testing"
-	"wannabe/config"
+	"wannabe/types"
 )
 
 type TestCaseProcessHeaders struct {
 	Map      map[string][]string
-	Config   config.Headers
+	Config   types.Headers
 	Expected []Header
 }
 
@@ -16,9 +16,9 @@ func TestProcessHeaders(t *testing.T) {
 	testCases := map[string]TestCaseProcessHeaders{
 		"includeAllHeaders": {
 			Map: testInitHeadersMap(),
-			Config: config.Headers{
+			Config: types.Headers{
 				Include:   []string{"Content-Type", "Authorization", "Accept", "X-test-header"},
-				Wildcards: []config.WildcardKey{},
+				Wildcards: []types.WildcardKey{},
 			},
 			Expected: []Header{
 				{Key: "Accept", Value: "test1,test2,test3"},
@@ -29,9 +29,9 @@ func TestProcessHeaders(t *testing.T) {
 		},
 		"withPlaceholderTwoHeaders": {
 			Map: testInitHeadersMap(),
-			Config: config.Headers{
+			Config: types.Headers{
 				Include:   []string{"Content-Type", "Authorization"},
-				Wildcards: []config.WildcardKey{{Key: "Authorization", Placeholder: "{placeholder}"}},
+				Wildcards: []types.WildcardKey{{Key: "Authorization", Placeholder: "{placeholder}"}},
 			},
 			Expected: []Header{
 				{Key: "Authorization", Value: "{placeholder}"},
@@ -40,9 +40,9 @@ func TestProcessHeaders(t *testing.T) {
 		},
 		"withoutPlaceholderTwoHeaders": {
 			Map: testInitHeadersMap(),
-			Config: config.Headers{
+			Config: types.Headers{
 				Include:   []string{"Content-Type", "Authorization"},
-				Wildcards: []config.WildcardKey{{Key: "Authorization"}},
+				Wildcards: []types.WildcardKey{{Key: "Authorization"}},
 			},
 			Expected: []Header{
 				{Key: "Authorization", Value: "{wannabe}"},
@@ -51,9 +51,9 @@ func TestProcessHeaders(t *testing.T) {
 		},
 		"emptyHeadersMap": {
 			Map: make(map[string][]string),
-			Config: config.Headers{
+			Config: types.Headers{
 				Include:   []string{"Content-Type", "Authorization"},
-				Wildcards: []config.WildcardKey{{Key: "Authorization"}},
+				Wildcards: []types.WildcardKey{{Key: "Authorization"}},
 			},
 			Expected: []Header{},
 		},

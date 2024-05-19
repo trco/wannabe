@@ -3,10 +3,10 @@ package actions
 import (
 	"fmt"
 	"strings"
-	"wannabe/config"
+	"wannabe/types"
 )
 
-func ProcessHost(host string, config config.Host) (string, error) {
+func ProcessHost(host string, config types.Host) (string, error) {
 	hostParts := strings.Split(host, ".")
 
 	setWildcardsByIndex(hostParts, config.Wildcards)

@@ -5,11 +5,11 @@ import (
 	"regexp"
 	"sort"
 	"strings"
-	"wannabe/config"
+	"wannabe/types"
 )
 
 // general
-func setWildcardsByIndex(slice []string, wildcards []config.WildcardIndex) {
+func setWildcardsByIndex(slice []string, wildcards []types.WildcardIndex) {
 	for _, wildcard := range wildcards {
 		if isIndexOutOfBounds(slice, *wildcard.Index) {
 			// TODO log warning
@@ -20,7 +20,7 @@ func setWildcardsByIndex(slice []string, wildcards []config.WildcardIndex) {
 	}
 }
 
-func setWildcardsByKey(inputMap map[string]string, wildcards []config.WildcardKey) {
+func setWildcardsByKey(inputMap map[string]string, wildcards []types.WildcardKey) {
 	for _, wildcard := range wildcards {
 		if !keyExists(inputMap, wildcard.Key) {
 			// TODO log warning
@@ -31,7 +31,7 @@ func setWildcardsByKey(inputMap map[string]string, wildcards []config.WildcardKe
 	}
 }
 
-func setPlaceholderByIndex(parts []string, wildcard config.WildcardIndex) {
+func setPlaceholderByIndex(parts []string, wildcard types.WildcardIndex) {
 	if wildcard.Placeholder != "" {
 		parts[*wildcard.Index] = wildcard.Placeholder
 	} else {
@@ -39,7 +39,7 @@ func setPlaceholderByIndex(parts []string, wildcard config.WildcardIndex) {
 	}
 }
 
-func setPlaceholderByKey(inputMap map[string]string, wildcard config.WildcardKey) {
+func setPlaceholderByKey(inputMap map[string]string, wildcard types.WildcardKey) {
 	if wildcard.Placeholder != "" {
 		inputMap[wildcard.Key] = wildcard.Placeholder
 	} else {
@@ -47,7 +47,7 @@ func setPlaceholderByKey(inputMap map[string]string, wildcard config.WildcardKey
 	}
 }
 
-func replaceRegexPatterns(processedString string, regexes []config.Regex, isQuery bool) (string, error) {
+func replaceRegexPatterns(processedString string, regexes []types.Regex, isQuery bool) (string, error) {
 	for _, regex := range regexes {
 		compiledPattern, err := regexp.Compile(regex.Pattern)
 		if err != nil {

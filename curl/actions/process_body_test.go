@@ -3,12 +3,12 @@ package actions
 import (
 	"reflect"
 	"testing"
-	"wannabe/config"
+	"wannabe/types"
 )
 
 type TestCaseProcessBody struct {
 	Body     []byte
-	Config   config.Body
+	Config   types.Body
 	Expected string
 }
 
@@ -16,8 +16,8 @@ func TestProcessBody(t *testing.T) {
 	testCases := map[string]TestCaseProcessBody{
 		"withPlaceholder": {
 			Body: testBody,
-			Config: config.Body{
-				Regexes: []config.Regex{
+			Config: types.Body{
+				Regexes: []types.Regex{
 					{Pattern: "\"dimensions\":\\s*\\[(.*?)\\][,}]", Placeholder: "\"dimensions\":\"{placeholder}\","},
 					{Pattern: "\"startDate\":\\s*\"(.*?)\"[,}]", Placeholder: "\"startDate\":\"{placeholder}\""},
 				},
@@ -26,8 +26,8 @@ func TestProcessBody(t *testing.T) {
 		},
 		"withoutPlaceholder": {
 			Body: testBody,
-			Config: config.Body{
-				Regexes: []config.Regex{
+			Config: types.Body{
+				Regexes: []types.Regex{
 					{Pattern: "\"startDate\":\\s*\"(.*?)\"[,}\"]"},
 				},
 			},
@@ -35,15 +35,15 @@ func TestProcessBody(t *testing.T) {
 		},
 		"emptyBody": {
 			Body: []byte{},
-			Config: config.Body{
-				Regexes: []config.Regex{},
+			Config: types.Body{
+				Regexes: []types.Regex{},
 			},
 			Expected: "",
 		},
 		"invalidRegex": {
 			Body: testBody,
-			Config: config.Body{
-				Regexes: []config.Regex{
+			Config: types.Body{
+				Regexes: []types.Regex{
 					{Pattern: "(?P<foo"},
 				},
 			},

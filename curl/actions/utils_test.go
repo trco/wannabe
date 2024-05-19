@@ -3,12 +3,12 @@ package actions
 import (
 	"reflect"
 	"testing"
-	"wannabe/config"
+	"wannabe/types"
 )
 
 type TestCaseByIndex struct {
 	Slice     []string
-	Wildcards []config.WildcardIndex
+	Wildcards []types.WildcardIndex
 	Expected  []string
 }
 
@@ -24,22 +24,22 @@ func TestSetWildcardsByIndex(t *testing.T) {
 	testCases := map[string]TestCaseByIndex{
 		"withPlaceholder": {
 			Slice:     testSlice(),
-			Wildcards: []config.WildcardIndex{{Index: &zero, Placeholder: "{placeholder}"}},
+			Wildcards: []types.WildcardIndex{{Index: &zero, Placeholder: "{placeholder}"}},
 			Expected:  []string{"{placeholder}", "googleapis", "com"},
 		},
 		"withoutPlaceholder": {
 			Slice:     testSlice(),
-			Wildcards: []config.WildcardIndex{{Index: &zero}},
+			Wildcards: []types.WildcardIndex{{Index: &zero}},
 			Expected:  []string{"{wannabe}", "googleapis", "com"},
 		},
 		"withAndWithoutPlaceholder": {
 			Slice:     testSlice(),
-			Wildcards: []config.WildcardIndex{{Index: &zero, Placeholder: "{placeholder}"}, {Index: &one}},
+			Wildcards: []types.WildcardIndex{{Index: &zero, Placeholder: "{placeholder}"}, {Index: &one}},
 			Expected:  []string{"{placeholder}", "{wannabe}", "com"},
 		},
 		"indexOutOfBounds": {
 			Slice:     testSlice(),
-			Wildcards: []config.WildcardIndex{{Index: &five}},
+			Wildcards: []types.WildcardIndex{{Index: &five}},
 			Expected:  testSlice(),
 		},
 	}
@@ -55,7 +55,7 @@ func TestSetWildcardsByIndex(t *testing.T) {
 
 type TestCaseByKey struct {
 	Map       map[string]string
-	Wildcards []config.WildcardKey
+	Wildcards []types.WildcardKey
 	Expected  map[string]string
 }
 
@@ -70,7 +70,7 @@ func TestSetWildcardsByKey(t *testing.T) {
 	testCases := map[string]TestCaseByKey{
 		"withPlaceholder": {
 			Map:       testMap(),
-			Wildcards: []config.WildcardKey{{Key: "status", Placeholder: "{placeholder}"}},
+			Wildcards: []types.WildcardKey{{Key: "status", Placeholder: "{placeholder}"}},
 			Expected: map[string]string{
 				"status": "{placeholder}",
 				"appId":  "test",
@@ -78,7 +78,7 @@ func TestSetWildcardsByKey(t *testing.T) {
 		},
 		"withoutPlaceholder": {
 			Map:       testMap(),
-			Wildcards: []config.WildcardKey{{Key: "status"}},
+			Wildcards: []types.WildcardKey{{Key: "status"}},
 			Expected: map[string]string{
 				"status": "{wannabe}",
 				"appId":  "test",
@@ -86,7 +86,7 @@ func TestSetWildcardsByKey(t *testing.T) {
 		},
 		"withAndWithoutPlaceholder": {
 			Map:       testMap(),
-			Wildcards: []config.WildcardKey{{Key: "status", Placeholder: "{placeholder}"}, {Key: "appId"}},
+			Wildcards: []types.WildcardKey{{Key: "status", Placeholder: "{placeholder}"}, {Key: "appId"}},
 			Expected: map[string]string{
 				"status": "{placeholder}",
 				"appId":  "{wannabe}",
@@ -94,7 +94,7 @@ func TestSetWildcardsByKey(t *testing.T) {
 		},
 		"nonExistingKey": {
 			Map:       testMap(),
-			Wildcards: []config.WildcardKey{{Key: "nonExistingKey"}},
+			Wildcards: []types.WildcardKey{{Key: "nonExistingKey"}},
 			Expected:  testMap(),
 		},
 	}
@@ -110,7 +110,7 @@ func TestSetWildcardsByKey(t *testing.T) {
 
 type TestCasePlaceholderByIndex struct {
 	Slice     []string
-	Wildcards config.WildcardIndex
+	Wildcards types.WildcardIndex
 	Expected  []string
 }
 
@@ -120,12 +120,12 @@ func TestSetPlaceholderByIndex(t *testing.T) {
 	testCases := map[string]TestCasePlaceholderByIndex{
 		"withPlaceholder": {
 			Slice:     testSlice(),
-			Wildcards: config.WildcardIndex{Index: &zero, Placeholder: "{placeholder}"},
+			Wildcards: types.WildcardIndex{Index: &zero, Placeholder: "{placeholder}"},
 			Expected:  []string{"{placeholder}", "googleapis", "com"},
 		},
 		"withoutPlaceholder": {
 			Slice:     testSlice(),
-			Wildcards: config.WildcardIndex{Index: &zero},
+			Wildcards: types.WildcardIndex{Index: &zero},
 			Expected:  []string{"{wannabe}", "googleapis", "com"},
 		},
 	}
@@ -141,7 +141,7 @@ func TestSetPlaceholderByIndex(t *testing.T) {
 
 type TestCasePlaceholderByKey struct {
 	Map      map[string]string
-	Wildcard config.WildcardKey
+	Wildcard types.WildcardKey
 	Expected map[string]string
 }
 
@@ -149,7 +149,7 @@ func TestSetPlaceholderByKey(t *testing.T) {
 	testCases := map[string]TestCasePlaceholderByKey{
 		"withPlaceholder": {
 			Map:      testMap(),
-			Wildcard: config.WildcardKey{Key: "status", Placeholder: "{placeholder}"},
+			Wildcard: types.WildcardKey{Key: "status", Placeholder: "{placeholder}"},
 			Expected: map[string]string{
 				"status": "{placeholder}",
 				"appId":  "test",
@@ -157,7 +157,7 @@ func TestSetPlaceholderByKey(t *testing.T) {
 		},
 		"withoutPlaceholder": {
 			Map:      testMap(),
-			Wildcard: config.WildcardKey{Key: "status"},
+			Wildcard: types.WildcardKey{Key: "status"},
 			Expected: map[string]string{
 				"status": "{wannabe}",
 				"appId":  "test",
@@ -176,7 +176,7 @@ func TestSetPlaceholderByKey(t *testing.T) {
 
 type TestCaseReplaceRegexPatterns struct {
 	String   string
-	Regexes  []config.Regex
+	Regexes  []types.Regex
 	Expected string
 	IsQuery  bool
 }
@@ -185,25 +185,25 @@ func TestReplaceRegexPatterns(t *testing.T) {
 	testCases := map[string]TestCaseReplaceRegexPatterns{
 		"matchWithPlaceholder": {
 			String:   "/v1beta/properties/375748157:runReport?user=paid&status=new&app=1",
-			Regexes:  []config.Regex{{Pattern: "(\\d+):runReport", Placeholder: "{propertyId}:runReport"}},
+			Regexes:  []types.Regex{{Pattern: "(\\d+):runReport", Placeholder: "{propertyId}:runReport"}},
 			Expected: "/v1beta/properties/{propertyId}:runReport?user=paid&status=new&app=1",
 			IsQuery:  false,
 		},
 		"matchWithoutPlaceholder": {
 			String:   "/v1beta/properties/375748157:runReport?user=paid&status=new&app=1",
-			Regexes:  []config.Regex{{Pattern: "(\\d+):runReport"}},
+			Regexes:  []types.Regex{{Pattern: "(\\d+):runReport"}},
 			Expected: "/v1beta/properties/{wannabe}?user=paid&status=new&app=1",
 			IsQuery:  false,
 		},
 		"matchInQueryWithPlaceholder": {
 			String:   "/v1beta/properties/375748157:runReport?user=paid&status=new&app=1",
-			Regexes:  []config.Regex{{Pattern: "paid", Placeholder: "{placeholder}"}},
+			Regexes:  []types.Regex{{Pattern: "paid", Placeholder: "{placeholder}"}},
 			Expected: "/v1beta/properties/375748157:runReport?user=%7Bplaceholder%7D&status=new&app=1",
 			IsQuery:  true,
 		},
 		"noMatch": {
 			String:   "/v1beta/properties/375748157:runReport?user=paid&status=new&app=1",
-			Regexes:  []config.Regex{{Pattern: "\"dimensions\":\\s*\\[(.*?)\\][,}]"}},
+			Regexes:  []types.Regex{{Pattern: "\"dimensions\":\\s*\\[(.*?)\\][,}]"}},
 			Expected: "/v1beta/properties/375748157:runReport?user=paid&status=new&app=1",
 			IsQuery:  false,
 		},

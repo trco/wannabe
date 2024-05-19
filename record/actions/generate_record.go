@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"time"
-	"wannabe/config"
 	"wannabe/record/entities"
+	"wannabe/types"
 )
 
-func GenerateRecord(config config.Records, payload entities.RecordPayload) ([]byte, error) {
+func GenerateRecord(config types.Records, payload entities.RecordPayload) ([]byte, error) {
 	requestHeaders := filterRequestHeaders(payload.RequestHeaders, config.Headers.Exclude)
 
 	requestBody, err := prepareBody(payload.RequestBody)

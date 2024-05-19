@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"wannabe/types"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/knadh/koanf"
@@ -9,29 +10,29 @@ import (
 	"github.com/knadh/koanf/providers/file"
 )
 
-func LoadConfig(configFilename string) (Config, error) {
+func LoadConfig(configFilename string) (types.Config, error) {
 	config := setConfigDefaults()
 
 	config, err := loadConfigFromFile(configFilename, config)
 	if err != nil {
-		return Config{}, fmt.Errorf("failed loading config from file: %v", err)
+		return types.Config{}, fmt.Errorf("failed loading config from file: %v", err)
 	}
 
 	err = validateConfig(config)
 	if err != nil {
-		return Config{}, fmt.Errorf("failed validating config: %v", err)
+		return types.Config{}, fmt.Errorf("failed validating config: %v", err)
 	}
 
 	return config, nil
 }
 
-func setConfigDefaults() Config {
-	return Config{
+func setConfigDefaults() types.Config {
+	return types.Config{
 		Mode: "mixed",
-		StorageProvider: StorageProvider{
+		StorageProvider: types.StorageProvider{
 			Type:       "filesystem",
 			Regenerate: false,
-			FilesystemConfig: FilesystemConfig{
+			FilesystemConfig: types.FilesystemConfig{
 				Folder:           "records",
 				RegenerateFolder: "records/regenerated",
 				Format:           "json",
@@ -40,7 +41,7 @@ func setConfigDefaults() Config {
 	}
 }
 
-func loadConfigFromFile(configFilename string, config Config) (Config, error) {
+func loadConfigFromFile(configFilename string, config types.Config) (types.Config, error) {
 	f := file.Provider(configFilename)
 	var k = koanf.New(".")
 
@@ -61,7 +62,7 @@ func loadConfigFromFile(configFilename string, config Config) (Config, error) {
 
 	err := loadConfig()
 	if err != nil {
-		return Config{}, err
+		return types.Config{}, err
 	}
 
 	k.Print()
@@ -71,7 +72,7 @@ func loadConfigFromFile(configFilename string, config Config) (Config, error) {
 
 var validate *validator.Validate
 
-func validateConfig(config Config) error {
+func validateConfig(config types.Config) error {
 	validate = validator.New()
 
 	validate.RegisterValidation("headers_included_excluded", validateWannabeHeadersConfig)
@@ -85,7 +86,7 @@ func validateConfig(config Config) error {
 }
 
 func validateWannabeHeadersConfig(fl validator.FieldLevel) bool {
-	wannabes := fl.Field().Interface().(map[string]Wannabe)
+	wannabes := fl.Field().Interface().(map[string]types.Wannabe)
 
 	for _, wannabe := range wannabes {
 		headersInclude := wannabe.RequestMatching.Headers.Include

@@ -5,11 +5,11 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"wannabe/config"
+	"wannabe/types"
 )
 
 type FilesystemProvider struct {
-	Config config.Config
+	Config types.Config
 }
 
 func (fsp FilesystemProvider) ReadRecords(subfolder string, hashes []string) ([][]byte, error) {

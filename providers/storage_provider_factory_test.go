@@ -3,12 +3,12 @@ package providers
 import (
 	"reflect"
 	"testing"
-	"wannabe/config"
+	"wannabe/types"
 )
 
 func TestStorageProviderFactory(t *testing.T) {
-	invalidConfig := config.Config{
-		StorageProvider: config.StorageProvider{
+	invalidConfig := types.Config{
+		StorageProvider: types.StorageProvider{
 			Type: "test",
 		},
 	}
@@ -18,10 +18,10 @@ func TestStorageProviderFactory(t *testing.T) {
 		t.Errorf("generation of storage provider with invalid config did not throw error")
 	}
 
-	validConfig := config.Config{
-		StorageProvider: config.StorageProvider{
+	validConfig := types.Config{
+		StorageProvider: types.StorageProvider{
 			Type: "filesystem",
-			FilesystemConfig: config.FilesystemConfig{
+			FilesystemConfig: types.FilesystemConfig{
 				Folder:           "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T",
 				RegenerateFolder: "",
 				Format:           "json",
@@ -38,10 +38,10 @@ func TestStorageProviderFactory(t *testing.T) {
 		t.Errorf("expected storage provider: %v, actual storage provider: %v", expectedFilesystemProvider, storageProvider)
 	}
 
-	validConfig.StorageProvider = config.StorageProvider{
+	validConfig.StorageProvider = types.StorageProvider{
 		Type:       "filesystem",
 		Regenerate: true,
-		FilesystemConfig: config.FilesystemConfig{
+		FilesystemConfig: types.FilesystemConfig{
 			Folder:           "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T",
 			RegenerateFolder: "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T/regenerate",
 			Format:           "json",
@@ -57,9 +57,9 @@ func TestStorageProviderFactory(t *testing.T) {
 		t.Errorf("expected storage provider: %v, actual storage provider: %v", expectedRegenerateProvider, storageProvider)
 	}
 
-	validConfig.StorageProvider = config.StorageProvider{
+	validConfig.StorageProvider = types.StorageProvider{
 		Type: "redis",
-		RedisConfig: config.RedisConfig{
+		RedisConfig: types.RedisConfig{
 			Database: "db10",
 		},
 	}

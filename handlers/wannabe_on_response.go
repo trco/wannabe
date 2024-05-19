@@ -2,37 +2,41 @@ package handlers
 
 import (
 	"net/http"
-	"wannabe/config"
 	"wannabe/providers"
 	record "wannabe/record/services"
+	"wannabe/types"
 
 	"github.com/AdguardTeam/gomitmproxy"
 )
 
-func WannabeOnResponse(config config.Config, storageProvider providers.StorageProvider) WannabeOnResponseHandler {
+func WannabeOnResponse(config types.Config, storageProvider providers.StorageProvider) types.WannabeOnResponseHandler {
 	return func(session *gomitmproxy.Session) *http.Response {
-		return processSessionOnResponse(config, storageProvider, session)
+		wannabeSession := types.WannabeSession{
+			Req: session.Request(),
+			Res: session.Response(),
+		}
+		return processSessionOnResponse(config, storageProvider, wannabeSession)
 	}
 }
 
-func processSessionOnResponse(config config.Config, storageProvider providers.StorageProvider, session *gomitmproxy.Session) *http.Response {
-	request := session.Request()
+func processSessionOnResponse(config types.Config, storageProvider providers.StorageProvider, wannabeSession types.WannabeSession) *http.Response {
+	request := wannabeSession.Request()
 
 	isConnect := request.Method == "CONNECT"
 	if isConnect {
 		return nil
 	}
 
-	if shouldSkipResponseProcessing(session) {
+	if shouldSkipResponseProcessing(wannabeSession) {
 		return nil
 	}
 
-	hash, curl, err := getHashAndCurlFromSession(session)
+	hash, curl, err := getHashAndCurlFromSession(wannabeSession)
 	if err != nil {
 		return internalErrorOnResponse(request, err)
 	}
 
-	recordPayload, err := record.GenerateRecordPayload(session, hash, curl)
+	recordPayload, err := record.GenerateRecordPayload(wannabeSession, hash, curl)
 	if err != nil {
 		return internalErrorOnResponse(request, err)
 	}

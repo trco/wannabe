@@ -2,20 +2,20 @@ package providers
 
 import (
 	"testing"
-	"wannabe/config"
+	"wannabe/types"
 )
 
-var testConfig = config.Config{
-	StorageProvider: config.StorageProvider{
+var testConfig = types.Config{
+	StorageProvider: types.StorageProvider{
 		Type:       "filesystem",
 		Regenerate: false,
-		FilesystemConfig: config.FilesystemConfig{
+		FilesystemConfig: types.FilesystemConfig{
 			Folder:           "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T",
 			RegenerateFolder: "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T/regenerate",
 			Format:           "json",
 		},
 	},
-	Wannabes: map[string]config.Wannabe{
+	Wannabes: map[string]types.Wannabe{
 		"test.api.com": {},
 	},
 }

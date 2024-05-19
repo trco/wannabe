@@ -3,10 +3,10 @@ package actions
 import (
 	"encoding/json"
 	"fmt"
-	"wannabe/config"
+	"wannabe/types"
 )
 
-func ProcessBody(requestBody []byte, config config.Body) (string, error) {
+func ProcessBody(requestBody []byte, config types.Body) (string, error) {
 	if len(requestBody) == 0 {
 		return "", nil
 	}

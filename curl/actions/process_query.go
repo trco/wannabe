@@ -2,10 +2,10 @@ package actions
 
 import (
 	"fmt"
-	"wannabe/config"
+	"wannabe/types"
 )
 
-func ProcessQuery(queryMap map[string][]string, config config.Query) (string, error) {
+func ProcessQuery(queryMap map[string][]string, config types.Query) (string, error) {
 	if len(queryMap) == 0 {
 		return "", nil
 	}

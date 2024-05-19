@@ -3,12 +3,12 @@ package actions
 import (
 	"reflect"
 	"testing"
-	"wannabe/config"
+	"wannabe/types"
 )
 
 type TestCaseProcessPath struct {
 	Path     string
-	Config   config.Path
+	Config   types.Path
 	Expected string
 }
 
@@ -18,36 +18,36 @@ func TestProcessPath(t *testing.T) {
 	testCases := map[string]TestCaseProcessPath{
 		"withPlaceholder": {
 			Path: "/v1beta/properties/375748157:runReport",
-			Config: config.Path{
-				Wildcards: []config.WildcardIndex{{Index: &zero, Placeholder: "{placeholder}"}},
+			Config: types.Path{
+				Wildcards: []types.WildcardIndex{{Index: &zero, Placeholder: "{placeholder}"}},
 			},
 			Expected: "/{placeholder}/properties/375748157:runReport",
 		},
 		"withoutPlaceholder": {
 			Path: "/v1beta/properties/375748157:runReport",
-			Config: config.Path{
-				Wildcards: []config.WildcardIndex{{Index: &zero}},
+			Config: types.Path{
+				Wildcards: []types.WildcardIndex{{Index: &zero}},
 			},
 			Expected: "/{wannabe}/properties/375748157:runReport",
 		},
 		"withRegex": {
 			Path: "/v1beta/properties/375748157:runReport",
-			Config: config.Path{
-				Regexes: []config.Regex{{Pattern: "(\\d+):runReport", Placeholder: "{propertyId}:runReport"}},
+			Config: types.Path{
+				Regexes: []types.Regex{{Pattern: "(\\d+):runReport", Placeholder: "{propertyId}:runReport"}},
 			},
 			Expected: "/v1beta/properties/{propertyId}:runReport",
 		},
 		"emptyString": {
 			Path: "",
-			Config: config.Path{
-				Wildcards: []config.WildcardIndex{{Index: &zero}},
+			Config: types.Path{
+				Wildcards: []types.WildcardIndex{{Index: &zero}},
 			},
 			Expected: "",
 		},
 		"invalidRegex": {
 			Path: "/v1beta/properties/375748157:runReport",
-			Config: config.Path{
-				Regexes: []config.Regex{{Pattern: "(?P<foo"}},
+			Config: types.Path{
+				Regexes: []types.Regex{{Pattern: "(?P<foo"}},
 			},
 			Expected: "",
 		},

@@ -2,7 +2,7 @@ package providers
 
 import (
 	"fmt"
-	"wannabe/config"
+	"wannabe/types"
 )
 
 type StorageProviderGenerationError struct {
@@ -13,7 +13,7 @@ func (e *StorageProviderGenerationError) Error() string {
 	return fmt.Sprintf("Generation of '%v' storage provider failed.", e.Type)
 }
 
-func StorageProviderFactory(config config.Config) (StorageProvider, error) {
+func StorageProviderFactory(config types.Config) (StorageProvider, error) {
 	if config.StorageProvider.Type == "filesystem" {
 		storageProvider := FilesystemProvider{
 			Config: config,

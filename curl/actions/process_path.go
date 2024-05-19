@@ -3,10 +3,10 @@ package actions
 import (
 	"fmt"
 	"strings"
-	"wannabe/config"
+	"wannabe/types"
 )
 
-func ProcessPath(path string, config config.Path) (string, error) {
+func ProcessPath(path string, config types.Path) (string, error) {
 	strippedPath := strings.TrimPrefix(path, "/")
 	if path == "" {
 		return "", nil

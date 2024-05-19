@@ -2,11 +2,11 @@ package services
 
 import (
 	"net/http"
-	"wannabe/config"
 	"wannabe/curl/actions"
+	"wannabe/types"
 )
 
-func GenerateCurl(request *http.Request, wannabe config.Wannabe) (string, error) {
+func GenerateCurl(request *http.Request, wannabe types.Wannabe) (string, error) {
 	payload, err := actions.GenerateCurlPayload(request)
 	if err != nil {
 		return "", err

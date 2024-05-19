@@ -3,12 +3,12 @@ package actions
 import (
 	"reflect"
 	"testing"
-	"wannabe/config"
+	"wannabe/types"
 )
 
 type TestCaseProcessHost struct {
 	Host     string
-	Config   config.Host
+	Config   types.Host
 	Expected string
 }
 
@@ -18,37 +18,37 @@ func TestProcessHost(t *testing.T) {
 	testCases := map[string]TestCaseProcessHost{
 		"withHttp": {
 			Host: "http://analyticsdata.googleapis.com",
-			Config: config.Host{
-				Wildcards: []config.WildcardIndex{{Index: &zero, Placeholder: "{placeholder}"}},
+			Config: types.Host{
+				Wildcards: []types.WildcardIndex{{Index: &zero, Placeholder: "{placeholder}"}},
 			},
 			Expected: "{placeholder}.googleapis.com",
 		},
 		"withHttps": {
 			Host: "https://analyticsdata.googleapis.com",
-			Config: config.Host{
-				Wildcards: []config.WildcardIndex{{Index: &zero, Placeholder: "{placeholder}"}},
+			Config: types.Host{
+				Wildcards: []types.WildcardIndex{{Index: &zero, Placeholder: "{placeholder}"}},
 			},
 			Expected: "{placeholder}.googleapis.com",
 		},
 		"withoutPlaceholder": {
 			Host: "https://analyticsdata.googleapis.com",
-			Config: config.Host{
-				Wildcards: []config.WildcardIndex{{Index: &zero}},
+			Config: types.Host{
+				Wildcards: []types.WildcardIndex{{Index: &zero}},
 			},
 			Expected: "{wannabe}.googleapis.com",
 		},
 		"withRegex": {
 			Host: "https://analyticsdata.googleapis.com",
-			Config: config.Host{
-				Wildcards: []config.WildcardIndex{{Index: &zero, Placeholder: "{placeholder}"}},
-				Regexes:   []config.Regex{{Pattern: "googleapis", Placeholder: "regexPlaceholder"}},
+			Config: types.Host{
+				Wildcards: []types.WildcardIndex{{Index: &zero, Placeholder: "{placeholder}"}},
+				Regexes:   []types.Regex{{Pattern: "googleapis", Placeholder: "regexPlaceholder"}},
 			},
 			Expected: "{placeholder}.regexPlaceholder.com",
 		},
 		"invalidRegex": {
 			Host: "https://analyticsdata.googleapis.com",
-			Config: config.Host{
-				Regexes: []config.Regex{{Pattern: "(?P<foo", Placeholder: "regexPlaceholder"}},
+			Config: types.Host{
+				Regexes: []types.Regex{{Pattern: "(?P<foo", Placeholder: "regexPlaceholder"}},
 			},
 			Expected: "",
 		},

@@ -1,8 +1,8 @@
 package actions
 
-import "wannabe/config"
+import "wannabe/types"
 
-func ProcessHeaders(headersMap map[string][]string, config config.Headers) []Header {
+func ProcessHeaders(headersMap map[string][]string, config types.Headers) []Header {
 	headers := filterHeadersToInclude(headersMap, config.Include)
 
 	wildcards := config.Wildcards

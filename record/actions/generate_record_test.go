@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"reflect"
 	"testing"
-	"wannabe/config"
 	"wannabe/record/entities"
+	"wannabe/types"
 )
 
 func TestGenerateRecord(t *testing.T) {
@@ -16,18 +16,18 @@ func TestGenerateRecord(t *testing.T) {
 	_ = json.Unmarshal(encodedRecord, &record)
 
 	if !reflect.DeepEqual(expectedRecordC.Request, record.Request) {
-		t.Errorf("Expected record request: %v, Actual record request: %v", expectedRecordC, record)
+		t.Errorf("expected record request: %v, actual record request: %v", expectedRecordC, record)
 	}
 
 	if !reflect.DeepEqual(expectedRecordC.Response, record.Response) {
-		t.Errorf("Expected record response: %v, Actual record response: %v", expectedRecordC, record)
+		t.Errorf("expected record response: %v, actual record response: %v", expectedRecordC, record)
 	}
 }
 
 // reusable variables
-var testConfigA = config.Records{
-	Headers: config.HeadersToExclude{
-		Exclude: []string{},
+var testConfigA = types.Records{
+	Headers: types.HeadersToExclude{
+		Exclude: []string{"Header-To-Exclude"},
 	},
 }
 
@@ -41,8 +41,9 @@ var payload = entities.RecordPayload{
 		"test": {"test"},
 	},
 	RequestHeaders: map[string][]string{
-		"Content-Type": {"application/json"},
-		"Accept":       {"test"},
+		"Content-Type":      {"application/json"},
+		"Accept":            {"test"},
+		"Header-To-Exclude": {"test"},
 	},
 	// {"test":"test"}
 	RequestBody: []byte{123, 10, 32, 32, 32, 32, 34, 116, 101, 115, 116, 34, 58, 32, 34, 116, 101, 115, 116, 34, 10, 125},

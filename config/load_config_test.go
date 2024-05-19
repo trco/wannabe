@@ -6,6 +6,7 @@ import (
 	"os"
 	"reflect"
 	"testing"
+	"wannabe/types"
 )
 
 func TestLoadConfig(t *testing.T) {
@@ -21,12 +22,12 @@ func TestLoadConfig(t *testing.T) {
 func TestSetConfigDefaults(t *testing.T) {
 	config := setConfigDefaults()
 
-	defaultConfig := Config{
+	defaultConfig := types.Config{
 		Mode: "mixed",
-		StorageProvider: StorageProvider{
+		StorageProvider: types.StorageProvider{
 			Type:       "filesystem",
 			Regenerate: false,
-			FilesystemConfig: FilesystemConfig{
+			FilesystemConfig: types.FilesystemConfig{
 				Folder:           "records",
 				RegenerateFolder: "records/regenerated",
 				Format:           "json",
@@ -71,11 +72,11 @@ func TestValidateConfig(t *testing.T) {
 	}
 
 	// invalid config
-	invalidConfig := Config{
-		StorageProvider: StorageProvider{
+	invalidConfig := types.Config{
+		StorageProvider: types.StorageProvider{
 			Type:       "filesystem",
 			Regenerate: false,
-			FilesystemConfig: FilesystemConfig{
+			FilesystemConfig: types.FilesystemConfig{
 				Folder:           "records",
 				RegenerateFolder: "",
 				Format:           "json",
@@ -91,8 +92,8 @@ func TestValidateConfig(t *testing.T) {
 	// invalid config failing on custom validation
 	invalidConfig = testConfig
 	wannabe := invalidConfig.Wannabes["testApi"]
-	wannabe.RequestMatching = RequestMatching{
-		Headers: Headers{
+	wannabe.RequestMatching = types.RequestMatching{
+		Headers: types.Headers{
 			Include: []string{"Authorization"},
 		},
 	}
@@ -109,36 +110,36 @@ func TestValidateConfig(t *testing.T) {
 // reusable variables and methods
 
 var zero = 0
-var testConfig = Config{
+var testConfig = types.Config{
 	Mode: "mixed",
-	StorageProvider: StorageProvider{
+	StorageProvider: types.StorageProvider{
 		Type:       "filesystem",
 		Regenerate: false,
-		FilesystemConfig: FilesystemConfig{
+		FilesystemConfig: types.FilesystemConfig{
 			Folder:           "records",
 			RegenerateFolder: "",
 			Format:           "json",
 		},
 	},
-	Wannabes: map[string]Wannabe{
+	Wannabes: map[string]types.Wannabe{
 		"testApi": {
-			RequestMatching: RequestMatching{
-				Host: Host{
-					Wildcards: []WildcardIndex{
+			RequestMatching: types.RequestMatching{
+				Host: types.Host{
+					Wildcards: []types.WildcardIndex{
 						{Index: &zero, Placeholder: "{placeholder}"},
 					},
 				},
-				Query: Query{
-					Wildcards: []WildcardKey{
+				Query: types.Query{
+					Wildcards: []types.WildcardKey{
 						{Key: "status", Placeholder: "{placeholder}"},
 					},
-					Regexes: []Regex{
+					Regexes: []types.Regex{
 						{Pattern: "app=1", Placeholder: "app=123"},
 					},
 				},
 			},
-			Records: Records{
-				Headers: HeadersToExclude{
+			Records: types.Records{
+				Headers: types.HeadersToExclude{
 					Exclude: []string{"Authorization"},
 				},
 			},
