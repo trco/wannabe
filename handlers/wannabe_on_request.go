@@ -43,7 +43,7 @@ func processSessionOnRequest(config cfg.Config, storageProvider providers.Storag
 
 	isNotProxyMode := config.Mode != cfg.ProxyMode
 	if isNotProxyMode {
-		records, err := storageProvider.ReadRecords([]string{hash}, host)
+		records, err := storageProvider.ReadRecords(host, []string{hash})
 		if err != nil {
 			return internalErrorOnRequest(session, request, err)
 		}

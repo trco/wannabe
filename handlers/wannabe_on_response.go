@@ -45,7 +45,7 @@ func processSessionOnResponse(config config.Config, storageProvider providers.St
 		return internalErrorOnResponse(request, err)
 	}
 
-	err = storageProvider.InsertRecords([][]byte{record}, []string{hash}, host)
+	err = storageProvider.InsertRecords(host, []string{hash}, [][]byte{record})
 	if err != nil {
 		return internalErrorOnResponse(request, err)
 	}

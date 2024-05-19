@@ -27,9 +27,9 @@ var filesystemProvider = FilesystemProvider{
 var testRecord = []byte{53}
 
 func TestInsertAndReadRecord(t *testing.T) {
-	_ = filesystemProvider.InsertRecords([][]byte{testRecord}, []string{"testHash3"}, "test.api.com")
+	_ = filesystemProvider.InsertRecords("test.api.com", []string{"testHash3"}, [][]byte{testRecord})
 
-	records, _ := filesystemProvider.ReadRecords([]string{"testHash3"}, "test.api.com")
+	records, _ := filesystemProvider.ReadRecords("test.api.com", []string{"testHash3"})
 
 	if len(records) == 0 {
 		t.Errorf("failed inserting and reading records")
@@ -37,23 +37,23 @@ func TestInsertAndReadRecord(t *testing.T) {
 }
 
 func TestDeleteRecord(t *testing.T) {
-	filesystemProvider.InsertRecords([][]byte{testRecord}, []string{"testHash4"}, "test.api.com")
+	filesystemProvider.InsertRecords("test.api.com", []string{"testHash4"}, [][]byte{testRecord})
 
-	filesystemProvider.DeleteRecords([]string{"testHash4"}, "test.api.com")
+	filesystemProvider.DeleteRecords("test.api.com", []string{"testHash4"})
 
-	fileContents, _ := filesystemProvider.ReadRecords([]string{"testHash4"}, "test.api.com")
+	fileContents, _ := filesystemProvider.ReadRecords("test.api.com", []string{"testHash4"})
 
 	if len(fileContents) != 0 {
 		t.Errorf("failed deleting record")
 	}
 
-	filesystemProvider.DeleteRecords([]string{"testHash4"}, "test.api.com")
+	filesystemProvider.DeleteRecords("test.api.com", []string{"testHash4"})
 }
 
 func TestGetHashes(t *testing.T) {
-	_ = filesystemProvider.InsertRecords([][]byte{testRecord}, []string{"testHash5"}, "test.api.com")
-	_ = filesystemProvider.InsertRecords([][]byte{testRecord}, []string{"testHash6"}, "test.api.com")
-	_ = filesystemProvider.InsertRecords([][]byte{testRecord}, []string{"testHash7"}, "test.api.com")
+	_ = filesystemProvider.InsertRecords("test.api.com", []string{"testHash5"}, [][]byte{testRecord})
+	_ = filesystemProvider.InsertRecords("test.api.com", []string{"testHash6"}, [][]byte{testRecord})
+	_ = filesystemProvider.InsertRecords("test.api.com", []string{"testHash7"}, [][]byte{testRecord})
 
 	hashes, _ := filesystemProvider.GetHashes("test.api.com")
 
@@ -81,9 +81,9 @@ func TestGenerateFilepath(t *testing.T) {
 func TestGenerateFilepathRegenerate(t *testing.T) {
 	filesystemProvider.Config.StorageProvider.Regenerate = true
 
-	regenerate := filesystemProvider.Config.StorageProvider.Regenerate
+	isRegenerate := filesystemProvider.Config.StorageProvider.Regenerate
 
-	regenerateFilepath := filesystemProvider.generateFilepath("testHash2", "test.api.com", regenerate)
+	regenerateFilepath := filesystemProvider.generateFilepath("test.api.com", "testHash2", isRegenerate)
 
 	expectedFilepath := "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T/regenerate/test.api.com/testHash2.json"
 
