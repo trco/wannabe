@@ -3,17 +3,16 @@ package services
 import (
 	"bytes"
 	"io"
-	"wannabe/record/entities"
 	"wannabe/types"
 )
 
-func GenerateRecordPayload(wannabeSession types.WannabeSession, hash string, curl string) (entities.RecordPayload, error) {
+func GenerateRecordPayload(wannabeSession types.WannabeSession, hash string, curl string) (types.RecordPayload, error) {
 	request := wannabeSession.Request()
 	response := wannabeSession.Response()
 
 	requestBody, err := io.ReadAll(request.Body)
 	if err != nil {
-		return entities.RecordPayload{}, err
+		return types.RecordPayload{}, err
 	}
 	defer request.Body.Close()
 
@@ -22,14 +21,14 @@ func GenerateRecordPayload(wannabeSession types.WannabeSession, hash string, cur
 
 	responseBody, err := io.ReadAll(response.Body)
 	if err != nil {
-		return entities.RecordPayload{}, err
+		return types.RecordPayload{}, err
 	}
 	defer response.Body.Close()
 
 	// set body back to response
 	response.Body = io.NopCloser(bytes.NewBuffer(responseBody))
 
-	recordPayload := entities.RecordPayload{
+	recordPayload := types.RecordPayload{
 		Hash:            hash,
 		Curl:            curl,
 		HttpMethod:      request.Method,

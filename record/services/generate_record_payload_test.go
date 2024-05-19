@@ -7,7 +7,6 @@ import (
 	"net/url"
 	"reflect"
 	"testing"
-	"wannabe/record/entities"
 	"wannabe/types"
 )
 
@@ -40,7 +39,7 @@ func TestGenerateRecordPayload(t *testing.T) {
 	hash := "test hash"
 	curl := "test curl"
 
-	expectedRecordPayload := entities.RecordPayload{
+	expectedRecordPayload := types.RecordPayload{
 		Hash:            hash,
 		Curl:            curl,
 		HttpMethod:      req.Method,

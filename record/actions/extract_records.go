@@ -3,14 +3,14 @@ package actions
 import (
 	"encoding/json"
 	"fmt"
-	"wannabe/record/entities"
+	"wannabe/types"
 )
 
-func ExtractRecords(requestBody [][]byte) ([]entities.Record, error) {
-	var records []entities.Record
+func ExtractRecords(requestBody [][]byte) ([]types.Record, error) {
+	var records []types.Record
 
 	for _, item := range requestBody {
-		var record entities.Record
+		var record types.Record
 		err := json.Unmarshal(item, &record)
 
 		if err != nil {

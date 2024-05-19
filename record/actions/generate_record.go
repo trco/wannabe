@@ -4,11 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"time"
-	"wannabe/record/entities"
 	"wannabe/types"
 )
 
-func GenerateRecord(config types.Records, payload entities.RecordPayload) ([]byte, error) {
+func GenerateRecord(config types.Records, payload types.RecordPayload) ([]byte, error) {
 	requestHeaders := filterRequestHeaders(payload.RequestHeaders, config.Headers.Exclude)
 
 	requestBody, err := prepareBody(payload.RequestBody)
@@ -24,8 +23,8 @@ func GenerateRecord(config types.Records, payload entities.RecordPayload) ([]byt
 
 	timestamp := time.Now()
 
-	record := entities.Record{
-		Request: entities.Request{
+	record := types.Record{
+		Request: types.Request{
 			Hash:       payload.Hash,
 			Curl:       payload.Curl,
 			HttpMethod: payload.HttpMethod,
@@ -35,13 +34,13 @@ func GenerateRecord(config types.Records, payload entities.RecordPayload) ([]byt
 			Headers:    requestHeaders,
 			Body:       requestBody,
 		},
-		Response: entities.Response{
+		Response: types.Response{
 			StatusCode: payload.StatusCode,
 			Headers:    payload.ResponseHeaders,
 			Body:       responseBody,
 		},
-		Metadata: entities.Metadata{
-			GeneratedAt: entities.Timestamp{
+		Metadata: types.Metadata{
+			GeneratedAt: types.Timestamp{
 				Unix: timestamp.Unix(),
 				UTC:  timestamp.UTC(),
 			},

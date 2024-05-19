@@ -3,7 +3,7 @@ package actions
 import (
 	"reflect"
 	"testing"
-	"wannabe/record/entities"
+	"wannabe/types"
 )
 
 func TestDecodeRecords(t *testing.T) {
@@ -20,8 +20,8 @@ func TestDecodeRecords(t *testing.T) {
 }
 
 // reusable variables
-var expectedRecordA = entities.Record{
-	Request: entities.Request{
+var expectedRecordA = types.Record{
+	Request: types.Request{
 		Hash:       "testHash",
 		Curl:       "testCurl",
 		HttpMethod: "POST",
@@ -38,7 +38,7 @@ var expectedRecordA = entities.Record{
 			"test": "test",
 		},
 	},
-	Response: entities.Response{
+	Response: types.Response{
 		StatusCode: 200,
 		Headers: map[string][]string{
 			"Content-Type": {"application/json"},

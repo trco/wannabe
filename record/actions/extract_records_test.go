@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 	"time"
-	"wannabe/record/entities"
+	"wannabe/types"
 )
 
 func TestExtractRecords(t *testing.T) {
@@ -17,8 +17,8 @@ func TestExtractRecords(t *testing.T) {
 }
 
 // reusable variables
-var expectedRecordB = entities.Record{
-	Request: entities.Request{
+var expectedRecordB = types.Record{
+	Request: types.Request{
 		HttpMethod: "POST",
 		Host:       "https://analyticsdata.googleapis.com",
 		Path:       "test",
@@ -32,7 +32,7 @@ var expectedRecordB = entities.Record{
 			"test": "test",
 		},
 	},
-	Response: entities.Response{
+	Response: types.Response{
 		StatusCode: 200,
 		Headers: map[string][]string{
 			"Content-Type": {"application/json"},
@@ -41,12 +41,12 @@ var expectedRecordB = entities.Record{
 			"test": "test",
 		},
 	},
-	Metadata: entities.Metadata{
-		GeneratedAt: entities.Timestamp{
+	Metadata: types.Metadata{
+		GeneratedAt: types.Timestamp{
 			Unix: 0,
 			UTC:  time.Time{},
 		},
-		RegeneratedAt: entities.Timestamp{
+		RegeneratedAt: types.Timestamp{
 			Unix: 0,
 			UTC:  time.Time{},
 		},

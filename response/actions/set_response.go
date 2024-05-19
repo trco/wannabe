@@ -5,13 +5,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"wannabe/record/entities"
+	"wannabe/types"
 
 	"github.com/AdguardTeam/gomitmproxy/proxyutil"
 )
 
 func SetResponse(encodedRecord []byte, request *http.Request) (*http.Response, error) {
-	var record entities.Record
+	var record types.Record
 
 	err := json.Unmarshal(encodedRecord, &record)
 	if err != nil {

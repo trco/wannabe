@@ -4,14 +4,13 @@ import (
 	"encoding/json"
 	"reflect"
 	"testing"
-	"wannabe/record/entities"
 	"wannabe/types"
 )
 
 func TestGenerateRecord(t *testing.T) {
 	encodedRecord, _ := GenerateRecord(testConfigA, payload)
 
-	var record entities.Record
+	var record types.Record
 
 	_ = json.Unmarshal(encodedRecord, &record)
 
@@ -31,7 +30,7 @@ var testConfigA = types.Records{
 	},
 }
 
-var payload = entities.RecordPayload{
+var payload = types.RecordPayload{
 	Hash:       "testHash",
 	Curl:       "testCurl",
 	HttpMethod: "POST",
@@ -56,8 +55,8 @@ var payload = entities.RecordPayload{
 	ResponseBody: []byte{123, 10, 32, 32, 32, 32, 34, 116, 101, 115, 116, 34, 58, 32, 34, 116, 101, 115, 116, 34, 10, 125},
 }
 
-var expectedRecordC = entities.Record{
-	Request: entities.Request{
+var expectedRecordC = types.Record{
+	Request: types.Request{
 		Hash:       "testHash",
 		Curl:       "testCurl",
 		HttpMethod: "POST",
@@ -74,7 +73,7 @@ var expectedRecordC = entities.Record{
 			"test": "test",
 		},
 	},
-	Response: entities.Response{
+	Response: types.Response{
 		StatusCode: 200,
 		Headers: map[string][]string{
 			"Content-Type": {"application/json"},

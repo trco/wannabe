@@ -2,9 +2,9 @@ package services
 
 import (
 	"wannabe/record/actions"
-	"wannabe/record/entities"
+	"wannabe/types"
 )
 
-func ExtractRecords(requestBody [][]byte) ([]entities.Record, error) {
+func ExtractRecords(requestBody [][]byte) ([]types.Record, error) {
 	return actions.ExtractRecords(requestBody)
 }
