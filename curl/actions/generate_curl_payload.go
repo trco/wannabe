@@ -4,17 +4,17 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"wannabe/curl/entities"
+	"wannabe/types"
 )
 
-func GenerateCurlPayload(originalRequest *http.Request) (entities.CurlPayload, error) {
+func GenerateCurlPayload(originalRequest *http.Request) (types.CurlPayload, error) {
 	body, err := io.ReadAll(originalRequest.Body)
 	if err != nil {
-		return entities.CurlPayload{}, fmt.Errorf("PrepareGenerateCurlPayload: failed reading request body: %v", err)
+		return types.CurlPayload{}, fmt.Errorf("PrepareGenerateCurlPayload: failed reading request body: %v", err)
 	}
 	defer originalRequest.Body.Close()
 
-	curlPayload := entities.CurlPayload{
+	curlPayload := types.CurlPayload{
 		HttpMethod:     originalRequest.Method,
 		Host:           originalRequest.URL.Host,
 		Path:           originalRequest.URL.Path,

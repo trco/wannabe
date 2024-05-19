@@ -1,4 +1,4 @@
-package entities
+package types
 
 type CurlPayload struct {
 	HttpMethod     string

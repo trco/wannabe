@@ -10,6 +10,7 @@ import (
 	cfg "wannabe/config"
 	"wannabe/handlers"
 	"wannabe/providers"
+	"wannabe/types"
 
 	"github.com/AdguardTeam/gomitmproxy"
 	"github.com/AdguardTeam/gomitmproxy/mitm"
@@ -35,7 +36,7 @@ func main() {
 	go startWannabeApiServer()
 }
 
-func startWannabeProxyServer(config cfg.Config, mitmConfig *mitm.Config, storageProvider providers.StorageProvider) {
+func startWannabeProxyServer(config types.Config, mitmConfig *mitm.Config, storageProvider providers.StorageProvider) {
 	proxy := gomitmproxy.NewProxy(gomitmproxy.Config{
 		ListenAddr: &net.TCPAddr{
 			IP:   net.IPv4(0, 0, 0, 0),

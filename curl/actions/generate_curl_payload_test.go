@@ -5,13 +5,13 @@ import (
 	"net/http"
 	"reflect"
 	"testing"
-	"wannabe/curl/entities"
+	"wannabe/types"
 )
 
 func TestGenerateCurlPayload(t *testing.T) {
 	setHeaders(originalRequest)
 
-	expcetedPayload := entities.CurlPayload{
+	expcetedPayload := types.CurlPayload{
 		HttpMethod: "POST",
 		Host:       "test.com",
 		Path:       "/test",
