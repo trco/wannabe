@@ -77,7 +77,7 @@ func replaceRegexPatterns(processedString string, regexes []types.Regex, isQuery
 // query
 func mapValuesToSingleString(queryMap map[string][]string) map[string]string {
 	query := make(map[string]string)
-	for key, _ := range queryMap {
+	for key := range queryMap {
 		queryValue := strings.Join(queryMap[key], ",")
 		query[key] = queryValue
 	}
