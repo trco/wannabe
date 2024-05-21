@@ -139,12 +139,15 @@ func PostRecords(config types.Config, storageProvider providers.StorageProvider,
 			}
 		}
 
+		// FIXME extract to service/action record/GenerateRequest.go
 		// Create an http.Request object
 		request, err := http.NewRequest(record.Request.HttpMethod, record.Request.Path, bytes.NewReader(requestBody))
 		if err != nil {
 			processRecordValidation(&recordProcessingDetails, "", err.Error(), &notInsertedCount)
 			continue
 		}
+
+		request.URL.Host = record.Request.Host
 
 		// Set the query parameters
 		query := request.URL.Query()
@@ -161,10 +164,6 @@ func PostRecords(config types.Config, storageProvider providers.StorageProvider,
 				request.Header.Set(key, item)
 			}
 		}
-
-		// Set the request body
-		request.Header.Set("Content-Type", "application/json")
-		request.ContentLength = int64(len(requestBody))
 
 		host := record.Request.Host
 		wannabe := config.Wannabes[host]
