@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net"
 	"net/http"
@@ -32,8 +33,8 @@ func main() {
 		log.Fatalf("fatal error starting app: %v", err)
 	}
 
+	go startWannabeApiServer(config, storageProvider)
 	startWannabeProxyServer(config, mitmConfig, storageProvider)
-	go startWannabeApiServer()
 }
 
 func startWannabeProxyServer(config types.Config, mitmConfig *mitm.Config, storageProvider providers.StorageProvider) {
@@ -59,12 +60,12 @@ func startWannabeProxyServer(config types.Config, mitmConfig *mitm.Config, stora
 	proxy.Close()
 }
 
-func startWannabeApiServer() {
-	http.HandleFunc("/api/endpoint/{param}", func(w http.ResponseWriter, r *http.Request) {
-		// Handle API endpoint logic here
-	})
+func startWannabeApiServer(config types.Config, storageProvider providers.StorageProvider) {
+	http.HandleFunc("/wannabe/api/records/{hash}", handlers.Records(config, storageProvider))
+	http.HandleFunc("/wannabe/api/records", handlers.Records(config, storageProvider))
 
-	err := http.ListenAndServe(":8080", nil)
+	fmt.Println("Listening on localhost:1234")
+	err := http.ListenAndServe("localhost:1234", nil)
 	if err != nil {
 		log.Fatal(err)
 	}

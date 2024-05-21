@@ -1,150 +1,212 @@
 package handlers
 
-// func GetRecords(storageProvider providers.StorageProvider) WannabeHandler {
-// 	return func(ctx *fiber.Ctx) error {
-// 		hash := ctx.Params("hash")
-// 		hashes := []string{hash}
-// 		host := ctx.Params("host")
+import (
+	"bytes"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"io"
+	"net/http"
+	"time"
+	curl "wannabe/curl/services"
+	hash "wannabe/hash/services"
+	"wannabe/providers"
+	"wannabe/record/services"
+	"wannabe/types"
+)
 
-// 		if hash == "" {
-// 			var err error
-// 			hashes, err = storageProvider.GetHashes(host)
-// 			if err != nil {
-// 				return internalError(ctx, err)
-// 			}
-// 		}
+func Records(config types.Config, storageProvider providers.StorageProvider) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			GetRecords(storageProvider, w, r)
+		case http.MethodDelete:
+			DeleteRecords(storageProvider, w, r)
+		case http.MethodPost:
+			PostRecords(config, storageProvider, w, r)
+		default:
+			internalErrorApi(w, errors.New("invalid method"), http.StatusMethodNotAllowed)
+		}
+	}
+}
 
-// 		encodedRecords, err := storageProvider.ReadRecords(hashes, host)
-// 		if err != nil {
-// 			return internalError(ctx, err)
-// 		}
+func GetRecords(storageProvider providers.StorageProvider, w http.ResponseWriter, r *http.Request) {
+	host := r.URL.Query().Get("host")
+	if host == "" {
+		internalErrorApi(w, errors.New("required query parameter missing: 'host'"), http.StatusBadRequest)
+		return
+	}
 
-// 		records, err := record.DecodeRecords(encodedRecords)
-// 		if err != nil {
-// 			return internalError(ctx, err)
-// 		}
+	hash := r.PathValue("hash")
+	hashes := []string{hash}
+	if hash == "" {
+		var err error
+		hashes, err = storageProvider.GetHashes(host)
+		if err != nil {
+			internalErrorApi(w, err, http.StatusInternalServerError)
+			return
+		}
+	}
 
-// 		return ctx.Status(fiber.StatusOK).JSON(records)
-// 	}
-// }
+	encodedRecords, err := storageProvider.ReadRecords(host, hashes)
+	if err != nil {
+		internalErrorApi(w, err, http.StatusInternalServerError)
+		return
+	}
 
-// func PostRecords(config config.Config, storageProvider providers.StorageProvider) WannabeHandler {
-// 	return func(ctx *fiber.Ctx) error {
-// 		records, err := record.ExtractRecords(ctx.Body())
-// 		if err != nil {
-// 			return internalError(ctx, err)
-// 		}
+	records, err := services.DecodeRecords(encodedRecords)
+	if err != nil {
+		internalErrorApi(w, err, http.StatusInternalServerError)
+		return
+	}
 
-// 		validationErrors, err := record.ValidateRecords(config, records)
-// 		if err != nil {
-// 			return internalError(ctx, err)
-// 		}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(records)
+}
 
-// 		insertedCount := 0
-// 		notInsertedCount := 0
-// 		var recordProcessingDetails []RecordProcessingDetails
+func DeleteRecords(storageProvider providers.StorageProvider, w http.ResponseWriter, r *http.Request) {
+	host := r.URL.Query().Get("host")
+	if host == "" {
+		internalErrorApi(w, errors.New("required query parameter missing: 'host'"), http.StatusBadRequest)
+		return
+	}
 
-// 		var validHashes []string
-// 		var encodedRecords [][]byte
+	hash := r.PathValue("hash")
+	hashes := []string{hash}
+	if hash == "" {
+		var err error
+		hashes, err = storageProvider.GetHashes(host)
+		if err != nil {
+			internalErrorApi(w, err, http.StatusInternalServerError)
+			return
+		}
+	}
 
-// 		for i, record := range records {
-// 			if validationErrors[i] != "" {
-// 				processRecordValidation(&recordProcessingDetails, "", validationErrors[i], &notInsertedCount)
+	err := storageProvider.DeleteRecords(host, hashes)
+	if err != nil {
+		internalErrorApi(w, err, http.StatusInternalServerError)
+		return
+	}
 
-// 				continue
-// 			}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(types.DeleteRecordsResponse{
+		Message: fmt.Sprintf("%v records successfully deleted.", len(hashes)),
+		Hashes:  hashes,
+	})
+}
 
-// 			body := record.Request.Body
-// 			var requestBody []byte
+// FIXME ? remove dependency on config, allow to post any record, create folder for it if it doesn't exist,...
+func PostRecords(config types.Config, storageProvider providers.StorageProvider, w http.ResponseWriter, r *http.Request) {
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		internalErrorApi(w, err, http.StatusInternalServerError)
+		return
+	}
+	defer r.Body.Close()
 
-// 			if body == nil {
-// 				requestBody = []byte("")
-// 			} else {
-// 				requestBody, err = json.Marshal(body)
-// 				if err != nil {
-// 					processRecordValidation(&recordProcessingDetails, "", err.Error(), &notInsertedCount)
+	records, err := services.ExtractRecords(body)
+	if err != nil {
+		internalErrorApi(w, err, http.StatusInternalServerError)
+		return
+	}
 
-// 					continue
-// 				}
-// 			}
+	validationErrors, err := services.ValidateRecords(records)
+	if err != nil {
+		internalErrorApi(w, err, http.StatusInternalServerError)
+		return
+	}
 
-// 			curlPayload := curlEntities.GenerateCurlPayload{
-// 				HttpMethod:     record.Request.HttpMethod,
-// 				Path:           record.Request.Path,
-// 				Query:          record.Request.Query,
-// 				RequestHeaders: record.Request.Headers,
-// 				RequestBody:    requestBody,
-// 			}
+	insertedCount := 0
+	notInsertedCount := 0
+	var recordProcessingDetails []types.RecordProcessingDetails
 
-// 			curl, err := curl.GenerateCurl(config, curlPayload)
-// 			if err != nil {
-// 				processRecordValidation(&recordProcessingDetails, "", err.Error(), &notInsertedCount)
+	for i, record := range records {
+		if validationErrors[i] != "" {
+			processRecordValidation(&recordProcessingDetails, "", validationErrors[i], &notInsertedCount)
+			continue
+		}
 
-// 				continue
-// 			}
+		body := record.Request.Body
+		var requestBody []byte
 
-// 			hash, err := hash.GenerateHash(curl)
-// 			if err != nil {
-// 				processRecordValidation(&recordProcessingDetails, "", err.Error(), &notInsertedCount)
+		if body == nil {
+			requestBody = []byte("")
+		} else {
+			requestBody, err = json.Marshal(body)
+			if err != nil {
+				processRecordValidation(&recordProcessingDetails, "", err.Error(), &notInsertedCount)
+				continue
+			}
+		}
 
-// 				continue
-// 			}
+		// Create an http.Request object
+		request, err := http.NewRequest(record.Request.HttpMethod, record.Request.Path, bytes.NewReader(requestBody))
+		if err != nil {
+			processRecordValidation(&recordProcessingDetails, "", err.Error(), &notInsertedCount)
+			continue
+		}
 
-// 			record.Request.Curl = curl
-// 			record.Request.Hash = hash
-// 			record.Metadata.GeneratedAt = recordEntities.Timestamp{
-// 				Unix: time.Now().Unix(),
-// 				UTC:  time.Now().UTC(),
-// 			}
+		// Set the query parameters
+		query := request.URL.Query()
+		for key, value := range record.Request.Query {
+			for _, item := range value {
+				query.Add(key, item)
+			}
+		}
+		request.URL.RawQuery = query.Encode()
 
-// 			encodedRecord, err := json.Marshal(record)
-// 			if err != nil {
-// 				processRecordValidation(&recordProcessingDetails, hash, err.Error(), &notInsertedCount)
+		// Set the request headers
+		for key, value := range record.Request.Headers {
+			for _, item := range value {
+				request.Header.Set(key, item)
+			}
+		}
 
-// 				continue
-// 			}
+		// Set the request body
+		request.Header.Set("Content-Type", "application/json")
+		request.ContentLength = int64(len(requestBody))
 
-// 			validHashes = append(validHashes, hash)
-// 			encodedRecords = append(encodedRecords, encodedRecord)
+		host := record.Request.Host
+		wannabe := config.Wannabes[host]
 
-// 			processRecordValidation(&recordProcessingDetails, hash, "success", &insertedCount)
-// 		}
+		curl, err := curl.GenerateCurl(request, wannabe)
+		if err != nil {
+			processRecordValidation(&recordProcessingDetails, "", err.Error(), &notInsertedCount)
+			continue
+		}
 
-// 		err = storageProvider.InsertRecords(validHashes, encodedRecords)
-// 		if err != nil {
-// 			return internalError(ctx, err)
-// 		}
+		hash, err := hash.GenerateHash(curl)
+		if err != nil {
+			processRecordValidation(&recordProcessingDetails, "", err.Error(), &notInsertedCount)
+			continue
+		}
 
-// 		return ctx.Status(fiber.StatusCreated).JSON(PostRecordsResponse{
-// 			InsertedRecordsCount:    insertedCount,
-// 			NotInsertedRecordsCount: notInsertedCount,
-// 			RecordProcessingDetails: recordProcessingDetails,
-// 		})
-// 	}
-// }
+		record.Request.Curl = curl
+		record.Request.Hash = hash
+		record.Metadata.GeneratedAt = types.Timestamp{
+			Unix: time.Now().Unix(),
+			UTC:  time.Now().UTC(),
+		}
 
-// func DeleteRecords(storageProvider providers.StorageProvider) WannabeHandler {
-// 	return func(ctx *fiber.Ctx) error {
-// 		hash := ctx.Params("hash")
-// 		hashes := []string{hash}
-// 		host := ctx.Params("host")
+		encodedRecord, err := json.Marshal(record)
+		if err != nil {
+			processRecordValidation(&recordProcessingDetails, hash, err.Error(), &notInsertedCount)
+			continue
+		}
 
-// 		if hash == "" {
-// 			var err error
-// 			hashes, err = storageProvider.GetHashes(host)
-// 			if err != nil {
-// 				return internalError(ctx, err)
-// 			}
-// 		}
+		err = storageProvider.InsertRecords(host, []string{hash}, [][]byte{encodedRecord})
+		if err != nil {
+			internalErrorApi(w, err, http.StatusInternalServerError)
+			return
+		}
 
-// 		err := storageProvider.DeleteRecords(hashes, host)
-// 		if err != nil {
-// 			return internalError(ctx, err)
-// 		}
+		processRecordValidation(&recordProcessingDetails, hash, "success", &insertedCount)
+	}
 
-// 		return ctx.Status(fiber.StatusCreated).JSON(DeleteRecordsResponse{
-// 			Message: fmt.Sprintf("%v records successfully deleted.", len(hashes)),
-// 			Hashes:  hashes,
-// 		})
-// 	}
-// }
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(types.PostRecordsResponse{
+		InsertedRecordsCount:    insertedCount,
+		NotInsertedRecordsCount: notInsertedCount,
+		RecordProcessingDetails: recordProcessingDetails,
+	})
+}
