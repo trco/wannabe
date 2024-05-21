@@ -6,19 +6,12 @@ import (
 	"wannabe/types"
 )
 
-func ExtractRecords(requestBody [][]byte) ([]types.Record, error) {
+func ExtractRecords(requestBody []byte) ([]types.Record, error) {
 	var records []types.Record
 
-	for _, item := range requestBody {
-		var record types.Record
-		err := json.Unmarshal(item, &record)
-
-		if err != nil {
-			return nil, fmt.Errorf("ExtractRecords: failed unmarshaling request body: %v", err)
-		}
-
-		records = append(records, record)
-
+	err := json.Unmarshal(requestBody, &records)
+	if err != nil {
+		return nil, fmt.Errorf("ExtractRecords: failed unmarshaling request body: %v", err)
 	}
 
 	return records, nil

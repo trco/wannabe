@@ -5,6 +5,6 @@ import (
 	"wannabe/types"
 )
 
-func ExtractRecords(requestBody [][]byte) ([]types.Record, error) {
+func ExtractRecords(requestBody []byte) ([]types.Record, error) {
 	return actions.ExtractRecords(requestBody)
 }
