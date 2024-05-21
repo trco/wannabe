@@ -271,10 +271,15 @@ func TestFilterHeadersToInclude(t *testing.T) {
 				"X-test-header": "test value",
 			},
 		},
-		"noHeadersToInclude": {
-			Map:      testInitHeadersMap(),
-			Include:  []string{},
-			Expected: map[string]string{},
+		"includeAllHeadersWithEmptyInclude": {
+			Map:     testInitHeadersMap(),
+			Include: []string{},
+			Expected: map[string]string{
+				"Accept":        "test1,test2,test3",
+				"Authorization": "test access token",
+				"Content-Type":  "application/json",
+				"X-test-header": "test value",
+			},
 		},
 	}
 

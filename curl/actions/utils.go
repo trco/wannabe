@@ -102,6 +102,12 @@ type Header struct {
 }
 
 func filterHeadersToInclude(headersMap map[string][]string, headersToInclude []string) map[string]string {
+	if len(headersToInclude) == 0 {
+		for key := range headersMap {
+			headersToInclude = append(headersToInclude, key)
+		}
+	}
+
 	headers := make(map[string]string)
 	for _, key := range headersToInclude {
 		if !keyExists(headersMap, key) {
