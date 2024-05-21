@@ -6,8 +6,8 @@ import (
 	"github.com/AdguardTeam/gomitmproxy"
 )
 
-type WannabeOnRequestHandler func(session *gomitmproxy.Session) (*http.Request, *http.Response)
-type WannabeOnResponseHandler func(session *gomitmproxy.Session) *http.Response
+type WannabeOnRequestHandler func(*gomitmproxy.Session) (*http.Request, *http.Response)
+type WannabeOnResponseHandler func(*gomitmproxy.Session) *http.Response
 
 type WannabeSession struct {
 	Req   *http.Request
@@ -33,6 +33,10 @@ func (s *WannabeSession) SetProp(key string, val interface{}) {
 }
 
 type InternalError struct {
+	Error string `json:"error"`
+}
+
+type InternalErrorApi struct {
 	Error string `json:"error"`
 }
 
