@@ -23,18 +23,18 @@ func (fsp FilesystemProvider) ReadRecords(subfolder string, hashes []string) ([]
 		if os.IsNotExist(err) {
 			continue
 		} else if err != nil {
-			return nil, filesystemProviderErr("failed checking if file exists", err)
+			return nil, filesystemProviderErr("failed checking if file exists "+filepath, err)
 		}
 
 		file, err := os.Open(filepath)
 		if err != nil {
-			return nil, filesystemProviderErr("failed opening file", err)
+			return nil, filesystemProviderErr("failed opening file "+filepath, err)
 		}
 		defer file.Close()
 
 		record, err := io.ReadAll(file)
 		if err != nil {
-			return nil, filesystemProviderErr("failed reading file", err)
+			return nil, filesystemProviderErr("failed reading file "+filepath, err)
 		}
 
 		records = append(records, record)
@@ -48,7 +48,7 @@ func (fsp FilesystemProvider) InsertRecords(subfolder string, hashes []string, r
 
 	err := fsp.createFolder(subfolder, isRegenerate)
 	if err != nil {
-		return filesystemProviderErr("failed creating folder", err)
+		return filesystemProviderErr("failed creating folder "+subfolder, err)
 	}
 
 	// TODO all or nothing ?
@@ -57,12 +57,12 @@ func (fsp FilesystemProvider) InsertRecords(subfolder string, hashes []string, r
 
 		_, err := os.Create(filepath)
 		if err != nil {
-			return filesystemProviderErr("failed creating file", err)
+			return filesystemProviderErr("failed creating file "+filepath, err)
 		}
 
 		err = os.WriteFile(filepath, record, 0644)
 		if err != nil {
-			return filesystemProviderErr("failed writing file", err)
+			return filesystemProviderErr("failed writing file "+filepath, err)
 		}
 	}
 
@@ -75,7 +75,7 @@ func (fsp FilesystemProvider) DeleteRecords(subfolder string, hashes []string) e
 
 		err := os.Remove(filepath)
 		if err != nil {
-			return filesystemProviderErr("failed deleting file", err)
+			return filesystemProviderErr("failed deleting file "+filepath, err)
 		}
 	}
 
@@ -87,23 +87,41 @@ func (fsp FilesystemProvider) GetHashes(subfolder string) ([]string, error) {
 
 	files, err := os.ReadDir(folder)
 	if err != nil {
-		return nil, filesystemProviderErr("failed reading folder", err)
+		return nil, filesystemProviderErr("failed reading folder "+fsp.Config.StorageProvider.FilesystemConfig.Folder, err)
 	}
 
-	var hashes []string
-	for _, file := range files {
-		if file.IsDir() {
-			continue
-		}
-
-		// get the file name without extension
-		filename := file.Name()
-		hash := filename[:len(filename)-len(filepath.Ext(filename))]
-
-		hashes = append(hashes, hash)
-	}
+	hashes := fsp.getHashesFromFiles(files)
 
 	return hashes, nil
+}
+
+func (fsp FilesystemProvider) GetHostsAndHashes() ([]HostAndHashes, error) {
+	var hostHashes []HostAndHashes
+
+	folder := fsp.Config.StorageProvider.FilesystemConfig.Folder
+
+	subfolders, err := os.ReadDir(folder)
+	if err != nil {
+		return nil, filesystemProviderErr("failed reading folder "+folder, err)
+	}
+
+	for _, subfolder := range subfolders {
+		files, err := os.ReadDir(folder + "/" + subfolder.Name())
+		if err != nil {
+			return nil, filesystemProviderErr("failed reading subfolder "+subfolder.Name(), err)
+		}
+
+		hashes := fsp.getHashesFromFiles(files)
+
+		hostHashes = append(hostHashes, HostAndHashes{
+			Host:      subfolder.Name(),
+			HashCount: len(hashes),
+			Hashes:    hashes,
+		})
+
+	}
+
+	return hostHashes, nil
 }
 
 func (fsp FilesystemProvider) generateFilepath(subfolder string, hash string, isRegenerate bool) string {
@@ -137,6 +155,24 @@ func (fsp FilesystemProvider) createFolder(subfolder string, isRegenerate bool) 
 	}
 
 	return nil
+}
+
+func (fsp FilesystemProvider) getHashesFromFiles(files []os.DirEntry) []string {
+	var hashes []string
+
+	for _, file := range files {
+		if file.IsDir() {
+			continue
+		}
+
+		// get the file name without extension
+		filename := file.Name()
+		hash := filename[:len(filename)-len(filepath.Ext(filename))]
+
+		hashes = append(hashes, hash)
+	}
+
+	return hashes
 }
 
 func filesystemProviderErr(message string, err error) error {

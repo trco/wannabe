@@ -27,3 +27,7 @@ func (redis RedisProvider) DeleteRecords(key string, hashes []string) error {
 func (redis RedisProvider) GetHashes(key string) ([]string, error) {
 	return []string{}, nil
 }
+
+func (fsp RedisProvider) GetHostsAndHashes() ([]HostAndHashes, error) {
+	return []HostAndHashes{}, nil
+}
