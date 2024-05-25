@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -11,7 +10,7 @@ import (
 	curl "wannabe/curl/services"
 	hash "wannabe/hash/services"
 	"wannabe/providers"
-	"wannabe/record/services"
+	recordServices "wannabe/record/services"
 	"wannabe/types"
 )
 
@@ -54,7 +53,7 @@ func GetRecords(storageProvider providers.StorageProvider, w http.ResponseWriter
 		return
 	}
 
-	records, err := services.DecodeRecords(encodedRecords)
+	records, err := recordServices.DecodeRecords(encodedRecords)
 	if err != nil {
 		internalErrorApi(w, err, http.StatusInternalServerError)
 		return
@@ -95,7 +94,6 @@ func DeleteRecords(storageProvider providers.StorageProvider, w http.ResponseWri
 	})
 }
 
-// FIXME ? remove dependency on config, allow to post any record, create folder for it if it doesn't exist,...
 func PostRecords(config types.Config, storageProvider providers.StorageProvider, w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -104,13 +102,13 @@ func PostRecords(config types.Config, storageProvider providers.StorageProvider,
 	}
 	defer r.Body.Close()
 
-	records, err := services.ExtractRecords(body)
+	records, err := recordServices.ExtractRecords(body)
 	if err != nil {
 		internalErrorApi(w, err, http.StatusInternalServerError)
 		return
 	}
 
-	validationErrors, err := services.ValidateRecords(records)
+	validationErrors, err := recordServices.ValidateRecords(records)
 	if err != nil {
 		internalErrorApi(w, err, http.StatusInternalServerError)
 		return
@@ -126,43 +124,10 @@ func PostRecords(config types.Config, storageProvider providers.StorageProvider,
 			continue
 		}
 
-		body := record.Request.Body
-		var requestBody []byte
-
-		if body == nil {
-			requestBody = []byte("")
-		} else {
-			requestBody, err = json.Marshal(body)
-			if err != nil {
-				processRecordValidation(&recordProcessingDetails, "", err.Error(), &notInsertedCount)
-				continue
-			}
-		}
-
-		// FIXME extract to service/action record/GenerateRequest.go
-		// Create an http.Request object
-		request, err := http.NewRequest(record.Request.HttpMethod, record.Request.Path, bytes.NewReader(requestBody))
+		request, err := recordServices.GenerateRequest(record.Request)
 		if err != nil {
 			processRecordValidation(&recordProcessingDetails, "", err.Error(), &notInsertedCount)
 			continue
-		}
-
-		request.URL.Host = record.Request.Host
-
-		// Set the query parameters
-		query := request.URL.Query()
-		for key, value := range record.Request.Query {
-			for _, item := range value {
-				query.Add(key, item)
-			}
-		}
-		request.URL.RawQuery = query.Encode()
-
-		// Set the request headers
-		for key, value := range record.Request.Headers {
-			for _, item := range value {
-				request.Header.Set(key, item)
-			}
 		}
 
 		host := record.Request.Host
