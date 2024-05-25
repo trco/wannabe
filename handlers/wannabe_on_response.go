@@ -33,12 +33,12 @@ func processSessionOnResponse(config types.Config, storageProvider providers.Sto
 
 	hash, curl, err := getHashAndCurlFromSession(wannabeSession)
 	if err != nil {
-		return internalErrorOnResponse(request, err)
+		return wannabeOnResponseInternalError(request, err)
 	}
 
 	recordPayload, err := record.GenerateRecordPayload(wannabeSession, hash, curl)
 	if err != nil {
-		return internalErrorOnResponse(request, err)
+		return wannabeOnResponseInternalError(request, err)
 	}
 
 	host := request.URL.Host
@@ -46,12 +46,12 @@ func processSessionOnResponse(config types.Config, storageProvider providers.Sto
 
 	record, err := record.GenerateRecord(wannabe.Records, recordPayload)
 	if err != nil {
-		return internalErrorOnResponse(request, err)
+		return wannabeOnResponseInternalError(request, err)
 	}
 
 	err = storageProvider.InsertRecords(host, []string{hash}, [][]byte{record})
 	if err != nil {
-		return internalErrorOnResponse(request, err)
+		return wannabeOnResponseInternalError(request, err)
 	}
 
 	return nil
