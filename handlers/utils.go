@@ -35,6 +35,11 @@ func apiInternalError(w http.ResponseWriter, err error, status int) {
 	json.NewEncoder(w).Encode(types.InternalErrorApi{Error: err.Error()})
 }
 
+func apiResponse(w http.ResponseWriter, response interface{}) {
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+}
+
 func prepareResponseBody(err error) *bytes.Reader {
 	body, err := json.Marshal(types.InternalError{
 		Error: err.Error(),

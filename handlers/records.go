@@ -40,8 +40,7 @@ func GetRecords(storageProvider providers.StorageProvider, w http.ResponseWriter
 			return
 		}
 
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(stats)
+		apiResponse(w, stats)
 		return
 	}
 
@@ -72,8 +71,7 @@ func GetRecords(storageProvider providers.StorageProvider, w http.ResponseWriter
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(records)
+	apiResponse(w, records)
 }
 
 func DeleteRecords(storageProvider providers.StorageProvider, w http.ResponseWriter, r *http.Request) {
@@ -100,8 +98,7 @@ func DeleteRecords(storageProvider providers.StorageProvider, w http.ResponseWri
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(types.DeleteRecordsResponse{
+	apiResponse(w, types.DeleteRecordsResponse{
 		Message: fmt.Sprintf("%v records successfully deleted.", len(hashes)),
 		Hashes:  hashes,
 	})
@@ -180,8 +177,7 @@ func PostRecords(config types.Config, storageProvider providers.StorageProvider,
 		processRecordValidation(&recordProcessingDetails, hash, "success", &insertedCount)
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(types.PostRecordsResponse{
+	apiResponse(w, types.PostRecordsResponse{
 		InsertedRecordsCount:    insertedCount,
 		NotInsertedRecordsCount: notInsertedCount,
 		RecordProcessingDetails: recordProcessingDetails,
