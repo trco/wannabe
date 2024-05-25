@@ -35,13 +35,13 @@ func processSessionOnRequest(config types.Config, storageProvider providers.Stor
 
 	curl, err := curl.GenerateCurl(request, wannabe)
 	if err != nil {
-		return wannabeOnRequestInternalError(wannabeSession, request, err)
+		return internalErrorOnRequest(wannabeSession, request, err)
 	}
 	wannabeSession.SetProp("curl", curl)
 
 	hash, err := hash.GenerateHash(curl)
 	if err != nil {
-		return wannabeOnRequestInternalError(wannabeSession, request, err)
+		return internalErrorOnRequest(wannabeSession, request, err)
 	}
 	wannabeSession.SetProp("hash", hash)
 
@@ -49,7 +49,7 @@ func processSessionOnRequest(config types.Config, storageProvider providers.Stor
 	if isNotProxyMode {
 		records, err := storageProvider.ReadRecords(host, []string{hash})
 		if err != nil {
-			return wannabeOnRequestInternalError(wannabeSession, request, err)
+			return internalErrorOnRequest(wannabeSession, request, err)
 		}
 
 		isSingleRecord := len(records) == 1
@@ -59,7 +59,7 @@ func processSessionOnRequest(config types.Config, storageProvider providers.Stor
 
 		isServerMode := config.Mode == types.ServerMode
 		if isServerMode {
-			return wannabeOnRequestInternalError(wannabeSession, request, fmt.Errorf("no record found for the request"))
+			return internalErrorOnRequest(wannabeSession, request, fmt.Errorf("no record found for the request"))
 		}
 	}
 
@@ -69,7 +69,7 @@ func processSessionOnRequest(config types.Config, storageProvider providers.Stor
 func processRecords(wannabeSession types.WannabeSession, request *http.Request, record []byte) (*http.Request, *http.Response) {
 	responseSetFromRecord, err := response.SetResponse(record, request)
 	if err != nil {
-		return wannabeOnRequestInternalError(wannabeSession, request, err)
+		return internalErrorOnRequest(wannabeSession, request, err)
 	}
 
 	wannabeSession.SetProp("responseSetFromRecord", true)

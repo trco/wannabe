@@ -11,7 +11,7 @@ import (
 	"github.com/AdguardTeam/gomitmproxy/proxyutil"
 )
 
-func wannabeOnRequestInternalError(wannabeSession types.WannabeSession, request *http.Request, err error) (*http.Request, *http.Response) {
+func internalErrorOnRequest(wannabeSession types.WannabeSession, request *http.Request, err error) (*http.Request, *http.Response) {
 	wannabeSession.SetProp("blocked", true)
 
 	body := prepareResponseBody(err)
@@ -21,7 +21,7 @@ func wannabeOnRequestInternalError(wannabeSession types.WannabeSession, request 
 	return nil, response
 }
 
-func wannabeOnResponseInternalError(request *http.Request, err error) *http.Response {
+func internalErrorOnResponse(request *http.Request, err error) *http.Response {
 	body := prepareResponseBody(err)
 	response := proxyutil.NewResponse(http.StatusInternalServerError, body, request)
 	response.Header.Set("Content-Type", "application/json")
@@ -29,7 +29,7 @@ func wannabeOnResponseInternalError(request *http.Request, err error) *http.Resp
 	return response
 }
 
-func apiInternalError(w http.ResponseWriter, err error, status int) {
+func internalErrorApi(w http.ResponseWriter, err error, status int) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(types.InternalErrorApi{Error: err.Error()})

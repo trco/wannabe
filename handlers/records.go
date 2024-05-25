@@ -24,7 +24,7 @@ func Records(config types.Config, storageProvider providers.StorageProvider) htt
 		case http.MethodPost:
 			PostRecords(config, storageProvider, w, r)
 		default:
-			apiInternalError(w, errors.New("invalid method"), http.StatusMethodNotAllowed)
+			internalErrorApi(w, errors.New("invalid method"), http.StatusMethodNotAllowed)
 		}
 	}
 }
@@ -36,7 +36,7 @@ func GetRecords(storageProvider providers.StorageProvider, w http.ResponseWriter
 	if host == "" && hash == "" {
 		stats, err := storageProvider.GetHostsAndHashes()
 		if err != nil {
-			apiInternalError(w, err, http.StatusInternalServerError)
+			internalErrorApi(w, err, http.StatusInternalServerError)
 			return
 		}
 
@@ -45,7 +45,7 @@ func GetRecords(storageProvider providers.StorageProvider, w http.ResponseWriter
 	}
 
 	if host == "" {
-		apiInternalError(w, errors.New("required query parameter missing: 'host'"), http.StatusBadRequest)
+		internalErrorApi(w, errors.New("required query parameter missing: 'host'"), http.StatusBadRequest)
 		return
 	}
 
@@ -54,20 +54,20 @@ func GetRecords(storageProvider providers.StorageProvider, w http.ResponseWriter
 		var err error
 		hashes, err = storageProvider.GetHashes(host)
 		if err != nil {
-			apiInternalError(w, err, http.StatusInternalServerError)
+			internalErrorApi(w, err, http.StatusInternalServerError)
 			return
 		}
 	}
 
 	encodedRecords, err := storageProvider.ReadRecords(host, hashes)
 	if err != nil {
-		apiInternalError(w, err, http.StatusInternalServerError)
+		internalErrorApi(w, err, http.StatusInternalServerError)
 		return
 	}
 
 	records, err := recordServices.DecodeRecords(encodedRecords)
 	if err != nil {
-		apiInternalError(w, err, http.StatusInternalServerError)
+		internalErrorApi(w, err, http.StatusInternalServerError)
 		return
 	}
 
@@ -77,7 +77,7 @@ func GetRecords(storageProvider providers.StorageProvider, w http.ResponseWriter
 func DeleteRecords(storageProvider providers.StorageProvider, w http.ResponseWriter, r *http.Request) {
 	host := r.URL.Query().Get("host")
 	if host == "" {
-		apiInternalError(w, errors.New("required query parameter missing: 'host'"), http.StatusBadRequest)
+		internalErrorApi(w, errors.New("required query parameter missing: 'host'"), http.StatusBadRequest)
 		return
 	}
 
@@ -87,14 +87,14 @@ func DeleteRecords(storageProvider providers.StorageProvider, w http.ResponseWri
 		var err error
 		hashes, err = storageProvider.GetHashes(host)
 		if err != nil {
-			apiInternalError(w, err, http.StatusInternalServerError)
+			internalErrorApi(w, err, http.StatusInternalServerError)
 			return
 		}
 	}
 
 	err := storageProvider.DeleteRecords(host, hashes)
 	if err != nil {
-		apiInternalError(w, err, http.StatusInternalServerError)
+		internalErrorApi(w, err, http.StatusInternalServerError)
 		return
 	}
 
@@ -107,20 +107,20 @@ func DeleteRecords(storageProvider providers.StorageProvider, w http.ResponseWri
 func PostRecords(config types.Config, storageProvider providers.StorageProvider, w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		apiInternalError(w, err, http.StatusInternalServerError)
+		internalErrorApi(w, err, http.StatusInternalServerError)
 		return
 	}
 	defer r.Body.Close()
 
 	records, err := recordServices.ExtractRecords(body)
 	if err != nil {
-		apiInternalError(w, err, http.StatusInternalServerError)
+		internalErrorApi(w, err, http.StatusInternalServerError)
 		return
 	}
 
 	validationErrors, err := recordServices.ValidateRecords(records)
 	if err != nil {
-		apiInternalError(w, err, http.StatusInternalServerError)
+		internalErrorApi(w, err, http.StatusInternalServerError)
 		return
 	}
 
@@ -170,7 +170,7 @@ func PostRecords(config types.Config, storageProvider providers.StorageProvider,
 
 		err = storageProvider.InsertRecords(host, []string{hash}, [][]byte{encodedRecord})
 		if err != nil {
-			apiInternalError(w, err, http.StatusInternalServerError)
+			internalErrorApi(w, err, http.StatusInternalServerError)
 			return
 		}
 
