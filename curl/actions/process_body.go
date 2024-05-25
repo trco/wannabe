@@ -7,7 +7,7 @@ import (
 )
 
 func ProcessBody(requestBody []byte, config types.Body) (string, error) {
-	if len(requestBody) == 0 {
+	if len(requestBody) == 0 || string(requestBody) == "null" {
 		return "", nil
 	}
 
