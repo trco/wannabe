@@ -34,10 +34,10 @@ func main() {
 	}
 
 	go startWannabeApiServer(config, storageProvider)
-	startWannabeProxyServer(config, mitmConfig, storageProvider)
+	startWannabeServer(config, mitmConfig, storageProvider)
 }
 
-func startWannabeProxyServer(config types.Config, mitmConfig *mitm.Config, storageProvider providers.StorageProvider) {
+func startWannabeServer(config types.Config, mitmConfig *mitm.Config, storageProvider providers.StorageProvider) {
 	proxy := gomitmproxy.NewProxy(gomitmproxy.Config{
 		ListenAddr: &net.TCPAddr{
 			IP:   net.IPv4(0, 0, 0, 0),

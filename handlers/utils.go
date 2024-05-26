@@ -11,6 +11,8 @@ import (
 	"github.com/AdguardTeam/gomitmproxy/proxyutil"
 )
 
+// wannabe
+
 func internalErrorOnRequest(wannabeSession types.WannabeSession, request *http.Request, err error) (*http.Request, *http.Response) {
 	wannabeSession.SetProp("blocked", true)
 
@@ -27,17 +29,6 @@ func internalErrorOnResponse(request *http.Request, err error) *http.Response {
 	response.Header.Set("Content-Type", "application/json")
 
 	return response
-}
-
-func internalErrorApi(w http.ResponseWriter, err error, status int) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	json.NewEncoder(w).Encode(types.InternalErrorApi{Error: err.Error()})
-}
-
-func apiResponse(w http.ResponseWriter, response interface{}) {
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
 }
 
 func prepareResponseBody(err error) *bytes.Reader {
@@ -83,6 +74,19 @@ func getHashAndCurlFromSession(wannabeSession types.WannabeSession) (string, str
 	}
 
 	return hash, curl, nil
+}
+
+// wannabe api
+
+func internalErrorApi(w http.ResponseWriter, err error, status int) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	json.NewEncoder(w).Encode(types.InternalErrorApi{Error: err.Error()})
+}
+
+func apiResponse(w http.ResponseWriter, response interface{}) {
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
 }
 
 func checkDuplicates(slice []string, value string) bool {
