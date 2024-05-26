@@ -34,13 +34,13 @@ func GetRecords(storageProvider providers.StorageProvider, w http.ResponseWriter
 	hash := r.PathValue("hash")
 
 	if host == "" && hash == "" {
-		stats, err := storageProvider.GetHostsAndHashes()
+		hostsAndHashes, err := storageProvider.GetHostsAndHashes()
 		if err != nil {
 			internalErrorApi(w, err, http.StatusInternalServerError)
 			return
 		}
 
-		apiResponse(w, stats)
+		apiResponse(w, hostsAndHashes)
 		return
 	}
 
@@ -76,12 +76,13 @@ func GetRecords(storageProvider providers.StorageProvider, w http.ResponseWriter
 
 func DeleteRecords(storageProvider providers.StorageProvider, w http.ResponseWriter, r *http.Request) {
 	host := r.URL.Query().Get("host")
+	hash := r.PathValue("hash")
+
 	if host == "" {
 		internalErrorApi(w, errors.New("required query parameter missing: 'host'"), http.StatusBadRequest)
 		return
 	}
 
-	hash := r.PathValue("hash")
 	hashes := []string{hash}
 	if hash == "" {
 		var err error
