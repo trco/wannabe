@@ -100,13 +100,12 @@ func buildQuery(query map[string]string) string {
 // headers
 
 func filterHeadersToInclude(headersMap map[string][]string, headersToInclude []string) map[string]string {
+	headers := make(map[string]string)
+
 	if len(headersToInclude) == 0 {
-		for key := range headersMap {
-			headersToInclude = append(headersToInclude, key)
-		}
+		return headers
 	}
 
-	headers := make(map[string]string)
 	for _, key := range headersToInclude {
 		if !keyExists(headersMap, key) {
 			// TODO log warning
