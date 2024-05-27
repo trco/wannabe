@@ -7,8 +7,7 @@ import (
 
 var testConfig = types.Config{
 	StorageProvider: types.StorageProvider{
-		Type:       "filesystem",
-		Regenerate: false,
+		Type: "filesystem",
 		FilesystemConfig: types.FilesystemConfig{
 			Folder:           "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T",
 			RegenerateFolder: "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T/regenerate",
@@ -67,9 +66,9 @@ func TestGetHashes(t *testing.T) {
 }
 
 func TestGenerateFilepath(t *testing.T) {
-	regenerate := filesystemProvider.Config.StorageProvider.Regenerate
+	isRegenerate := false
 
-	generateFilepath := filesystemProvider.generateFilepath("test.api.com", "testHash1", regenerate)
+	generateFilepath := filesystemProvider.generateFilepath("test.api.com", "testHash1", isRegenerate)
 
 	expectedFilepath := "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T/test.api.com/testHash1.json"
 
@@ -79,9 +78,7 @@ func TestGenerateFilepath(t *testing.T) {
 }
 
 func TestGenerateFilepathRegenerate(t *testing.T) {
-	filesystemProvider.Config.StorageProvider.Regenerate = true
-
-	isRegenerate := filesystemProvider.Config.StorageProvider.Regenerate
+	isRegenerate := true
 
 	regenerateFilepath := filesystemProvider.generateFilepath("test.api.com", "testHash2", isRegenerate)
 
@@ -91,7 +88,7 @@ func TestGenerateFilepathRegenerate(t *testing.T) {
 		t.Errorf("expected regenerate filepath: %v, actual regenerate filepath: %v", expectedFilepath, regenerateFilepath)
 	}
 
-	filesystemProvider.Config.StorageProvider.Regenerate = false
+	isRegenerate = false
 }
 
 // reusable functions

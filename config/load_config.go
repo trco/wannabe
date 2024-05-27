@@ -30,8 +30,7 @@ func setConfigDefaults() types.Config {
 	return types.Config{
 		Mode: "mixed",
 		StorageProvider: types.StorageProvider{
-			Type:       "filesystem",
-			Regenerate: false,
+			Type: "filesystem",
 			FilesystemConfig: types.FilesystemConfig{
 				Folder:           "records",
 				RegenerateFolder: "records/regenerated",

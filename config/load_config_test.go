@@ -25,8 +25,7 @@ func TestSetConfigDefaults(t *testing.T) {
 	defaultConfig := types.Config{
 		Mode: "mixed",
 		StorageProvider: types.StorageProvider{
-			Type:       "filesystem",
-			Regenerate: false,
+			Type: "filesystem",
 			FilesystemConfig: types.FilesystemConfig{
 				Folder:           "records",
 				RegenerateFolder: "records/regenerated",
@@ -74,8 +73,7 @@ func TestValidateConfig(t *testing.T) {
 	// invalid config
 	invalidConfig := types.Config{
 		StorageProvider: types.StorageProvider{
-			Type:       "filesystem",
-			Regenerate: false,
+			Type: "filesystem",
 			FilesystemConfig: types.FilesystemConfig{
 				Folder:           "records",
 				RegenerateFolder: "",
@@ -113,8 +111,7 @@ var zero = 0
 var testConfig = types.Config{
 	Mode: "mixed",
 	StorageProvider: types.StorageProvider{
-		Type:       "filesystem",
-		Regenerate: false,
+		Type: "filesystem",
 		FilesystemConfig: types.FilesystemConfig{
 			Folder:           "records",
 			RegenerateFolder: "",

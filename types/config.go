@@ -14,7 +14,6 @@ const (
 
 type StorageProvider struct {
 	Type             string           `koanf:"type" validate:"required,oneof=filesystem redis"`
-	Regenerate       bool             `koanf:"regenerate"`
 	FilesystemConfig FilesystemConfig `koanf:"filesystemConfig" validate:"required_if=Type filesystem,omitempty"`
 	RedisConfig      RedisConfig      `koanf:"redisConfig" validate:"required_if=Type redis,omitempty"`
 }

@@ -25,11 +25,6 @@ func Regenerate(config types.Config, storageProvider providers.StorageProvider) 
 }
 
 func GetRegenerate(config types.Config, storageProvider providers.StorageProvider, w http.ResponseWriter, r *http.Request) {
-	if !config.StorageProvider.Regenerate {
-		internalErrorApi(w, errors.New("regenerate set to false in config"), http.StatusInternalServerError)
-		return
-	}
-
 	host := r.URL.Query().Get("host")
 	if host == "" {
 		internalErrorApi(w, errors.New("required query parameter missing: 'host'"), http.StatusBadRequest)

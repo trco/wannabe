@@ -39,8 +39,7 @@ func TestStorageProviderFactory(t *testing.T) {
 	}
 
 	validConfig.StorageProvider = types.StorageProvider{
-		Type:       "filesystem",
-		Regenerate: true,
+		Type: "filesystem",
 		FilesystemConfig: types.FilesystemConfig{
 			Folder:           "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T",
 			RegenerateFolder: "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T/regenerate",
