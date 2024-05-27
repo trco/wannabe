@@ -11,32 +11,28 @@ import (
 
 func WannabeOnResponse(config types.Config, storageProvider providers.StorageProvider) types.WannabeOnResponseHandler {
 	return func(session *gomitmproxy.Session) *http.Response {
-		wannabeSession := types.WannabeSession{
-			Req: session.Request(),
-			Res: session.Response(),
-		}
-		return processSessionOnResponse(config, storageProvider, wannabeSession)
+		return processSessionOnResponse(config, storageProvider, session)
 	}
 }
 
-func processSessionOnResponse(config types.Config, storageProvider providers.StorageProvider, wannabeSession types.WannabeSession) *http.Response {
-	request := wannabeSession.GetRequest()
+func processSessionOnResponse(config types.Config, storageProvider providers.StorageProvider, session *gomitmproxy.Session) *http.Response {
+	request := session.Request()
 
 	isConnect := request.Method == "CONNECT"
 	if isConnect {
 		return nil
 	}
 
-	if shouldSkipResponseProcessing(wannabeSession) {
+	if shouldSkipResponseProcessing(session) {
 		return nil
 	}
 
-	hash, curl, err := getHashAndCurlFromSession(wannabeSession)
+	hash, curl, err := getHashAndCurlFromSession(session)
 	if err != nil {
 		return internalErrorOnResponse(request, err)
 	}
 
-	recordPayload, err := record.GenerateRecordPayload(wannabeSession, hash, curl)
+	recordPayload, err := record.GenerateRecordPayload(session, hash, curl)
 	if err != nil {
 		return internalErrorOnResponse(request, err)
 	}

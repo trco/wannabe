@@ -14,16 +14,12 @@ import (
 
 func WannabeOnRequest(config types.Config, storageProvider providers.StorageProvider) types.WannabeOnRequestHandler {
 	return func(session *gomitmproxy.Session) (*http.Request, *http.Response) {
-		wannabeSession := types.WannabeSession{
-			Req: session.Request(),
-			Res: session.Response(),
-		}
-		return processSessionOnRequest(config, storageProvider, wannabeSession)
+		return processSessionOnRequest(config, storageProvider, session)
 	}
 }
 
-func processSessionOnRequest(config types.Config, storageProvider providers.StorageProvider, wannabeSession types.WannabeSession) (*http.Request, *http.Response) {
-	request := wannabeSession.GetRequest()
+func processSessionOnRequest(config types.Config, storageProvider providers.StorageProvider, session *gomitmproxy.Session) (*http.Request, *http.Response) {
+	request := session.Request()
 
 	isConnect := request.Method == "CONNECT"
 	if isConnect {
@@ -35,44 +31,44 @@ func processSessionOnRequest(config types.Config, storageProvider providers.Stor
 
 	curl, err := curl.GenerateCurl(request, wannabe)
 	if err != nil {
-		return internalErrorOnRequest(wannabeSession, request, err)
+		return internalErrorOnRequest(session, request, err)
 	}
-	wannabeSession.SetProp("curl", curl)
+	session.SetProp("curl", curl)
 
 	hash, err := hash.GenerateHash(curl)
 	if err != nil {
-		return internalErrorOnRequest(wannabeSession, request, err)
+		return internalErrorOnRequest(session, request, err)
 	}
-	wannabeSession.SetProp("hash", hash)
+	session.SetProp("hash", hash)
 
 	isNotProxyMode := config.Mode != types.ProxyMode
 	if isNotProxyMode {
 		records, err := storageProvider.ReadRecords(host, []string{hash})
 		if err != nil {
-			return internalErrorOnRequest(wannabeSession, request, err)
+			return internalErrorOnRequest(session, request, err)
 		}
 
 		isSingleRecord := len(records) == 1
 		if isSingleRecord {
-			return processRecords(wannabeSession, request, records[0])
+			return processRecords(session, request, records[0])
 		}
 
 		isServerMode := config.Mode == types.ServerMode
 		if isServerMode {
-			return internalErrorOnRequest(wannabeSession, request, fmt.Errorf("no record found for the request"))
+			return internalErrorOnRequest(session, request, fmt.Errorf("no record found for the request"))
 		}
 	}
 
 	return nil, nil
 }
 
-func processRecords(wannabeSession types.WannabeSession, request *http.Request, record []byte) (*http.Request, *http.Response) {
+func processRecords(session *gomitmproxy.Session, request *http.Request, record []byte) (*http.Request, *http.Response) {
 	responseSetFromRecord, err := response.SetResponse(record, request)
 	if err != nil {
-		return internalErrorOnRequest(wannabeSession, request, err)
+		return internalErrorOnRequest(session, request, err)
 	}
 
-	wannabeSession.SetProp("responseSetFromRecord", true)
+	session.SetProp("responseSetFromRecord", true)
 
 	// TODO remove log
 	fmt.Println("GetResponse >>> READ and return")

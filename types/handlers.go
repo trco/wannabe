@@ -9,29 +9,6 @@ import (
 type WannabeOnRequestHandler func(*gomitmproxy.Session) (*http.Request, *http.Response)
 type WannabeOnResponseHandler func(*gomitmproxy.Session) *http.Response
 
-type WannabeSession struct {
-	Req   *http.Request
-	Res   *http.Response
-	Props map[string]interface{}
-}
-
-func (s *WannabeSession) GetRequest() *http.Request {
-	return s.Req
-}
-
-func (s *WannabeSession) GetResponse() *http.Response {
-	return s.Res
-}
-
-func (s *WannabeSession) GetProp(key string) (interface{}, bool) {
-	v, ok := s.Props[key]
-	return v, ok
-}
-
-func (s *WannabeSession) SetProp(key string, val interface{}) {
-	s.Props[key] = val
-}
-
 type InternalError struct {
 	Error string `json:"error"`
 }

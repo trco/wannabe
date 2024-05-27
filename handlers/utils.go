@@ -8,13 +8,14 @@ import (
 	"net/http"
 	"wannabe/types"
 
+	"github.com/AdguardTeam/gomitmproxy"
 	"github.com/AdguardTeam/gomitmproxy/proxyutil"
 )
 
 // wannabe
 
-func internalErrorOnRequest(wannabeSession types.WannabeSession, request *http.Request, err error) (*http.Request, *http.Response) {
-	wannabeSession.SetProp("blocked", true)
+func internalErrorOnRequest(session *gomitmproxy.Session, request *http.Request, err error) (*http.Request, *http.Response) {
+	session.SetProp("blocked", true)
 
 	body := prepareResponseBody(err)
 	response := proxyutil.NewResponse(http.StatusInternalServerError, body, request)
@@ -44,18 +45,18 @@ func prepareResponseBody(err error) *bytes.Reader {
 	return bodyReader
 }
 
-func shouldSkipResponseProcessing(wannabeSession types.WannabeSession) bool {
-	if _, blocked := wannabeSession.GetProp("blocked"); blocked {
+func shouldSkipResponseProcessing(session *gomitmproxy.Session) bool {
+	if _, blocked := session.GetProp("blocked"); blocked {
 		return true
 	}
-	if _, responseSetFromRecord := wannabeSession.GetProp("responseSetFromRecord"); responseSetFromRecord {
+	if _, responseSetFromRecord := session.GetProp("responseSetFromRecord"); responseSetFromRecord {
 		return true
 	}
 	return false
 }
 
-func getHashAndCurlFromSession(wannabeSession types.WannabeSession) (string, string, error) {
-	hashProp, ok := wannabeSession.GetProp("hash")
+func getHashAndCurlFromSession(session *gomitmproxy.Session) (string, string, error) {
+	hashProp, ok := session.GetProp("hash")
 	if !ok {
 		return "", "", fmt.Errorf("no hash in session")
 	}
@@ -64,7 +65,7 @@ func getHashAndCurlFromSession(wannabeSession types.WannabeSession) (string, str
 		return "", "", fmt.Errorf("hash is not a string")
 	}
 
-	curlProp, ok := wannabeSession.GetProp("curl")
+	curlProp, ok := session.GetProp("curl")
 	if !ok {
 		return "", "", fmt.Errorf("no curl in session")
 	}

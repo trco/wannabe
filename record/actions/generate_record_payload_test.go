@@ -31,11 +31,6 @@ func TestGenerateRecordPayload(t *testing.T) {
 		Body: io.NopCloser(bytes.NewBufferString("response body")),
 	}
 
-	session := types.WannabeSession{
-		Req: req,
-		Res: res,
-	}
-
 	hash := "test hash"
 	curl := "test curl"
 
@@ -53,7 +48,9 @@ func TestGenerateRecordPayload(t *testing.T) {
 		ResponseBody:    []byte{114, 101, 115, 112, 111, 110, 115, 101, 32, 98, 111, 100, 121},
 	}
 
-	payload, _ := GenerateRecordPayload(session, hash, curl)
+	// payload, _ := GenerateRecordPayload(session, hash, curl)
+
+	payload := 1
 
 	if !reflect.DeepEqual(expectedRecordPayload, payload) {
 		t.Errorf("expected record payload: %v, actual record payload: %v", expectedRecordPayload, payload)

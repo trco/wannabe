@@ -4,11 +4,13 @@ import (
 	"bytes"
 	"io"
 	"wannabe/types"
+
+	"github.com/AdguardTeam/gomitmproxy"
 )
 
-func GenerateRecordPayload(wannabeSession types.WannabeSession, hash string, curl string) (types.RecordPayload, error) {
-	request := wannabeSession.GetRequest()
-	response := wannabeSession.GetResponse()
+func GenerateRecordPayload(session *gomitmproxy.Session, hash string, curl string) (types.RecordPayload, error) {
+	request := session.Request()
+	response := session.Response()
 
 	requestBody, err := io.ReadAll(request.Body)
 	if err != nil {
