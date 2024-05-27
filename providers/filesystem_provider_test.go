@@ -27,7 +27,7 @@ var filesystemProvider = FilesystemProvider{
 var testRecord = []byte{53}
 
 func TestInsertAndReadRecord(t *testing.T) {
-	_ = filesystemProvider.InsertRecords("test.api.com", []string{"testHash3"}, [][]byte{testRecord})
+	_ = filesystemProvider.InsertRecords("test.api.com", []string{"testHash3"}, [][]byte{testRecord}, false)
 
 	records, _ := filesystemProvider.ReadRecords("test.api.com", []string{"testHash3"})
 
@@ -37,7 +37,7 @@ func TestInsertAndReadRecord(t *testing.T) {
 }
 
 func TestDeleteRecord(t *testing.T) {
-	filesystemProvider.InsertRecords("test.api.com", []string{"testHash4"}, [][]byte{testRecord})
+	filesystemProvider.InsertRecords("test.api.com", []string{"testHash4"}, [][]byte{testRecord}, false)
 
 	filesystemProvider.DeleteRecords("test.api.com", []string{"testHash4"})
 
@@ -51,9 +51,9 @@ func TestDeleteRecord(t *testing.T) {
 }
 
 func TestGetHashes(t *testing.T) {
-	_ = filesystemProvider.InsertRecords("test.api.com", []string{"testHash5"}, [][]byte{testRecord})
-	_ = filesystemProvider.InsertRecords("test.api.com", []string{"testHash6"}, [][]byte{testRecord})
-	_ = filesystemProvider.InsertRecords("test.api.com", []string{"testHash7"}, [][]byte{testRecord})
+	_ = filesystemProvider.InsertRecords("test.api.com", []string{"testHash5"}, [][]byte{testRecord}, false)
+	_ = filesystemProvider.InsertRecords("test.api.com", []string{"testHash6"}, [][]byte{testRecord}, false)
+	_ = filesystemProvider.InsertRecords("test.api.com", []string{"testHash7"}, [][]byte{testRecord}, false)
 
 	hashes, _ := filesystemProvider.GetHashes("test.api.com")
 

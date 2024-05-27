@@ -16,7 +16,7 @@ func (redis RedisProvider) ReadRecords(key string, hashes []string) ([][]byte, e
 	return [][]byte{}, nil
 }
 
-func (redis RedisProvider) InsertRecords(key string, hashes []string, records [][]byte) error {
+func (redis RedisProvider) InsertRecords(key string, hashes []string, records [][]byte, isRegenerate bool) error {
 	return nil
 }
 

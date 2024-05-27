@@ -169,7 +169,7 @@ func PostRecords(config types.Config, storageProvider providers.StorageProvider,
 			continue
 		}
 
-		err = storageProvider.InsertRecords(host, []string{hash}, [][]byte{encodedRecord})
+		err = storageProvider.InsertRecords(host, []string{hash}, [][]byte{encodedRecord}, false)
 		if err != nil {
 			internalErrorApi(w, err, http.StatusInternalServerError)
 			return

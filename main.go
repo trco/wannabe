@@ -63,6 +63,7 @@ func startWannabeServer(config types.Config, mitmConfig *mitm.Config, storagePro
 func startWannabeApiServer(config types.Config, storageProvider providers.StorageProvider) {
 	http.HandleFunc("/wannabe/api/records/{hash}", handlers.Records(config, storageProvider))
 	http.HandleFunc("/wannabe/api/records", handlers.Records(config, storageProvider))
+	http.HandleFunc("/wannabe/api/regenerate", handlers.Regenerate(config, storageProvider))
 
 	fmt.Println("Listening on localhost:1234")
 	err := http.ListenAndServe("localhost:1234", nil)

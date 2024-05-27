@@ -43,9 +43,7 @@ func (fsp FilesystemProvider) ReadRecords(subfolder string, hashes []string) ([]
 	return records, nil
 }
 
-func (fsp FilesystemProvider) InsertRecords(subfolder string, hashes []string, records [][]byte) error {
-	isRegenerate := fsp.Config.StorageProvider.Regenerate
-
+func (fsp FilesystemProvider) InsertRecords(subfolder string, hashes []string, records [][]byte, isRegenerate bool) error {
 	err := fsp.createFolder(subfolder, isRegenerate)
 	if err != nil {
 		return filesystemProviderErr("failed creating folder "+subfolder, err)
