@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"net/http"
 	"testing"
+	"wannabe/types"
 )
 
 func TestPrepareCurl(t *testing.T) {
@@ -12,7 +13,7 @@ func TestPrepareCurl(t *testing.T) {
 	body := "{\"dateRanges\":[{\"endDate\":\"2023-12-31\",\"startDate\":\"{placeholder}\"],\"dimensions\":\"{placeholder}\",\"limit\":10000,\"metrics\":[{\"name\":\"sessions\"}],\"returnPropertyQuota\":true}"
 	bodyBuffer := bytes.NewBufferString(body)
 	request, _ := http.NewRequest(httpMethod, url, bodyBuffer)
-	headers := []Header{
+	headers := []types.Header{
 		{Key: "Accept", Value: "test1,test2,test3"},
 		{Key: "Authorization", Value: "test access token"},
 		{Key: "Content-Type", Value: "application/json"},

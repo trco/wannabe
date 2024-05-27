@@ -9,7 +9,7 @@ import (
 type TestCaseProcessHeaders struct {
 	Map      map[string][]string
 	Config   types.Headers
-	Expected []Header
+	Expected []types.Header
 }
 
 func TestProcessHeaders(t *testing.T) {
@@ -20,7 +20,7 @@ func TestProcessHeaders(t *testing.T) {
 				Include:   []string{"Content-Type", "Authorization", "Accept", "X-test-header"},
 				Wildcards: []types.WildcardKey{},
 			},
-			Expected: []Header{
+			Expected: []types.Header{
 				{Key: "Accept", Value: "test1,test2,test3"},
 				{Key: "Authorization", Value: "test access token"},
 				{Key: "Content-Type", Value: "application/json"},
@@ -33,7 +33,7 @@ func TestProcessHeaders(t *testing.T) {
 				Include:   []string{"Content-Type", "Authorization"},
 				Wildcards: []types.WildcardKey{{Key: "Authorization", Placeholder: "{placeholder}"}},
 			},
-			Expected: []Header{
+			Expected: []types.Header{
 				{Key: "Authorization", Value: "{placeholder}"},
 				{Key: "Content-Type", Value: "application/json"},
 			},
@@ -44,7 +44,7 @@ func TestProcessHeaders(t *testing.T) {
 				Include:   []string{"Content-Type", "Authorization"},
 				Wildcards: []types.WildcardKey{{Key: "Authorization"}},
 			},
-			Expected: []Header{
+			Expected: []types.Header{
 				{Key: "Authorization", Value: "{wannabe}"},
 				{Key: "Content-Type", Value: "application/json"},
 			},
@@ -55,7 +55,7 @@ func TestProcessHeaders(t *testing.T) {
 				Include:   []string{"Content-Type", "Authorization"},
 				Wildcards: []types.WildcardKey{{Key: "Authorization"}},
 			},
-			Expected: []Header{},
+			Expected: []types.Header{},
 		},
 	}
 

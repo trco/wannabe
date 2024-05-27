@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"net/http"
 	"testing"
+	"wannabe/types"
 )
 
 func TestSetHeaders(t *testing.T) {
@@ -12,7 +13,7 @@ func TestSetHeaders(t *testing.T) {
 	url := "testUrl"
 	bodyBuffer := bytes.NewBufferString("")
 	request, _ := http.NewRequest(httpMethod, url, bodyBuffer)
-	headers := []Header{
+	headers := []types.Header{
 		{Key: "Accept", Value: "test1,test2,test3"},
 		{Key: "Authorization", Value: "test access token"},
 		{Key: "Content-Type", Value: "application/json"},

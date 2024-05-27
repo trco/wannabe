@@ -9,6 +9,7 @@ import (
 )
 
 // general
+
 func setWildcardsByIndex(slice []string, wildcards []types.WildcardIndex) {
 	for _, wildcard := range wildcards {
 		if isIndexOutOfBounds(slice, *wildcard.Index) {
@@ -75,6 +76,7 @@ func replaceRegexPatterns(processedString string, regexes []types.Regex, isQuery
 }
 
 // query
+
 func mapValuesToSingleString(queryMap map[string][]string) map[string]string {
 	query := make(map[string]string)
 	for key := range queryMap {
@@ -96,10 +98,6 @@ func buildQuery(query map[string]string) string {
 }
 
 // headers
-type Header struct {
-	Key   string
-	Value string
-}
 
 func filterHeadersToInclude(headersMap map[string][]string, headersToInclude []string) map[string]string {
 	if len(headersToInclude) == 0 {
@@ -122,16 +120,16 @@ func filterHeadersToInclude(headersMap map[string][]string, headersToInclude []s
 	return headers
 }
 
-func headersMapToSlice(headersMap map[string]string) []Header {
-	var headerSlice []Header
+func headersMapToSlice(headersMap map[string]string) []types.Header {
+	var headerSlice []types.Header
 	for key, value := range headersMap {
-		headerSlice = append(headerSlice, Header{Key: key, Value: value})
+		headerSlice = append(headerSlice, types.Header{Key: key, Value: value})
 	}
 
 	return headerSlice
 }
 
-func sortHeaderSlice(headerSlice []Header) []Header {
+func sortHeaderSlice(headerSlice []types.Header) []types.Header {
 	sort.Slice(headerSlice, func(i, j int) bool {
 		return headerSlice[i].Key < headerSlice[j].Key
 	})
@@ -140,6 +138,7 @@ func sortHeaderSlice(headerSlice []Header) []Header {
 }
 
 // checks
+
 func isIndexOutOfBounds[T interface{}](slice []T, index int) bool {
 	return index < 0 || index >= len(slice)
 }

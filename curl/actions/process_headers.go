@@ -2,7 +2,7 @@ package actions
 
 import "wannabe/types"
 
-func ProcessHeaders(headersMap map[string][]string, config types.Headers) []Header {
+func ProcessHeaders(headersMap map[string][]string, config types.Headers) []types.Header {
 	headers := filterHeadersToInclude(headersMap, config.Include)
 
 	wildcards := config.Wildcards

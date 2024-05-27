@@ -294,7 +294,7 @@ func TestFilterHeadersToInclude(t *testing.T) {
 
 type TestCaseHeadersMapToSlice struct {
 	Map      map[string]string
-	Expected []Header
+	Expected []types.Header
 }
 
 func testHeadersMap() map[string]string {
@@ -310,7 +310,7 @@ func TestHeadersMapToSlice(t *testing.T) {
 	testCases := map[string]TestCaseHeadersMapToSlice{
 		"includeAllHeaders": {
 			Map: testHeadersMap(),
-			Expected: []Header{
+			Expected: []types.Header{
 				{Key: "Accept", Value: "test1,test2,test3"},
 				{Key: "Authorization", Value: "test access token"},
 				{Key: "Content-Type", Value: "application/json"},
@@ -319,7 +319,7 @@ func TestHeadersMapToSlice(t *testing.T) {
 		},
 		"emptyHeadersMap": {
 			Map:      make(map[string]string),
-			Expected: []Header{},
+			Expected: []types.Header{},
 		},
 	}
 
@@ -338,20 +338,20 @@ func TestHeadersMapToSlice(t *testing.T) {
 }
 
 type TestCaseSortHeaderSlice struct {
-	Slice    []Header
-	Expected []Header
+	Slice    []types.Header
+	Expected []types.Header
 }
 
 func TestSortHeaderSlice(t *testing.T) {
 	testCases := map[string]TestCaseSortHeaderSlice{
 		"nonEmptyHeaderSlice": {
-			Slice: []Header{
+			Slice: []types.Header{
 				{Key: "Accept", Value: "test1,test2,test3"},
 				{Key: "X-test-header", Value: "test value"},
 				{Key: "Content-Type", Value: "application/json"},
 				{Key: "Authorization", Value: "test access token"},
 			},
-			Expected: []Header{
+			Expected: []types.Header{
 				{Key: "Accept", Value: "test1,test2,test3"},
 				{Key: "Authorization", Value: "test access token"},
 				{Key: "Content-Type", Value: "application/json"},
@@ -359,8 +359,8 @@ func TestSortHeaderSlice(t *testing.T) {
 			},
 		},
 		"emptyHeaderSlice": {
-			Slice:    []Header{},
-			Expected: []Header{},
+			Slice:    []types.Header{},
+			Expected: []types.Header{},
 		},
 	}
 

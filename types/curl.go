@@ -8,3 +8,8 @@ type CurlPayload struct {
 	RequestHeaders map[string][]string
 	RequestBody    []byte
 }
+
+type Header struct {
+	Key   string
+	Value string
+}
