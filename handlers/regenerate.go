@@ -31,8 +31,8 @@ func GetRegenerate(config types.Config, storageProvider providers.StorageProvide
 		return
 	}
 
-	regenCount := 0
-	regenHashes := []string{}
+	regeneratedCount := 0
+	regeneratedHashes := []string{}
 	failedCount := 0
 	failedHashes := []string{}
 
@@ -43,24 +43,20 @@ func GetRegenerate(config types.Config, storageProvider providers.StorageProvide
 	}
 
 	// REVIEW mem issue in case of too many records ?
-	records, err := storageProvider.ReadRecords(host, hashes)
+	encodedRecords, err := storageProvider.ReadRecords(host, hashes)
 	if err != nil {
 		internalErrorApi(w, err, http.StatusInternalServerError)
 		return
 	}
 
-	for _, encodedRecord := range records {
-		var record types.Record
+	records, err := recordServices.DecodeRecords(encodedRecords)
+	if err != nil {
+		internalErrorApi(w, err, http.StatusInternalServerError)
+		return
+	}
 
+	for _, record := range records {
 		oldHash := record.Request.Hash
-
-		err := json.Unmarshal(encodedRecord, &record)
-		if err != nil {
-			failedCount++
-			failedHashes = append(failedHashes, oldHash)
-
-			continue
-		}
 
 		request, err := recordServices.GenerateRequest(record.Request)
 		if err != nil {
@@ -88,12 +84,6 @@ func GetRegenerate(config types.Config, storageProvider providers.StorageProvide
 			continue
 		}
 
-		isDuplicateHash := checkDuplicates(hashes, hash)
-		isDuplicateRegenHash := checkDuplicates(regenHashes, hash)
-		if isDuplicateHash || isDuplicateRegenHash {
-			continue
-		}
-
 		record.Request.Hash = hash
 		record.Request.Curl = curl
 		record.Metadata.RegeneratedAt = types.Timestamp{
@@ -101,7 +91,7 @@ func GetRegenerate(config types.Config, storageProvider providers.StorageProvide
 			UTC:  time.Now().UTC(),
 		}
 
-		encodedRecordRegen, err := json.Marshal(record)
+		encodedRegeneratedRecord, err := json.Marshal(record)
 		if err != nil {
 			failedCount++
 			failedHashes = append(failedHashes, oldHash)
@@ -109,7 +99,7 @@ func GetRegenerate(config types.Config, storageProvider providers.StorageProvide
 			continue
 		}
 
-		err = storageProvider.InsertRecords(host, []string{hash}, [][]byte{encodedRecordRegen}, true)
+		err = storageProvider.InsertRecords(host, []string{hash}, [][]byte{encodedRegeneratedRecord}, true)
 		if err != nil {
 			failedCount++
 			failedHashes = append(failedHashes, oldHash)
@@ -117,13 +107,13 @@ func GetRegenerate(config types.Config, storageProvider providers.StorageProvide
 			continue
 		}
 
-		regenCount++
-		regenHashes = append(regenHashes, hash)
+		regeneratedCount++
+		regeneratedHashes = append(regeneratedHashes, hash)
 	}
 
 	apiResponse(w, types.RegenerateResponse{
-		Message:           fmt.Sprintf("%v records succeeded in regenerating, %v records failed in regenerating", regenCount, failedCount),
-		RegeneratedHashes: regenHashes,
+		Message:           fmt.Sprintf("%v records succeeded in regenerating, %v records failed in regenerating", regeneratedCount, failedCount),
+		RegeneratedHashes: regeneratedHashes,
 		FailedHashes:      failedHashes,
 	})
 }
