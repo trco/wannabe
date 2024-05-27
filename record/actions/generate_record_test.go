@@ -25,7 +25,7 @@ func TestGenerateRecord(t *testing.T) {
 
 // reusable variables
 var testConfigA = types.Records{
-	Headers: types.HeadersToExclude{
+	Headers: types.HeadersToRecord{
 		Exclude: []string{"Header-To-Exclude"},
 	},
 }

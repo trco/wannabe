@@ -139,7 +139,7 @@ var testConfig = types.Config{
 				},
 			},
 			Records: types.Records{
-				Headers: types.HeadersToExclude{
+				Headers: types.HeadersToRecord{
 					Exclude: []string{"Authorization"},
 				},
 			},

@@ -88,9 +88,9 @@ type Regex struct {
 }
 
 type Records struct {
-	Headers HeadersToExclude `koanf:"headers"`
+	Headers HeadersToRecord `koanf:"headers"`
 }
 
-type HeadersToExclude struct {
+type HeadersToRecord struct {
 	Exclude []string `koanf:"exclude"`
 }
