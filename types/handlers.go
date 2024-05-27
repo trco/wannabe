@@ -15,11 +15,11 @@ type WannabeSession struct {
 	Props map[string]interface{}
 }
 
-func (s *WannabeSession) Request() *http.Request {
+func (s *WannabeSession) GetRequest() *http.Request {
 	return s.Req
 }
 
-func (s *WannabeSession) Response() *http.Response {
+func (s *WannabeSession) GetResponse() *http.Response {
 	return s.Res
 }
 

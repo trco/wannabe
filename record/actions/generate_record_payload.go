@@ -7,8 +7,8 @@ import (
 )
 
 func GenerateRecordPayload(wannabeSession types.WannabeSession, hash string, curl string) (types.RecordPayload, error) {
-	request := wannabeSession.Request()
-	response := wannabeSession.Response()
+	request := wannabeSession.GetRequest()
+	response := wannabeSession.GetResponse()
 
 	requestBody, err := io.ReadAll(request.Body)
 	if err != nil {

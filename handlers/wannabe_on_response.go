@@ -20,7 +20,7 @@ func WannabeOnResponse(config types.Config, storageProvider providers.StoragePro
 }
 
 func processSessionOnResponse(config types.Config, storageProvider providers.StorageProvider, wannabeSession types.WannabeSession) *http.Response {
-	request := wannabeSession.Request()
+	request := wannabeSession.GetRequest()
 
 	isConnect := request.Method == "CONNECT"
 	if isConnect {
