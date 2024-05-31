@@ -8,6 +8,10 @@ import (
 )
 
 func GenerateRequest(recordRequest types.Request) (*http.Request, error) {
+	if recordRequest.Path == "" {
+		recordRequest.Path = "/"
+	}
+
 	body := recordRequest.Body
 	var requestBody []byte
 
