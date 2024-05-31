@@ -1,4 +1,4 @@
-package handlers
+package utils
 
 import (
 	"bytes"
@@ -14,25 +14,25 @@ import (
 
 // wannabe
 
-func internalErrorOnRequest(session *gomitmproxy.Session, request *http.Request, err error) (*http.Request, *http.Response) {
+func InternalErrorOnRequest(session *gomitmproxy.Session, request *http.Request, err error) (*http.Request, *http.Response) {
 	session.SetProp("blocked", true)
 
-	body := prepareResponseBody(err)
+	body := PrepareResponseBody(err)
 	response := proxyutil.NewResponse(http.StatusInternalServerError, body, request)
 	response.Header.Set("Content-Type", "application/json")
 
 	return nil, response
 }
 
-func internalErrorOnResponse(request *http.Request, err error) *http.Response {
-	body := prepareResponseBody(err)
+func InternalErrorOnResponse(request *http.Request, err error) *http.Response {
+	body := PrepareResponseBody(err)
 	response := proxyutil.NewResponse(http.StatusInternalServerError, body, request)
 	response.Header.Set("Content-Type", "application/json")
 
 	return response
 }
 
-func prepareResponseBody(err error) *bytes.Reader {
+func PrepareResponseBody(err error) *bytes.Reader {
 	body, err := json.Marshal(types.InternalError{
 		Error: err.Error(),
 	})
@@ -45,7 +45,7 @@ func prepareResponseBody(err error) *bytes.Reader {
 	return bodyReader
 }
 
-func shouldSkipResponseProcessing(session *gomitmproxy.Session) bool {
+func ShouldSkipResponseProcessing(session *gomitmproxy.Session) bool {
 	if _, blocked := session.GetProp("blocked"); blocked {
 		return true
 	}
@@ -55,7 +55,7 @@ func shouldSkipResponseProcessing(session *gomitmproxy.Session) bool {
 	return false
 }
 
-func getHashAndCurlFromSession(session *gomitmproxy.Session) (string, string, error) {
+func GetHashAndCurlFromSession(session *gomitmproxy.Session) (string, string, error) {
 	hashProp, ok := session.GetProp("hash")
 	if !ok {
 		return "", "", fmt.Errorf("no hash in session")
@@ -79,18 +79,18 @@ func getHashAndCurlFromSession(session *gomitmproxy.Session) (string, string, er
 
 // wannabe api
 
-func internalErrorApi(w http.ResponseWriter, err error, status int) {
+func InternalErrorApi(w http.ResponseWriter, err error, status int) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(types.InternalErrorApi{Error: err.Error()})
 }
 
-func apiResponse(w http.ResponseWriter, response interface{}) {
+func ApiResponse(w http.ResponseWriter, response interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
 }
 
-func checkDuplicates(slice []string, value string) bool {
+func CheckDuplicates(slice []string, value string) bool {
 	for _, item := range slice {
 		if item == value {
 			return true
@@ -100,7 +100,7 @@ func checkDuplicates(slice []string, value string) bool {
 	return false
 }
 
-func processRecordValidation(recordProcessingDetails *[]types.RecordProcessingDetails, hash string, message string, valueToIncrement *int) {
+func ProcessRecordValidation(recordProcessingDetails *[]types.RecordProcessingDetails, hash string, message string, valueToIncrement *int) {
 	*recordProcessingDetails = append(*recordProcessingDetails, types.RecordProcessingDetails{
 		Hash:    hash,
 		Message: message,

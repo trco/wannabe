@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"wannabe/handlers/utils"
 	"wannabe/providers"
 	record "wannabe/record/services"
 	"wannabe/types"
@@ -23,18 +24,18 @@ func processSessionOnResponse(config types.Config, storageProvider providers.Sto
 		return nil
 	}
 
-	if shouldSkipResponseProcessing(session) {
+	if utils.ShouldSkipResponseProcessing(session) {
 		return nil
 	}
 
-	hash, curl, err := getHashAndCurlFromSession(session)
+	hash, curl, err := utils.GetHashAndCurlFromSession(session)
 	if err != nil {
-		return internalErrorOnResponse(request, err)
+		return utils.InternalErrorOnResponse(request, err)
 	}
 
 	recordPayload, err := record.GenerateRecordPayload(session, hash, curl)
 	if err != nil {
-		return internalErrorOnResponse(request, err)
+		return utils.InternalErrorOnResponse(request, err)
 	}
 
 	host := request.URL.Host
@@ -42,12 +43,12 @@ func processSessionOnResponse(config types.Config, storageProvider providers.Sto
 
 	record, err := record.GenerateRecord(wannabe.Records, recordPayload)
 	if err != nil {
-		return internalErrorOnResponse(request, err)
+		return utils.InternalErrorOnResponse(request, err)
 	}
 
 	err = storageProvider.InsertRecords(host, []string{hash}, [][]byte{record}, false)
 	if err != nil {
-		return internalErrorOnResponse(request, err)
+		return utils.InternalErrorOnResponse(request, err)
 	}
 
 	return nil

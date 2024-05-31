@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"time"
 	curl "wannabe/curl/services"
+	"wannabe/handlers/utils"
 	hash "wannabe/hash/services"
 	"wannabe/providers"
 	recordServices "wannabe/record/services"
@@ -24,7 +25,7 @@ func Records(config types.Config, storageProvider providers.StorageProvider) htt
 		case http.MethodPost:
 			PostRecords(config, storageProvider, w, r)
 		default:
-			internalErrorApi(w, errors.New("invalid method"), http.StatusMethodNotAllowed)
+			utils.InternalErrorApi(w, errors.New("invalid method"), http.StatusMethodNotAllowed)
 		}
 	}
 }
@@ -36,16 +37,16 @@ func GetRecords(storageProvider providers.StorageProvider, w http.ResponseWriter
 	if host == "" && hash == "" {
 		hostsAndHashes, err := storageProvider.GetHostsAndHashes()
 		if err != nil {
-			internalErrorApi(w, err, http.StatusInternalServerError)
+			utils.InternalErrorApi(w, err, http.StatusInternalServerError)
 			return
 		}
 
-		apiResponse(w, hostsAndHashes)
+		utils.ApiResponse(w, hostsAndHashes)
 		return
 	}
 
 	if host == "" {
-		internalErrorApi(w, errors.New("required query parameter missing: 'host'"), http.StatusBadRequest)
+		utils.InternalErrorApi(w, errors.New("required query parameter missing: 'host'"), http.StatusBadRequest)
 		return
 	}
 
@@ -54,24 +55,24 @@ func GetRecords(storageProvider providers.StorageProvider, w http.ResponseWriter
 		var err error
 		hashes, err = storageProvider.GetHashes(host)
 		if err != nil {
-			internalErrorApi(w, err, http.StatusInternalServerError)
+			utils.InternalErrorApi(w, err, http.StatusInternalServerError)
 			return
 		}
 	}
 
 	encodedRecords, err := storageProvider.ReadRecords(host, hashes)
 	if err != nil {
-		internalErrorApi(w, err, http.StatusInternalServerError)
+		utils.InternalErrorApi(w, err, http.StatusInternalServerError)
 		return
 	}
 
 	records, err := recordServices.DecodeRecords(encodedRecords)
 	if err != nil {
-		internalErrorApi(w, err, http.StatusInternalServerError)
+		utils.InternalErrorApi(w, err, http.StatusInternalServerError)
 		return
 	}
 
-	apiResponse(w, records)
+	utils.ApiResponse(w, records)
 }
 
 func DeleteRecords(storageProvider providers.StorageProvider, w http.ResponseWriter, r *http.Request) {
@@ -79,7 +80,7 @@ func DeleteRecords(storageProvider providers.StorageProvider, w http.ResponseWri
 	hash := r.PathValue("hash")
 
 	if host == "" {
-		internalErrorApi(w, errors.New("required query parameter missing: 'host'"), http.StatusBadRequest)
+		utils.InternalErrorApi(w, errors.New("required query parameter missing: 'host'"), http.StatusBadRequest)
 		return
 	}
 
@@ -88,18 +89,18 @@ func DeleteRecords(storageProvider providers.StorageProvider, w http.ResponseWri
 		var err error
 		hashes, err = storageProvider.GetHashes(host)
 		if err != nil {
-			internalErrorApi(w, err, http.StatusInternalServerError)
+			utils.InternalErrorApi(w, err, http.StatusInternalServerError)
 			return
 		}
 	}
 
 	err := storageProvider.DeleteRecords(host, hashes)
 	if err != nil {
-		internalErrorApi(w, err, http.StatusInternalServerError)
+		utils.InternalErrorApi(w, err, http.StatusInternalServerError)
 		return
 	}
 
-	apiResponse(w, types.DeleteRecordsResponse{
+	utils.ApiResponse(w, types.DeleteRecordsResponse{
 		Message: fmt.Sprintf("%v records successfully deleted.", len(hashes)),
 		Hashes:  hashes,
 	})
@@ -108,20 +109,20 @@ func DeleteRecords(storageProvider providers.StorageProvider, w http.ResponseWri
 func PostRecords(config types.Config, storageProvider providers.StorageProvider, w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		internalErrorApi(w, err, http.StatusInternalServerError)
+		utils.InternalErrorApi(w, err, http.StatusInternalServerError)
 		return
 	}
 	defer r.Body.Close()
 
 	records, err := recordServices.ExtractRecords(body)
 	if err != nil {
-		internalErrorApi(w, err, http.StatusInternalServerError)
+		utils.InternalErrorApi(w, err, http.StatusInternalServerError)
 		return
 	}
 
 	validationErrors, err := recordServices.ValidateRecords(records)
 	if err != nil {
-		internalErrorApi(w, err, http.StatusInternalServerError)
+		utils.InternalErrorApi(w, err, http.StatusInternalServerError)
 		return
 	}
 
@@ -131,13 +132,13 @@ func PostRecords(config types.Config, storageProvider providers.StorageProvider,
 
 	for i, record := range records {
 		if validationErrors[i] != "" {
-			processRecordValidation(&recordProcessingDetails, "", validationErrors[i], &notInsertedCount)
+			utils.ProcessRecordValidation(&recordProcessingDetails, "", validationErrors[i], &notInsertedCount)
 			continue
 		}
 
 		request, err := recordServices.GenerateRequest(record.Request)
 		if err != nil {
-			processRecordValidation(&recordProcessingDetails, "", err.Error(), &notInsertedCount)
+			utils.ProcessRecordValidation(&recordProcessingDetails, "", err.Error(), &notInsertedCount)
 			continue
 		}
 
@@ -146,13 +147,13 @@ func PostRecords(config types.Config, storageProvider providers.StorageProvider,
 
 		curl, err := curl.GenerateCurl(request, wannabe)
 		if err != nil {
-			processRecordValidation(&recordProcessingDetails, "", err.Error(), &notInsertedCount)
+			utils.ProcessRecordValidation(&recordProcessingDetails, "", err.Error(), &notInsertedCount)
 			continue
 		}
 
 		hash, err := hash.GenerateHash(curl)
 		if err != nil {
-			processRecordValidation(&recordProcessingDetails, "", err.Error(), &notInsertedCount)
+			utils.ProcessRecordValidation(&recordProcessingDetails, "", err.Error(), &notInsertedCount)
 			continue
 		}
 
@@ -165,20 +166,20 @@ func PostRecords(config types.Config, storageProvider providers.StorageProvider,
 
 		encodedRecord, err := json.Marshal(record)
 		if err != nil {
-			processRecordValidation(&recordProcessingDetails, hash, err.Error(), &notInsertedCount)
+			utils.ProcessRecordValidation(&recordProcessingDetails, hash, err.Error(), &notInsertedCount)
 			continue
 		}
 
 		err = storageProvider.InsertRecords(host, []string{hash}, [][]byte{encodedRecord}, false)
 		if err != nil {
-			internalErrorApi(w, err, http.StatusInternalServerError)
+			utils.InternalErrorApi(w, err, http.StatusInternalServerError)
 			return
 		}
 
-		processRecordValidation(&recordProcessingDetails, hash, "success", &insertedCount)
+		utils.ProcessRecordValidation(&recordProcessingDetails, hash, "success", &insertedCount)
 	}
 
-	apiResponse(w, types.PostRecordsResponse{
+	utils.ApiResponse(w, types.PostRecordsResponse{
 		InsertedRecordsCount:    insertedCount,
 		NotInsertedRecordsCount: notInsertedCount,
 		RecordProcessingDetails: recordProcessingDetails,

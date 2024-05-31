@@ -1,4 +1,4 @@
-package handlers
+package utils
 
 import (
 	"testing"
@@ -38,14 +38,14 @@ func TestCheckDuplicates(t *testing.T) {
 	// duplicates exist
 	slice := []string{"a", "b", "c"}
 
-	duplicatesExist := checkDuplicates(slice, "a")
+	duplicatesExist := CheckDuplicates(slice, "a")
 
 	if duplicatesExist != true {
 		t.Errorf("no duplicates detected although they are present in slice")
 	}
 
 	// no duplicates
-	duplicatesExist = checkDuplicates(slice, "d")
+	duplicatesExist = CheckDuplicates(slice, "d")
 
 	if duplicatesExist == true {
 		t.Errorf("duplicates detected although they are not present")
@@ -56,7 +56,7 @@ func TestProcessRecordValidation(t *testing.T) {
 	count := 0
 	var recordProcessingDetails []types.RecordProcessingDetails
 
-	processRecordValidation(&recordProcessingDetails, "test hash", "test message", &count)
+	ProcessRecordValidation(&recordProcessingDetails, "test hash", "test message", &count)
 
 	if recordProcessingDetails[0].Hash != "test hash" || recordProcessingDetails[0].Message != "test message" || count != 1 {
 		t.Errorf("record processing details not valid, expected: hash: 'test hash', message: 'test message', count: 1, actual: hash: '%v', message: '%v', count: %v", recordProcessingDetails[0].Hash, recordProcessingDetails[0].Message, count)

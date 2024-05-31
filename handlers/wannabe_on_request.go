@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	curl "wannabe/curl/services"
+	"wannabe/handlers/utils"
 	hash "wannabe/hash/services"
 	"wannabe/providers"
 	response "wannabe/response/services"
@@ -31,13 +32,13 @@ func processSessionOnRequest(config types.Config, storageProvider providers.Stor
 
 	curl, err := curl.GenerateCurl(request, wannabe)
 	if err != nil {
-		return internalErrorOnRequest(session, request, err)
+		return utils.InternalErrorOnRequest(session, request, err)
 	}
 	session.SetProp("curl", curl)
 
 	hash, err := hash.GenerateHash(curl)
 	if err != nil {
-		return internalErrorOnRequest(session, request, err)
+		return utils.InternalErrorOnRequest(session, request, err)
 	}
 	session.SetProp("hash", hash)
 
@@ -45,7 +46,7 @@ func processSessionOnRequest(config types.Config, storageProvider providers.Stor
 	if isNotProxyMode {
 		records, err := storageProvider.ReadRecords(host, []string{hash})
 		if err != nil {
-			return internalErrorOnRequest(session, request, err)
+			return utils.InternalErrorOnRequest(session, request, err)
 		}
 
 		isSingleRecord := len(records) == 1
@@ -55,7 +56,7 @@ func processSessionOnRequest(config types.Config, storageProvider providers.Stor
 
 		isServerMode := config.Mode == types.ServerMode
 		if isServerMode {
-			return internalErrorOnRequest(session, request, fmt.Errorf("no record found for the request"))
+			return utils.InternalErrorOnRequest(session, request, fmt.Errorf("no record found for the request"))
 		}
 	}
 
@@ -65,7 +66,7 @@ func processSessionOnRequest(config types.Config, storageProvider providers.Stor
 func processRecords(session *gomitmproxy.Session, request *http.Request, record []byte) (*http.Request, *http.Response) {
 	responseSetFromRecord, err := response.SetResponse(record, request)
 	if err != nil {
-		return internalErrorOnRequest(session, request, err)
+		return utils.InternalErrorOnRequest(session, request, err)
 	}
 
 	session.SetProp("responseSetFromRecord", true)

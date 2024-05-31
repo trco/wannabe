@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 	curl "wannabe/curl/services"
+	"wannabe/handlers/utils"
 	hash "wannabe/hash/services"
 	"wannabe/providers"
 	recordServices "wannabe/record/services"
@@ -19,7 +20,7 @@ func Regenerate(config types.Config, storageProvider providers.StorageProvider) 
 		case http.MethodGet:
 			GetRegenerate(config, storageProvider, w, r)
 		default:
-			internalErrorApi(w, errors.New("invalid method"), http.StatusMethodNotAllowed)
+			utils.InternalErrorApi(w, errors.New("invalid method"), http.StatusMethodNotAllowed)
 		}
 	}
 }
@@ -27,7 +28,7 @@ func Regenerate(config types.Config, storageProvider providers.StorageProvider) 
 func GetRegenerate(config types.Config, storageProvider providers.StorageProvider, w http.ResponseWriter, r *http.Request) {
 	host := r.URL.Query().Get("host")
 	if host == "" {
-		internalErrorApi(w, errors.New("required query parameter missing: 'host'"), http.StatusBadRequest)
+		utils.InternalErrorApi(w, errors.New("required query parameter missing: 'host'"), http.StatusBadRequest)
 		return
 	}
 
@@ -38,20 +39,20 @@ func GetRegenerate(config types.Config, storageProvider providers.StorageProvide
 
 	hashes, err := storageProvider.GetHashes(host)
 	if err != nil {
-		internalErrorApi(w, err, http.StatusInternalServerError)
+		utils.InternalErrorApi(w, err, http.StatusInternalServerError)
 		return
 	}
 
 	// REVIEW mem issue in case of too many records ?
 	encodedRecords, err := storageProvider.ReadRecords(host, hashes)
 	if err != nil {
-		internalErrorApi(w, err, http.StatusInternalServerError)
+		utils.InternalErrorApi(w, err, http.StatusInternalServerError)
 		return
 	}
 
 	records, err := recordServices.DecodeRecords(encodedRecords)
 	if err != nil {
-		internalErrorApi(w, err, http.StatusInternalServerError)
+		utils.InternalErrorApi(w, err, http.StatusInternalServerError)
 		return
 	}
 
@@ -111,7 +112,7 @@ func GetRegenerate(config types.Config, storageProvider providers.StorageProvide
 		regeneratedHashes = append(regeneratedHashes, hash)
 	}
 
-	apiResponse(w, types.RegenerateResponse{
+	utils.ApiResponse(w, types.RegenerateResponse{
 		Message:           fmt.Sprintf("%v records succeeded in regenerating, %v records failed in regenerating", regeneratedCount, failedCount),
 		RegeneratedHashes: regeneratedHashes,
 		FailedHashes:      failedHashes,
