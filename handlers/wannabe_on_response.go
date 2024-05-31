@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"wannabe/handlers/utils"
 	"wannabe/providers"
-	record "wannabe/record/services"
+	record "wannabe/record/actions"
 	"wannabe/types"
 
 	"github.com/AdguardTeam/gomitmproxy"

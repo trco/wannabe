@@ -8,9 +8,9 @@ import (
 	"time"
 	curl "wannabe/curl/services"
 	"wannabe/handlers/utils"
-	hash "wannabe/hash/services"
+	hash "wannabe/hash/actions"
 	"wannabe/providers"
-	recordServices "wannabe/record/services"
+	recordActions "wannabe/record/actions"
 	"wannabe/types"
 )
 
@@ -50,7 +50,7 @@ func GetRegenerate(config types.Config, storageProvider providers.StorageProvide
 		return
 	}
 
-	records, err := recordServices.DecodeRecords(encodedRecords)
+	records, err := recordActions.DecodeRecords(encodedRecords)
 	if err != nil {
 		utils.InternalErrorApi(w, err, http.StatusInternalServerError)
 		return
@@ -59,7 +59,7 @@ func GetRegenerate(config types.Config, storageProvider providers.StorageProvide
 	for _, record := range records {
 		oldHash := record.Request.Hash
 
-		request, err := recordServices.GenerateRequest(record.Request)
+		request, err := recordActions.GenerateRequest(record.Request)
 		if err != nil {
 			failedCount++
 			failedHashes = append(failedHashes, oldHash)

@@ -5,9 +5,9 @@ import (
 	"net/http"
 	curl "wannabe/curl/services"
 	"wannabe/handlers/utils"
-	hash "wannabe/hash/services"
+	hash "wannabe/hash/actions"
 	"wannabe/providers"
-	response "wannabe/response/services"
+	response "wannabe/response/actions"
 	"wannabe/types"
 
 	"github.com/AdguardTeam/gomitmproxy"

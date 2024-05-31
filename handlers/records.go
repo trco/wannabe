@@ -9,9 +9,9 @@ import (
 	"time"
 	curl "wannabe/curl/services"
 	"wannabe/handlers/utils"
-	hash "wannabe/hash/services"
+	hash "wannabe/hash/actions"
 	"wannabe/providers"
-	recordServices "wannabe/record/services"
+	recordActions "wannabe/record/actions"
 	"wannabe/types"
 )
 
@@ -66,7 +66,7 @@ func GetRecords(storageProvider providers.StorageProvider, w http.ResponseWriter
 		return
 	}
 
-	records, err := recordServices.DecodeRecords(encodedRecords)
+	records, err := recordActions.DecodeRecords(encodedRecords)
 	if err != nil {
 		utils.InternalErrorApi(w, err, http.StatusInternalServerError)
 		return
@@ -114,13 +114,13 @@ func PostRecords(config types.Config, storageProvider providers.StorageProvider,
 	}
 	defer r.Body.Close()
 
-	records, err := recordServices.ExtractRecords(body)
+	records, err := recordActions.ExtractRecords(body)
 	if err != nil {
 		utils.InternalErrorApi(w, err, http.StatusInternalServerError)
 		return
 	}
 
-	validationErrors, err := recordServices.ValidateRecords(records)
+	validationErrors, err := recordActions.ValidateRecords(records)
 	if err != nil {
 		utils.InternalErrorApi(w, err, http.StatusInternalServerError)
 		return
@@ -136,7 +136,7 @@ func PostRecords(config types.Config, storageProvider providers.StorageProvider,
 			continue
 		}
 
-		request, err := recordServices.GenerateRequest(record.Request)
+		request, err := recordActions.GenerateRequest(record.Request)
 		if err != nil {
 			utils.ProcessRecordValidation(&recordProcessingDetails, "", err.Error(), &notInsertedCount)
 			continue
