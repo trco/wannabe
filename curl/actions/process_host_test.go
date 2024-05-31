@@ -17,36 +17,36 @@ func TestProcessHost(t *testing.T) {
 
 	testCases := map[string]TestCaseProcessHost{
 		"withHttp": {
-			Host: "http://analyticsdata.googleapis.com",
+			Host: "http://test1.test2.com",
 			Config: types.Host{
 				Wildcards: []types.WildcardIndex{{Index: &zero, Placeholder: "{placeholder}"}},
 			},
-			Expected: "{placeholder}.googleapis.com",
+			Expected: "{placeholder}.test2.com",
 		},
 		"withHttps": {
-			Host: "https://analyticsdata.googleapis.com",
+			Host: "https://test1.test2.com",
 			Config: types.Host{
 				Wildcards: []types.WildcardIndex{{Index: &zero, Placeholder: "{placeholder}"}},
 			},
-			Expected: "{placeholder}.googleapis.com",
+			Expected: "{placeholder}.test2.com",
 		},
 		"withoutPlaceholder": {
-			Host: "https://analyticsdata.googleapis.com",
+			Host: "https://test1.test2.com",
 			Config: types.Host{
 				Wildcards: []types.WildcardIndex{{Index: &zero}},
 			},
-			Expected: "{wannabe}.googleapis.com",
+			Expected: "{wannabe}.test2.com",
 		},
 		"withRegex": {
-			Host: "https://analyticsdata.googleapis.com",
+			Host: "https://test1.test2.com",
 			Config: types.Host{
 				Wildcards: []types.WildcardIndex{{Index: &zero, Placeholder: "{placeholder}"}},
-				Regexes:   []types.Regex{{Pattern: "googleapis", Placeholder: "regexPlaceholder"}},
+				Regexes:   []types.Regex{{Pattern: "test2", Placeholder: "regexPlaceholder"}},
 			},
 			Expected: "{placeholder}.regexPlaceholder.com",
 		},
 		"invalidRegex": {
-			Host: "https://analyticsdata.googleapis.com",
+			Host: "https://test1.test2.com",
 			Config: types.Host{
 				Regexes: []types.Regex{{Pattern: "(?P<foo", Placeholder: "regexPlaceholder"}},
 			},

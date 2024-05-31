@@ -2,6 +2,7 @@ package actions
 
 import (
 	"fmt"
+	"wannabe/curl/utils"
 	"wannabe/types"
 )
 
@@ -10,12 +11,12 @@ func ProcessQuery(queryMap map[string][]string, config types.Query) (string, err
 		return "", nil
 	}
 
-	query := mapValuesToSingleString(queryMap)
+	query := utils.MapValuesToSingleString(queryMap)
 
-	setWildcardsByKey(query, config.Wildcards)
-	rebuiltQuery := buildQuery(query)
+	utils.SetWildcardsByKey(query, config.Wildcards)
+	rebuiltQuery := utils.BuildQuery(query)
 
-	processedQuery, err := replaceRegexPatterns(rebuiltQuery, config.Regexes, true)
+	processedQuery, err := utils.ReplaceRegexPatterns(rebuiltQuery, config.Regexes, true)
 	if err != nil {
 		return "", fmt.Errorf("ProcessQuery: failed compiling regex: %v", err)
 	}

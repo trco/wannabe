@@ -3,6 +3,7 @@ package actions
 import (
 	"fmt"
 	"strings"
+	"wannabe/curl/utils"
 	"wannabe/types"
 )
 
@@ -14,10 +15,10 @@ func ProcessPath(path string, config types.Path) (string, error) {
 
 	pathParts := strings.Split(strippedPath, "/")
 
-	setWildcardsByIndex(pathParts, config.Wildcards)
+	utils.SetWildcardsByIndex(pathParts, config.Wildcards)
 	rebuiltPath := "/" + strings.Join(pathParts, "/")
 
-	processedPath, err := replaceRegexPatterns(rebuiltPath, config.Regexes, false)
+	processedPath, err := utils.ReplaceRegexPatterns(rebuiltPath, config.Regexes, false)
 	if err != nil {
 		return "", fmt.Errorf("ProcessPath: failed compiling regex: %v", err)
 	}

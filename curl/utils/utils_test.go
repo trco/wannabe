@@ -1,4 +1,4 @@
-package actions
+package utils
 
 import (
 	"reflect"
@@ -45,7 +45,7 @@ func TestSetWildcardsByIndex(t *testing.T) {
 	}
 
 	for testKey, tc := range testCases {
-		setWildcardsByIndex(tc.Slice, tc.Wildcards)
+		SetWildcardsByIndex(tc.Slice, tc.Wildcards)
 
 		if !reflect.DeepEqual(tc.Expected, tc.Slice) {
 			t.Errorf("failed test case: %v, expected slice: %v, actual slice: %v", testKey, tc.Expected, tc.Slice)
@@ -100,7 +100,7 @@ func TestSetWildcardsByKey(t *testing.T) {
 	}
 
 	for testKey, tc := range testCases {
-		setWildcardsByKey(tc.Map, tc.Wildcards)
+		SetWildcardsByKey(tc.Map, tc.Wildcards)
 
 		if !reflect.DeepEqual(tc.Expected, tc.Map) {
 			t.Errorf("failed test case: %v, expected map: %v, actual map: %v", testKey, tc.Expected, tc.Map)
@@ -131,7 +131,7 @@ func TestSetPlaceholderByIndex(t *testing.T) {
 	}
 
 	for testKey, tc := range testCases {
-		setPlaceholderByIndex(tc.Slice, tc.Wildcards)
+		SetPlaceholderByIndex(tc.Slice, tc.Wildcards)
 
 		if !reflect.DeepEqual(tc.Expected, tc.Slice) {
 			t.Errorf("failed test case: %v, expected slice: %v, actual slice: %v", testKey, tc.Expected, tc.Slice)
@@ -166,7 +166,7 @@ func TestSetPlaceholderByKey(t *testing.T) {
 	}
 
 	for testKey, tc := range testCases {
-		setPlaceholderByKey(tc.Map, tc.Wildcard)
+		SetPlaceholderByKey(tc.Map, tc.Wildcard)
 
 		if !reflect.DeepEqual(tc.Expected, tc.Map) {
 			t.Errorf("failed test case: %v, expected map: %v, actual map: %v", testKey, tc.Expected, tc.Map)
@@ -210,7 +210,7 @@ func TestReplaceRegexPatterns(t *testing.T) {
 	}
 
 	for testKey, tc := range testCases {
-		processedString, _ := replaceRegexPatterns(tc.String, tc.Regexes, tc.IsQuery)
+		processedString, _ := ReplaceRegexPatterns(tc.String, tc.Regexes, tc.IsQuery)
 
 		if processedString != tc.Expected {
 			t.Errorf("failed test case: %v, expected string: %v, actual string: %v", testKey, tc.Expected, processedString)
@@ -219,7 +219,7 @@ func TestReplaceRegexPatterns(t *testing.T) {
 }
 func TestBuildQuery(t *testing.T) {
 	query := testMap()
-	rebuiltQuery := buildQuery(query)
+	rebuiltQuery := BuildQuery(query)
 
 	expected := "?appId=test&status=test"
 
@@ -271,20 +271,15 @@ func TestFilterHeadersToInclude(t *testing.T) {
 				"X-test-header": "test value",
 			},
 		},
-		"includeAllHeadersWithEmptyInclude": {
-			Map:     testInitHeadersMap(),
-			Include: []string{},
-			Expected: map[string]string{
-				"Accept":        "test1,test2,test3",
-				"Authorization": "test access token",
-				"Content-Type":  "application/json",
-				"X-test-header": "test value",
-			},
+		"dontIncludeHeadersWithEmptyInclude": {
+			Map:      testInitHeadersMap(),
+			Include:  []string{},
+			Expected: map[string]string{},
 		},
 	}
 
 	for testName, tc := range testCases {
-		headers := filterHeadersToInclude(tc.Map, tc.Include)
+		headers := FilterHeadersToInclude(tc.Map, tc.Include)
 
 		if !reflect.DeepEqual(tc.Expected, headers) {
 			t.Errorf("failed test case: %v, expected headers: %v, actual headers: %v", testName, tc.Expected, headers)
@@ -324,8 +319,8 @@ func TestHeadersMapToSlice(t *testing.T) {
 	}
 
 	for testName, tc := range testCases {
-		headers := headersMapToSlice(tc.Map)
-		sortedSlice := sortHeaderSlice(headers)
+		headers := HeadersMapToSlice(tc.Map)
+		sortedSlice := SortHeaderSlice(headers)
 
 		if testName == "emptyHeadersMap" && !(len(tc.Map) == 0 && len(sortedSlice) == 0) {
 			t.Errorf("failed test case: %v, expected slice: %v, actual slice: %v", testName, tc.Expected, sortedSlice)
@@ -365,7 +360,7 @@ func TestSortHeaderSlice(t *testing.T) {
 	}
 
 	for testName, tc := range testCases {
-		sortedSlice := sortHeaderSlice(tc.Slice)
+		sortedSlice := SortHeaderSlice(tc.Slice)
 
 		if !reflect.DeepEqual(tc.Expected, sortedSlice) {
 			t.Errorf("failed test case: %v, expected slice: %v, actual slice: %v", testName, tc.Expected, sortedSlice)
@@ -374,24 +369,24 @@ func TestSortHeaderSlice(t *testing.T) {
 }
 
 func TestIsIndexOutOfBounds(t *testing.T) {
-	indexOutOfBounds := isIndexOutOfBounds(testSlice(), 1)
+	indexOutOfBounds := IsIndexOutOfBounds(testSlice(), 1)
 	if indexOutOfBounds {
 		t.Errorf("index out of bounds although it's not")
 	}
 
-	indexOutOfBounds = isIndexOutOfBounds(testSlice(), 5)
+	indexOutOfBounds = IsIndexOutOfBounds(testSlice(), 5)
 	if !indexOutOfBounds {
 		t.Errorf("index within the bounds although it's not")
 	}
 }
 
 func TestKeyExists(t *testing.T) {
-	exists := keyExists(testMap(), "status")
+	exists := KeyExists(testMap(), "status")
 	if !exists {
 		t.Errorf("key doesn't exist, but it should exists")
 	}
 
-	exists = keyExists(testMap(), "test")
+	exists = KeyExists(testMap(), "test")
 	if exists {
 		t.Errorf("key exists, but it shouldn't")
 	}

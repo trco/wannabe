@@ -17,25 +17,25 @@ func TestProcessPath(t *testing.T) {
 
 	testCases := map[string]TestCaseProcessPath{
 		"withPlaceholder": {
-			Path: "/v1beta/properties/375748157:runReport",
+			Path: "/test1/test2/123456:test",
 			Config: types.Path{
 				Wildcards: []types.WildcardIndex{{Index: &zero, Placeholder: "{placeholder}"}},
 			},
-			Expected: "/{placeholder}/properties/375748157:runReport",
+			Expected: "/{placeholder}/test2/123456:test",
 		},
 		"withoutPlaceholder": {
-			Path: "/v1beta/properties/375748157:runReport",
+			Path: "/test1/test2/123456:test",
 			Config: types.Path{
 				Wildcards: []types.WildcardIndex{{Index: &zero}},
 			},
-			Expected: "/{wannabe}/properties/375748157:runReport",
+			Expected: "/{wannabe}/test2/123456:test",
 		},
 		"withRegex": {
-			Path: "/v1beta/properties/375748157:runReport",
+			Path: "/test1/test2/123456:test",
 			Config: types.Path{
-				Regexes: []types.Regex{{Pattern: "(\\d+):runReport", Placeholder: "{propertyId}:runReport"}},
+				Regexes: []types.Regex{{Pattern: "(\\d+):test", Placeholder: "{id}:test"}},
 			},
-			Expected: "/v1beta/properties/{propertyId}:runReport",
+			Expected: "/test1/test2/{id}:test",
 		},
 		"emptyString": {
 			Path: "",
@@ -45,7 +45,7 @@ func TestProcessPath(t *testing.T) {
 			Expected: "",
 		},
 		"invalidRegex": {
-			Path: "/v1beta/properties/375748157:runReport",
+			Path: "/test1/test2/123456:test",
 			Config: types.Path{
 				Regexes: []types.Regex{{Pattern: "(?P<foo"}},
 			},

@@ -8,7 +8,7 @@ import (
 	"wannabe/types"
 )
 
-var wannabeA = types.Wannabe{
+var wannabe = types.Wannabe{
 	RequestMatching: types.RequestMatching{
 		Headers: types.Headers{
 			Include: []string{"Content-Type", "Accept"},
@@ -17,23 +17,27 @@ var wannabeA = types.Wannabe{
 }
 
 func TestGenerateCurl(t *testing.T) {
-	setHeaders(originalRequest)
+	request := generateTestRequest()
 
-	expcetedCurl := "curl -X 'POST' -d '{\"test\":\"test\"}' -H 'Accept: test' -H 'Content-Type: application/json' 'test.com/test?test=test'"
+	expectedCurl := "curl -X 'POST' -d '{\"test\":\"test\"}' -H 'Accept: test' -H 'Content-Type: application/json' 'test.com/test?test=test'"
 
-	curl, _ := GenerateCurl(originalRequest, wannabeA)
+	curl, _ := GenerateCurl(request, wannabe)
 
-	if !reflect.DeepEqual(expcetedCurl, curl) {
-		t.Errorf("expected curl: %v, actual curl: %v", expcetedCurl, curl)
+	if !reflect.DeepEqual(expectedCurl, curl) {
+		t.Errorf("expected curl: %v, actual curl: %v", expectedCurl, curl)
 	}
 }
 
-// reusable variables and methods
-var requestBody = "{\"test\":\"test\"}"
-var bodyBuffer = bytes.NewBufferString(requestBody)
-var originalRequest, _ = http.NewRequest("POST", "http://test.com/test?test=test", bodyBuffer)
+func generateTestRequest() *http.Request {
+	httpMethod := "POST"
+	url := "http://test.com/test?test=test"
+	body := "{\"test\":\"test\"}"
+	bodyBuffer := bytes.NewBufferString(body)
 
-func setHeaders(originalRequest *http.Request) {
-	originalRequest.Header.Set("Accept", "test")
-	originalRequest.Header.Set("Content-Type", "application/json")
+	request, _ := http.NewRequest(httpMethod, url, bodyBuffer)
+
+	request.Header.Set("Accept", "test")
+	request.Header.Set("Content-Type", "application/json")
+
+	return request
 }

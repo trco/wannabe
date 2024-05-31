@@ -1,4 +1,4 @@
-package actions
+package utils
 
 import (
 	"net/url"
@@ -8,31 +8,29 @@ import (
 	"wannabe/types"
 )
 
-// general
-
-func setWildcardsByIndex(slice []string, wildcards []types.WildcardIndex) {
+func SetWildcardsByIndex(slice []string, wildcards []types.WildcardIndex) {
 	for _, wildcard := range wildcards {
-		if isIndexOutOfBounds(slice, *wildcard.Index) {
+		if IsIndexOutOfBounds(slice, *wildcard.Index) {
 			// TODO log warning
 			continue
 		}
 
-		setPlaceholderByIndex(slice, wildcard)
+		SetPlaceholderByIndex(slice, wildcard)
 	}
 }
 
-func setWildcardsByKey(inputMap map[string]string, wildcards []types.WildcardKey) {
+func SetWildcardsByKey(inputMap map[string]string, wildcards []types.WildcardKey) {
 	for _, wildcard := range wildcards {
-		if !keyExists(inputMap, wildcard.Key) {
+		if !KeyExists(inputMap, wildcard.Key) {
 			// TODO log warning
 			continue
 		}
 
-		setPlaceholderByKey(inputMap, wildcard)
+		SetPlaceholderByKey(inputMap, wildcard)
 	}
 }
 
-func setPlaceholderByIndex(parts []string, wildcard types.WildcardIndex) {
+func SetPlaceholderByIndex(parts []string, wildcard types.WildcardIndex) {
 	if wildcard.Placeholder != "" {
 		parts[*wildcard.Index] = wildcard.Placeholder
 	} else {
@@ -40,7 +38,7 @@ func setPlaceholderByIndex(parts []string, wildcard types.WildcardIndex) {
 	}
 }
 
-func setPlaceholderByKey(inputMap map[string]string, wildcard types.WildcardKey) {
+func SetPlaceholderByKey(inputMap map[string]string, wildcard types.WildcardKey) {
 	if wildcard.Placeholder != "" {
 		inputMap[wildcard.Key] = wildcard.Placeholder
 	} else {
@@ -48,7 +46,7 @@ func setPlaceholderByKey(inputMap map[string]string, wildcard types.WildcardKey)
 	}
 }
 
-func replaceRegexPatterns(processedString string, regexes []types.Regex, isQuery bool) (string, error) {
+func ReplaceRegexPatterns(processedString string, regexes []types.Regex, isQuery bool) (string, error) {
 	for _, regex := range regexes {
 		compiledPattern, err := regexp.Compile(regex.Pattern)
 		if err != nil {
@@ -75,9 +73,7 @@ func replaceRegexPatterns(processedString string, regexes []types.Regex, isQuery
 	return processedString, nil
 }
 
-// query
-
-func mapValuesToSingleString(queryMap map[string][]string) map[string]string {
+func MapValuesToSingleString(queryMap map[string][]string) map[string]string {
 	query := make(map[string]string)
 	for key := range queryMap {
 		queryValue := strings.Join(queryMap[key], ",")
@@ -87,7 +83,7 @@ func mapValuesToSingleString(queryMap map[string][]string) map[string]string {
 	return query
 }
 
-func buildQuery(query map[string]string) string {
+func BuildQuery(query map[string]string) string {
 	values := url.Values{}
 	for k, v := range query {
 		values.Add(k, v)
@@ -97,9 +93,7 @@ func buildQuery(query map[string]string) string {
 	return "?" + values.Encode()
 }
 
-// headers
-
-func filterHeadersToInclude(headersMap map[string][]string, headersToInclude []string) map[string]string {
+func FilterHeadersToInclude(headersMap map[string][]string, headersToInclude []string) map[string]string {
 	headers := make(map[string]string)
 
 	if len(headersToInclude) == 0 {
@@ -107,7 +101,7 @@ func filterHeadersToInclude(headersMap map[string][]string, headersToInclude []s
 	}
 
 	for _, key := range headersToInclude {
-		if !keyExists(headersMap, key) {
+		if !KeyExists(headersMap, key) {
 			// TODO log warning
 			continue
 		}
@@ -119,7 +113,7 @@ func filterHeadersToInclude(headersMap map[string][]string, headersToInclude []s
 	return headers
 }
 
-func headersMapToSlice(headersMap map[string]string) []types.Header {
+func HeadersMapToSlice(headersMap map[string]string) []types.Header {
 	var headerSlice []types.Header
 	for key, value := range headersMap {
 		headerSlice = append(headerSlice, types.Header{Key: key, Value: value})
@@ -128,7 +122,7 @@ func headersMapToSlice(headersMap map[string]string) []types.Header {
 	return headerSlice
 }
 
-func sortHeaderSlice(headerSlice []types.Header) []types.Header {
+func SortHeaderSlice(headerSlice []types.Header) []types.Header {
 	sort.Slice(headerSlice, func(i, j int) bool {
 		return headerSlice[i].Key < headerSlice[j].Key
 	})
@@ -136,13 +130,11 @@ func sortHeaderSlice(headerSlice []types.Header) []types.Header {
 	return headerSlice
 }
 
-// checks
-
-func isIndexOutOfBounds[T interface{}](slice []T, index int) bool {
+func IsIndexOutOfBounds[T interface{}](slice []T, index int) bool {
 	return index < 0 || index >= len(slice)
 }
 
-func keyExists[T interface{}](stringsMap map[string]T, key string) bool {
+func KeyExists[T interface{}](stringsMap map[string]T, key string) bool {
 	_, exists := stringsMap[key]
 	return exists
 }

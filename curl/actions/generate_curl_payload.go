@@ -7,19 +7,19 @@ import (
 	"wannabe/types"
 )
 
-func GenerateCurlPayload(originalRequest *http.Request) (types.CurlPayload, error) {
-	body, err := io.ReadAll(originalRequest.Body)
+func GenerateCurlPayload(request *http.Request) (types.CurlPayload, error) {
+	body, err := io.ReadAll(request.Body)
 	if err != nil {
 		return types.CurlPayload{}, fmt.Errorf("PrepareGenerateCurlPayload: failed reading request body: %v", err)
 	}
-	defer originalRequest.Body.Close()
+	defer request.Body.Close()
 
 	curlPayload := types.CurlPayload{
-		HttpMethod:     originalRequest.Method,
-		Host:           originalRequest.URL.Host,
-		Path:           originalRequest.URL.Path,
-		Query:          originalRequest.URL.Query(),
-		RequestHeaders: originalRequest.Header,
+		HttpMethod:     request.Method,
+		Host:           request.URL.Host,
+		Path:           request.URL.Path,
+		Query:          request.URL.Query(),
+		RequestHeaders: request.Header,
 		RequestBody:    body,
 	}
 

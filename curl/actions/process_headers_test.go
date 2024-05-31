@@ -71,3 +71,12 @@ func TestProcessHeaders(t *testing.T) {
 		}
 	}
 }
+
+func testInitHeadersMap() map[string][]string {
+	return map[string][]string{
+		"Content-Type":  {"application/json"},
+		"Accept":        {"test1", "test2", "test3"},
+		"Authorization": {"test access token"},
+		"X-test-header": {"test value"},
+	}
+}
