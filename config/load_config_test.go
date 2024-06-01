@@ -105,6 +105,17 @@ func TestValidateConfig(t *testing.T) {
 	}
 }
 
+func TestContains(t *testing.T) {
+	slice := []string{"a", "b", "c"}
+	if !contains(slice, "b") {
+		t.Errorf("slice contains 'b', but contains method returned false")
+	}
+
+	if contains(slice, "d") {
+		t.Errorf("slice does not contain 'd', but contains method returned true")
+	}
+}
+
 // reusable variables and methods
 
 var zero = 0

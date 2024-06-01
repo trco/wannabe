@@ -217,6 +217,43 @@ func TestReplaceRegexPatterns(t *testing.T) {
 		}
 	}
 }
+
+type TestCaseMapValuesToSingleString struct {
+	QueryMap map[string][]string
+	Expected map[string]string
+}
+
+func TestMapValuesToSingleString(t *testing.T) {
+	testCases := map[string]TestCaseMapValuesToSingleString{
+		"singleValue": {
+			QueryMap: map[string][]string{
+				"key1": {"value1"},
+			},
+			Expected: map[string]string{
+				"key1": "value1",
+			},
+		},
+		"multipleValues": {
+			QueryMap: map[string][]string{
+				"key1": {"value1", "value2"},
+				"key2": {"value3", "value4"},
+			},
+			Expected: map[string]string{
+				"key1": "value1,value2",
+				"key2": "value3,value4",
+			},
+		},
+	}
+
+	for testKey, tc := range testCases {
+		queryMap := MapValuesToSingleString(tc.QueryMap)
+
+		if !reflect.DeepEqual(tc.Expected, queryMap) {
+			t.Errorf("failed test case: %v, expected map: %v, actual map: %v", testKey, tc.Expected, queryMap)
+		}
+	}
+}
+
 func TestBuildQuery(t *testing.T) {
 	query := testMap()
 	rebuiltQuery := BuildQuery(query)
