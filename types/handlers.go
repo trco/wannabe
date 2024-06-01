@@ -12,6 +12,8 @@ type WannabeOnResponseHandler func(*gomitmproxy.Session) *http.Response
 type Session interface {
 	SetProp(key string, value interface{})
 	GetProp(key string) (interface{}, bool)
+	Request() *http.Request
+	Response() *http.Response
 }
 
 type InternalError struct {
