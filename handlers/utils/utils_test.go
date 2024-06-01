@@ -252,6 +252,8 @@ func TestProcessRecordValidation(t *testing.T) {
 }
 
 type MockSession struct {
+	req   *http.Request
+	res   *http.Response
 	props map[string]interface{}
 }
 
@@ -262,6 +264,16 @@ func (m *MockSession) SetProp(key string, value interface{}) {
 func (m *MockSession) GetProp(key string) (interface{}, bool) {
 	v, ok := m.props[key]
 	return v, ok
+}
+
+// Request returns the HTTP request of this session
+func (m *MockSession) Request() *http.Request {
+	return m.req
+}
+
+// Response returns the HTTP response of this session
+func (m *MockSession) Response() *http.Response {
+	return m.res
 }
 
 type TestError struct {
