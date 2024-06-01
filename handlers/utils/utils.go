@@ -8,13 +8,12 @@ import (
 	"net/http"
 	"wannabe/types"
 
-	"github.com/AdguardTeam/gomitmproxy"
 	"github.com/AdguardTeam/gomitmproxy/proxyutil"
 )
 
 // wannabe
 
-func InternalErrorOnRequest(session *gomitmproxy.Session, request *http.Request, err error) (*http.Request, *http.Response) {
+func InternalErrorOnRequest(session types.Session, request *http.Request, err error) (*http.Request, *http.Response) {
 	session.SetProp("blocked", true)
 
 	body := PrepareResponseBody(err)
@@ -45,7 +44,7 @@ func PrepareResponseBody(err error) *bytes.Reader {
 	return bodyReader
 }
 
-func ShouldSkipResponseProcessing(session *gomitmproxy.Session) bool {
+func ShouldSkipResponseProcessing(session types.Session) bool {
 	if _, blocked := session.GetProp("blocked"); blocked {
 		return true
 	}
@@ -55,7 +54,7 @@ func ShouldSkipResponseProcessing(session *gomitmproxy.Session) bool {
 	return false
 }
 
-func GetHashAndCurlFromSession(session *gomitmproxy.Session) (string, string, error) {
+func GetHashAndCurlFromSession(session types.Session) (string, string, error) {
 	hashProp, ok := session.GetProp("hash")
 	if !ok {
 		return "", "", fmt.Errorf("no hash in session")

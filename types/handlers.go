@@ -9,6 +9,11 @@ import (
 type WannabeOnRequestHandler func(*gomitmproxy.Session) (*http.Request, *http.Response)
 type WannabeOnResponseHandler func(*gomitmproxy.Session) *http.Response
 
+type Session interface {
+	SetProp(key string, value interface{})
+	GetProp(key string) (interface{}, bool)
+}
+
 type InternalError struct {
 	Error string `json:"error"`
 }
