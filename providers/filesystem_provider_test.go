@@ -1,6 +1,7 @@
 package providers
 
 import (
+	"os"
 	"testing"
 	"wannabe/types"
 )
@@ -9,8 +10,8 @@ var testConfig = types.Config{
 	StorageProvider: types.StorageProvider{
 		Type: "filesystem",
 		FilesystemConfig: types.FilesystemConfig{
-			Folder:           "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T",
-			RegenerateFolder: "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T/regenerate",
+			Folder:           "/tmp/wannabe",
+			RegenerateFolder: "/tmp/wannabe/regenerate",
 			Format:           "json",
 		},
 	},
@@ -65,12 +66,27 @@ func TestGetHashes(t *testing.T) {
 	}
 }
 
+func TestGetHostsAndHashes(t *testing.T) {
+	_ = filesystemProvider.InsertRecords("test2.api.com", []string{"testHash8"}, [][]byte{testRecord}, false)
+	_ = filesystemProvider.InsertRecords("test2.api.com", []string{"testHash9"}, [][]byte{testRecord}, false)
+	_ = filesystemProvider.InsertRecords("test3.api.com", []string{"testHash10"}, [][]byte{testRecord}, false)
+
+	hostsAndHashes, _ := filesystemProvider.GetHostsAndHashes()
+
+	if len(hostsAndHashes) == 0 {
+		t.Errorf("failed getting hosts and hashes")
+	}
+}
+
 func TestGenerateFilepath(t *testing.T) {
 	isRegenerate := false
+	folder := testConfig.StorageProvider.FilesystemConfig.Folder
+	subfolder := "test.api.com"
+	hash := "testHash1"
 
-	generateFilepath := filesystemProvider.generateFilepath("test.api.com", "testHash1", isRegenerate)
+	generateFilepath := filesystemProvider.generateFilepath(subfolder, hash, isRegenerate)
 
-	expectedFilepath := "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T/test.api.com/testHash1.json"
+	expectedFilepath := folder + "/" + subfolder + "/" + hash + ".json"
 
 	if expectedFilepath != generateFilepath {
 		t.Errorf("expected generate filepath: %v, actual generate filepath: %v", expectedFilepath, generateFilepath)
@@ -79,10 +95,13 @@ func TestGenerateFilepath(t *testing.T) {
 
 func TestGenerateFilepathRegenerate(t *testing.T) {
 	isRegenerate := true
+	regenerateFolder := testConfig.StorageProvider.FilesystemConfig.RegenerateFolder
+	subfolder := "test.api.com"
+	hash := "testHash2"
 
-	regenerateFilepath := filesystemProvider.generateFilepath("test.api.com", "testHash2", isRegenerate)
+	regenerateFilepath := filesystemProvider.generateFilepath(subfolder, hash, isRegenerate)
 
-	expectedFilepath := "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T/regenerate/test.api.com/testHash2.json"
+	expectedFilepath := regenerateFolder + "/" + subfolder + "/" + hash + ".json"
 
 	if expectedFilepath != regenerateFilepath {
 		t.Errorf("expected regenerate filepath: %v, actual regenerate filepath: %v", expectedFilepath, regenerateFilepath)
@@ -91,7 +110,30 @@ func TestGenerateFilepathRegenerate(t *testing.T) {
 	isRegenerate = false
 }
 
-// reusable functions
+func TestCreateFolder(t *testing.T) {
+	folder := testConfig.StorageProvider.FilesystemConfig.Folder
+	subfolder := "test.subfolder.com"
+	isRegenerate := false
+
+	_ = filesystemProvider.createFolder(subfolder, isRegenerate)
+
+	fileInfo, _ := os.Stat(folder + "/" + subfolder)
+
+	if fileInfo.IsDir() == false {
+		t.Errorf("failed creating subfolder: %v in folder: %v", subfolder, folder)
+	}
+
+	isRegenerate = true
+	rengenerateFolder := testConfig.StorageProvider.FilesystemConfig.RegenerateFolder
+
+	_ = filesystemProvider.createFolder(subfolder, isRegenerate)
+
+	fileInfo, _ = os.Stat(rengenerateFolder + "/" + subfolder)
+
+	if fileInfo.IsDir() == false {
+		t.Errorf("failed creating subfolder: %v in regenerate folder: %v", subfolder, rengenerateFolder)
+	}
+}
 
 func contains(slice []string, value string) bool {
 	for _, item := range slice {
@@ -100,4 +142,30 @@ func contains(slice []string, value string) bool {
 		}
 	}
 	return false
+}
+
+func createFolders() {
+	_ = os.Mkdir(testConfig.StorageProvider.FilesystemConfig.Folder, 0755)
+	_ = os.Mkdir(testConfig.StorageProvider.FilesystemConfig.RegenerateFolder, 0755)
+}
+
+func deleteFolders() {
+	_ = os.RemoveAll(testConfig.StorageProvider.FilesystemConfig.Folder)
+	_ = os.RemoveAll(testConfig.StorageProvider.FilesystemConfig.RegenerateFolder)
+}
+
+func TestMain(m *testing.M) {
+	setup()
+	code := m.Run()
+	teardown()
+
+	os.Exit(code)
+}
+
+func setup() {
+	createFolders()
+}
+
+func teardown() {
+	deleteFolders()
 }
