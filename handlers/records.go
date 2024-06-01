@@ -130,9 +130,9 @@ func PostRecords(config types.Config, storageProvider providers.StorageProvider,
 	notInsertedCount := 0
 	var recordProcessingDetails []types.RecordProcessingDetails
 
-	for i, record := range records {
-		if validationErrors[i] != "" {
-			utils.ProcessRecordValidation(&recordProcessingDetails, "", validationErrors[i], &notInsertedCount)
+	for index, record := range records {
+		if validationErrors[index] != "" {
+			utils.ProcessRecordValidation(&recordProcessingDetails, "", validationErrors[index], &notInsertedCount)
 			continue
 		}
 
