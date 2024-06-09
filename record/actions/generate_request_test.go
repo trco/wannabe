@@ -2,6 +2,7 @@ package actions
 
 import (
 	"io"
+	"reflect"
 	"testing"
 	"wannabe/types"
 )
@@ -20,9 +21,8 @@ func TestGenerateRequest(t *testing.T) {
 			"Content-Type": {"application/json"},
 			"Accept":       {"test"},
 		},
-		Body: map[string]interface{}{
-			"test": "test",
-		},
+		// {"test":"test"}
+		Body: []byte{123, 10, 32, 32, 32, 32, 34, 116, 101, 115, 116, 34, 58, 32, 34, 116, 101, 115, 116, 34, 10, 125},
 	}
 
 	request, _ := GenerateRequest(recordRequest)
@@ -57,12 +57,11 @@ func TestGenerateRequest(t *testing.T) {
 		t.Errorf("expected Content-Type header: %v, actual Content-Type header: %v", expectedHeader, request.Header.Get("Content-Type"))
 	}
 
-	expectedRequestBody := "{\"test\":\"test\"}"
+	expectedRequestBody := []byte{34, 101, 119, 111, 103, 73, 67, 65, 103, 73, 110, 82, 108, 99, 51, 81, 105, 79, 105, 65, 105, 100, 71, 86, 122, 100, 67, 73, 75, 102, 81, 61, 61, 34}
 
-	body, _ := io.ReadAll(request.Body)
-	requestBody := string(body)
+	requestBody, _ := io.ReadAll(request.Body)
 
-	if expectedRequestBody != requestBody {
+	if !reflect.DeepEqual(expectedRequestBody, requestBody) {
 		t.Errorf("expected request body: %v, actual request body: %v", expectedRequestBody, requestBody)
 	}
 }

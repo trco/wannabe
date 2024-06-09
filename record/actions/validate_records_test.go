@@ -38,9 +38,8 @@ var record = types.Record{
 			"Content-Type": {"application/json"},
 			"Accept":       {"test"},
 		},
-		Body: map[string]interface{}{
-			"test": "test",
-		},
+		// {"test":"test"}
+		Body: []byte{123, 10, 32, 32, 32, 32, 34, 116, 101, 115, 116, 34, 58, 32, 34, 116, 101, 115, 116, 34, 10, 125},
 	},
 	Response: types.Response{
 		StatusCode: 200,
@@ -48,9 +47,8 @@ var record = types.Record{
 			"Content-Type": {"application/json"},
 			"Accept":       {"test"},
 		},
-		Body: map[string]interface{}{
-			"test": "test",
-		},
+		// {"test":"test"}
+		Body: []byte{123, 10, 32, 32, 32, 32, 34, 116, 101, 115, 116, 34, 58, 32, 34, 116, 101, 115, 116, 34, 10, 125},
 	},
 	Metadata: types.Metadata{
 		GeneratedAt: types.Timestamp{
