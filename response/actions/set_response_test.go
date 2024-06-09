@@ -66,9 +66,7 @@ func TestSetResponse(t *testing.T) {
 		"Content-Type": {"application/json"},
 		"Accept":       {"test"},
 	}
-	expectedResponseBody := map[string]interface{}{
-		"test": "test",
-	}
+	expectedResponseBody := []byte{123, 10, 32, 32, 32, 32, 34, 116, 101, 115, 116, 34, 58, 32, 34, 116, 101, 115, 116, 34, 10, 125}
 
 	if !reflect.DeepEqual(expectedStatusCode, response.StatusCode) {
 		t.Errorf("expected status code: %v, actual status code: %v", expectedStatusCode, response.StatusCode)
@@ -82,11 +80,8 @@ func TestSetResponse(t *testing.T) {
 		t.Errorf("expected response headers: %v, actual response headers: %v", expectedResponseHeaders, response.Header)
 	}
 
-	responseBodyRaw, _ := io.ReadAll(response.Body)
+	responseBody, _ := io.ReadAll(response.Body)
 	defer response.Body.Close()
-
-	var responseBody map[string]interface{}
-	json.Unmarshal(responseBodyRaw, &responseBody)
 
 	if !reflect.DeepEqual(expectedResponseBody, responseBody) {
 		t.Errorf("expected response body: %v, actual response body: %v", expectedResponseBody, responseBody)
