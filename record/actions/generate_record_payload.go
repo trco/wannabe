@@ -8,8 +8,6 @@ import (
 
 func GenerateRecordPayload(session types.Session, hash string, curl string) (types.RecordPayload, error) {
 	request := session.Request()
-	response := session.Response()
-
 	requestBody, err := io.ReadAll(request.Body)
 	if err != nil {
 		return types.RecordPayload{}, err
@@ -19,6 +17,7 @@ func GenerateRecordPayload(session types.Session, hash string, curl string) (typ
 	// set body back to request
 	request.Body = io.NopCloser(bytes.NewBuffer(requestBody))
 
+	response := session.Response()
 	responseBody, err := io.ReadAll(response.Body)
 	if err != nil {
 		return types.RecordPayload{}, err

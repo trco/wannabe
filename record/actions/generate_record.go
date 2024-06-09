@@ -9,18 +9,6 @@ import (
 
 func GenerateRecord(config types.Records, payload types.RecordPayload) ([]byte, error) {
 	requestHeaders := filterRequestHeaders(payload.RequestHeaders, config.Headers.Exclude)
-
-	requestBody, err := prepareBody(payload.RequestBody)
-	if err != nil {
-		return nil, err
-	}
-
-	// FIXME case when response body is text should also be handled
-	responseBody, err := prepareBody(payload.ResponseBody)
-	if err != nil {
-		return nil, err
-	}
-
 	timestamp := time.Now()
 
 	record := types.Record{
@@ -32,12 +20,12 @@ func GenerateRecord(config types.Records, payload types.RecordPayload) ([]byte, 
 			Path:       payload.Path,
 			Query:      payload.Query,
 			Headers:    requestHeaders,
-			Body:       requestBody,
+			Body:       payload.RequestBody,
 		},
 		Response: types.Response{
 			StatusCode: payload.StatusCode,
 			Headers:    payload.ResponseHeaders,
-			Body:       responseBody,
+			Body:       payload.ResponseBody,
 		},
 		Metadata: types.Metadata{
 			GeneratedAt: types.Timestamp{
@@ -74,19 +62,4 @@ func contains(slice []string, value string) bool {
 		}
 	}
 	return false
-}
-
-func prepareBody(encodedBody []byte) (interface{}, error) {
-	var body interface{}
-
-	if len(encodedBody) == 0 {
-		return body, nil
-	}
-
-	err := json.Unmarshal(encodedBody, &body)
-	if err != nil {
-		return body, fmt.Errorf("GenerateRecord: failed unmarshaling body: %v", err)
-	}
-
-	return body, nil
 }
