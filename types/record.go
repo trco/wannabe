@@ -10,9 +10,9 @@ type RecordPayload struct {
 	Path            string
 	Query           map[string][]string
 	RequestHeaders  map[string][]string
-	ResponseHeaders map[string][]string
 	RequestBody     []byte
 	StatusCode      int
+	ResponseHeaders map[string][]string
 	ResponseBody    []byte
 }
 
@@ -30,13 +30,13 @@ type Request struct {
 	Path       string              `json:"path"`
 	Query      map[string][]string `json:"query"`
 	Headers    map[string][]string `json:"headers"`
-	Body       interface{}         `json:"body" validate:"required_if=HttpMethod POST,required_if=HttpMethod PUT,required_if=HttpMethod PATCH"`
+	Body       []byte              `json:"body" validate:"required_if=HttpMethod POST,required_if=HttpMethod PUT,required_if=HttpMethod PATCH"`
 }
 
 type Response struct {
 	StatusCode int                 `json:"statusCode" validate:"required"`
 	Headers    map[string][]string `json:"headers"`
-	Body       interface{}         `json:"body" validate:"required"`
+	Body       []byte              `json:"body" validate:"required"`
 }
 
 type Metadata struct {
