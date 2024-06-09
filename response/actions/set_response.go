@@ -21,12 +21,7 @@ func SetResponse(encodedRecord []byte, request *http.Request) (*http.Response, e
 	statusCode := record.Response.StatusCode
 	headers := record.Response.Headers
 
-	body, err := json.Marshal(record.Response.Body)
-	if err != nil {
-		return nil, fmt.Errorf("SetResponse: failed marshaling body: %v", err)
-	}
-
-	response := proxyutil.NewResponse(statusCode, bytes.NewReader(body), request)
+	response := proxyutil.NewResponse(statusCode, bytes.NewReader(record.Response.Body), request)
 	setHeaders(response, headers)
 
 	return response, nil
