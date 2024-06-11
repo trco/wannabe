@@ -3,20 +3,24 @@ package actions
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 	"wannabe/types"
+
+	"github.com/clbanning/mxj"
 )
 
 func GenerateRecord(config types.Records, payload types.RecordPayload) ([]byte, error) {
 	requestHeaders := filterRequestHeaders(payload.RequestHeaders, config.Headers.Exclude)
 
-	requestBody, err := prepareBody(payload.RequestBody)
+	requestContentType := payload.RequestHeaders["Content-Type"]
+	requestBody, err := prepareBody(payload.RequestBody, requestContentType)
 	if err != nil {
 		return nil, err
 	}
 
-	// FIXME case when response body is text should also be handled
-	responseBody, err := prepareBody(payload.ResponseBody)
+	responseContentType := payload.ResponseHeaders["Content-Type"]
+	responseBody, err := prepareBody(payload.ResponseBody, responseContentType)
 	if err != nil {
 		return nil, err
 	}
@@ -76,16 +80,42 @@ func contains(slice []string, value string) bool {
 	return false
 }
 
-func prepareBody(encodedBody []byte) (interface{}, error) {
+func sliceItemContains(slice []string, value string) bool {
+	for _, item := range slice {
+		if strings.Contains(item, value) {
+			return true
+		}
+	}
+	return false
+}
+
+func prepareBody(encodedBody []byte, contentType []string) (interface{}, error) {
 	var body interface{}
 
 	if len(encodedBody) == 0 {
 		return body, nil
 	}
 
-	err := json.Unmarshal(encodedBody, &body)
-	if err != nil {
-		return body, fmt.Errorf("GenerateRecord: failed unmarshaling body: %v", err)
+	// REVIEW is this reasonable? what if Content-Type header is not present? enforce Content-Type header and validate for its presence?
+	if len(contentType) == 0 {
+		return body, nil
+	}
+
+	if sliceItemContains(contentType, "application/json") {
+		err := json.Unmarshal(encodedBody, &body)
+		if err != nil {
+			return body, fmt.Errorf("GenerateRecord: failed unmarshaling JSON body: %v", err)
+		}
+	} else if sliceItemContains(contentType, "application/xml") || sliceItemContains(contentType, "text/xml") {
+		xmlMap, err := mxj.NewMapXml(encodedBody)
+		if err != nil {
+			return body, fmt.Errorf("GenerateRecord: failed unmarshaling XML body: %v", err)
+		}
+		body = xmlMap
+	} else if sliceItemContains(contentType, "text/plain") {
+		body = string(encodedBody)
+	} else {
+		return body, fmt.Errorf("GenerateRecord: unsupported content type: %s", contentType)
 	}
 
 	return body, nil
