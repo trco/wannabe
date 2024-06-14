@@ -6,33 +6,37 @@ import (
 )
 
 func TestFilterHeaders(t *testing.T) {
-	testCases := map[string]struct {
+	tests := []struct {
+		name    string
 		headers map[string][]string
 		exclude []string
 		want    map[string][]string
 	}{
-		"empty headers": {
+		{
+			name:    "empty headers",
 			headers: map[string][]string{},
 			exclude: []string{"Content-Type"},
 			want:    map[string][]string{},
 		},
-		"empty exclude": {
+		{
+			name:    "empty exclude",
 			headers: map[string][]string{"Content-Type": {"application/json"}},
 			exclude: []string{},
 			want:    map[string][]string{"Content-Type": {"application/json"}},
 		},
-		"exclude some headers": {
+		{
+			name:    "exclude some headers",
 			headers: map[string][]string{"Content-Type": {"application/json"}, "Authorization": {"Bearer token"}},
 			exclude: []string{"Authorization"},
 			want:    map[string][]string{"Content-Type": {"application/json"}},
 		},
 	}
 
-	for testKey, tc := range testCases {
-		t.Run(testKey, func(t *testing.T) {
-			got := FilterHeaders(tc.headers, tc.exclude)
-			if !reflect.DeepEqual(got, tc.want) {
-				t.Errorf("FilterHeaders() = %v, want %v", got, tc.want)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := FilterHeaders(tt.headers, tt.exclude)
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("FilterHeaders() = %v, want %v", got, tt.want)
 			}
 		})
 	}

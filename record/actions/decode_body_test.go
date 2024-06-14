@@ -8,54 +8,61 @@ import (
 )
 
 func TestDecodeBody(t *testing.T) {
-	testCases := map[string]struct {
+	tests := []struct {
+		name        string
 		encodedBody []byte
 		contentType []string
 		want        interface{}
 	}{
-		"empty body": {
+		{
+			name:        "empty body",
 			encodedBody: []byte{},
 			contentType: []string{"application/json"},
 			want:        nil,
 		},
-		"empty content type": {
+		{
+			name:        "empty content type",
 			encodedBody: []byte(`{"key": "value"}`),
 			contentType: []string{},
 			want:        nil,
 		},
-		"json content type": {
+		{
+			name:        "json content type",
 			encodedBody: []byte(`{"key": "value"}`),
 			contentType: []string{"application/json"},
 			want:        map[string]interface{}{"key": "value"},
 		},
-		"xml content type": {
+		{
+			name:        "xml content type",
 			encodedBody: []byte(`<root><key>value</key></root>`),
 			contentType: []string{"application/xml"},
 			want:        nil,
 		},
-		"plain text content type": {
+		{
+			name:        "plain text content type",
 			encodedBody: []byte("plain text"),
 			contentType: []string{"text/plain"},
 			want:        "plain text",
 		},
-		"unsupported content type": {
+		{
+			name:        "unsupported content type",
 			encodedBody: []byte(`{"key": "value"}`),
 			contentType: []string{"unsupported/type"},
 			want:        nil,
 		},
 	}
 
-	for testKey, tc := range testCases {
-		t.Run(testKey, func(t *testing.T) {
-			got, _ := DecodeBody(tc.encodedBody, tc.contentType)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, _ := DecodeBody(tt.encodedBody, tt.contentType)
 
-			if testKey == "xml content type" {
-				xmlMap, _ := mxj.NewMapXml(tc.encodedBody)
-				tc.want = xmlMap
+			if tt.name == "xml content type" {
+				xmlMap, _ := mxj.NewMapXml(tt.encodedBody)
+				tt.want = xmlMap
 			}
 
-			if !reflect.DeepEqual(got, tc.want) {
-				t.Errorf("DecodeBody() = %v, want %v", got, tc.want)
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("DecodeBody() = %v, want %v", got, tt.want)
 			}
 		})
 	}
