@@ -35,7 +35,7 @@ type Request struct {
 
 type Response struct {
 	StatusCode int                 `json:"statusCode" validate:"required"`
-	Headers    map[string][]string `json:"headers"`
+	Headers    map[string][]string `json:"headers" validate:"content_type_header_present"`
 	Body       interface{}         `json:"body" validate:"required"`
 }
 

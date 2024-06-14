@@ -12,6 +12,7 @@ func ValidateRecords(records []types.Record) ([]string, error) {
 	var validationErrors []string
 
 	validate = validator.New()
+	validate.RegisterValidation("content_type_header_present", validateHeaders)
 
 	for i := range records {
 		err := validate.Struct(records[i])
@@ -24,4 +25,14 @@ func ValidateRecords(records []types.Record) ([]string, error) {
 	}
 
 	return validationErrors, nil
+}
+
+func validateHeaders(fl validator.FieldLevel) bool {
+	headers, ok := fl.Field().Interface().(map[string][]string)
+	if !ok {
+		return false
+	}
+
+	_, ok = headers["Content-Type"]
+	return ok
 }
