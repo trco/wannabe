@@ -7,7 +7,7 @@ import (
 	"wannabe/handlers/utils"
 	hash "wannabe/hash/actions"
 	"wannabe/providers"
-	response "wannabe/response/actions"
+	"wannabe/response/services"
 	"wannabe/types"
 
 	"github.com/AdguardTeam/gomitmproxy"
@@ -64,7 +64,7 @@ func processSessionOnRequest(config types.Config, storageProvider providers.Stor
 }
 
 func processRecords(session *gomitmproxy.Session, request *http.Request, record []byte) (*http.Request, *http.Response) {
-	responseSetFromRecord, err := response.SetResponse(record, request)
+	responseSetFromRecord, err := services.SetResponse(record, request)
 	if err != nil {
 		return utils.InternalErrorOnRequest(session, request, err)
 	}
