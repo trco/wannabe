@@ -7,56 +7,56 @@ import (
 	"github.com/clbanning/mxj"
 )
 
-type TestCaseDecodeBody struct {
-	encodedBody []byte
-	contentType []string
-	expected    interface{}
-}
-
 func TestDecodeBody(t *testing.T) {
-	testCases := map[string]TestCaseDecodeBody{
+	testCases := map[string]struct {
+		encodedBody []byte
+		contentType []string
+		want        interface{}
+	}{
 		"empty body": {
 			encodedBody: []byte{},
 			contentType: []string{"application/json"},
-			expected:    nil,
+			want:        nil,
 		},
 		"empty content type": {
 			encodedBody: []byte(`{"key": "value"}`),
 			contentType: []string{},
-			expected:    nil,
+			want:        nil,
 		},
 		"json content type": {
 			encodedBody: []byte(`{"key": "value"}`),
 			contentType: []string{"application/json"},
-			expected:    map[string]interface{}{"key": "value"},
+			want:        map[string]interface{}{"key": "value"},
 		},
 		"xml content type": {
 			encodedBody: []byte(`<root><key>value</key></root>`),
 			contentType: []string{"application/xml"},
-			expected:    nil,
+			want:        nil,
 		},
 		"plain text content type": {
 			encodedBody: []byte("plain text"),
 			contentType: []string{"text/plain"},
-			expected:    "plain text",
+			want:        "plain text",
 		},
 		"unsupported content type": {
 			encodedBody: []byte(`{"key": "value"}`),
 			contentType: []string{"unsupported/type"},
-			expected:    nil,
+			want:        nil,
 		},
 	}
 
 	for testKey, tc := range testCases {
-		decodedBody, _ := DecodeBody(tc.encodedBody, tc.contentType)
+		t.Run(testKey, func(t *testing.T) {
+			got, _ := DecodeBody(tc.encodedBody, tc.contentType)
 
-		if testKey == "xml content type" {
-			xmlMap, _ := mxj.NewMapXml(tc.encodedBody)
-			tc.expected = xmlMap
-		}
+			if testKey == "xml content type" {
+				xmlMap, _ := mxj.NewMapXml(tc.encodedBody)
+				tc.want = xmlMap
+			}
 
-		if !reflect.DeepEqual(tc.expected, decodedBody) {
-			t.Errorf("failed test case: %v, expected decoded body: %v, actual decoded body: %v", testKey, tc.expected, decodedBody)
-		}
+			if !reflect.DeepEqual(got, tc.want) {
+				t.Errorf("DecodeBody() = %v, want %v", got, tc.want)
+			}
+		})
 	}
 }
