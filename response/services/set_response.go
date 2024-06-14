@@ -19,11 +19,11 @@ func SetResponse(encodedRecord []byte, request *http.Request) (*http.Response, e
 		return nil, fmt.Errorf("SetResponse: failed unmarshaling record: %v", err)
 	}
 
-	statusCode := record.Response.StatusCode
-
 	decodedBody := record.Response.Body
 	contentTypeHeader := record.Response.Headers["Content-Type"]
 	body, err := actions.EncodeBody(decodedBody, contentTypeHeader)
+
+	statusCode := record.Response.StatusCode
 
 	response := proxyutil.NewResponse(statusCode, bytes.NewReader(body), request)
 
