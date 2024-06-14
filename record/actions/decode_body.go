@@ -3,7 +3,8 @@ package actions
 import (
 	"encoding/json"
 	"fmt"
-	"strings"
+
+	"wannabe/utils"
 
 	"github.com/clbanning/mxj"
 )
@@ -15,7 +16,7 @@ func DecodeBody(encodedBody []byte, contentTypeHeader []string) (interface{}, er
 		return body, nil
 	}
 
-	contentType := getContentType(contentTypeHeader)
+	contentType := utils.GetContentType(contentTypeHeader)
 
 	switch {
 	case contentType == "application/json":
@@ -36,28 +37,4 @@ func DecodeBody(encodedBody []byte, contentTypeHeader []string) (interface{}, er
 	}
 
 	return body, nil
-}
-
-func getContentType(contentTypeHeader []string) string {
-	switch {
-	case sliceItemContains(contentTypeHeader, "application/json"):
-		return "application/json"
-	case sliceItemContains(contentTypeHeader, "application/xml"):
-		return "application/xml"
-	case sliceItemContains(contentTypeHeader, "text/xml"):
-		return "text/xml"
-	case sliceItemContains(contentTypeHeader, "text/plain"):
-		return "text/plain"
-	default:
-		return ""
-	}
-}
-
-func sliceItemContains(slice []string, value string) bool {
-	for _, item := range slice {
-		if strings.Contains(item, value) {
-			return true
-		}
-	}
-	return false
 }
