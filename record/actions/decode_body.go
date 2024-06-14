@@ -8,36 +8,49 @@ import (
 	"github.com/clbanning/mxj"
 )
 
-func DecodeBody(encodedBody []byte, contentType []string) (interface{}, error) {
+func DecodeBody(encodedBody []byte, contentTypeHeader []string) (interface{}, error) {
 	var body interface{}
 
 	if len(encodedBody) == 0 {
 		return body, nil
 	}
 
-	// REVIEW is this reasonable? what if Content-Type header is not present? enforce Content-Type header and validate for its presence?
-	if len(contentType) == 0 {
-		return body, nil
-	}
+	contentType := getContentType(contentTypeHeader)
 
-	if sliceItemContains(contentType, "application/json") {
+	switch {
+	case contentType == "application/json":
 		err := json.Unmarshal(encodedBody, &body)
 		if err != nil {
 			return body, fmt.Errorf("DecodeBody: failed unmarshaling JSON body: %v", err)
 		}
-	} else if sliceItemContains(contentType, "application/xml") || sliceItemContains(contentType, "text/xml") {
+	case contentType == "application/xml", contentType == "text/xml":
 		xmlMap, err := mxj.NewMapXml(encodedBody)
 		if err != nil {
 			return body, fmt.Errorf("DecodeBody: failed unmarshaling XML body: %v", err)
 		}
 		body = xmlMap
-	} else if sliceItemContains(contentType, "text/plain") {
+	case contentType == "text/plain":
 		body = string(encodedBody)
-	} else {
+	default:
 		return body, fmt.Errorf("DecodeBody: unsupported content type: %s", contentType)
 	}
 
 	return body, nil
+}
+
+func getContentType(contentTypeHeader []string) string {
+	switch {
+	case sliceItemContains(contentTypeHeader, "application/json"):
+		return "application/json"
+	case sliceItemContains(contentTypeHeader, "application/xml"):
+		return "application/xml"
+	case sliceItemContains(contentTypeHeader, "text/xml"):
+		return "text/xml"
+	case sliceItemContains(contentTypeHeader, "text/plain"):
+		return "text/plain"
+	default:
+		return ""
+	}
 }
 
 func sliceItemContains(slice []string, value string) bool {
