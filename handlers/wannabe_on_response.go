@@ -4,7 +4,8 @@ import (
 	"net/http"
 	"wannabe/handlers/utils"
 	"wannabe/providers"
-	record "wannabe/record/actions"
+	"wannabe/record/actions"
+	"wannabe/record/services"
 	"wannabe/types"
 
 	"github.com/AdguardTeam/gomitmproxy"
@@ -33,7 +34,7 @@ func processSessionOnResponse(config types.Config, storageProvider providers.Sto
 		return utils.InternalErrorOnResponse(request, err)
 	}
 
-	recordPayload, err := record.GenerateRecordPayload(session, hash, curl)
+	recordPayload, err := actions.GenerateRecordPayload(session, hash, curl)
 	if err != nil {
 		return utils.InternalErrorOnResponse(request, err)
 	}
@@ -41,7 +42,7 @@ func processSessionOnResponse(config types.Config, storageProvider providers.Sto
 	host := request.URL.Host
 	wannabe := config.Wannabes[host]
 
-	record, err := record.GenerateRecord(wannabe.Records, recordPayload)
+	record, err := services.GenerateRecord(wannabe.Records, recordPayload)
 	if err != nil {
 		return utils.InternalErrorOnResponse(request, err)
 	}
