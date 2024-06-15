@@ -6,23 +6,30 @@ func TestPrepareUrl(t *testing.T) {
 	host := "test.com"
 	query := "?test=test"
 
-	path := "/test"
-
-	url := PrepareUrl(host, path, query)
-
-	expectedUrl := "test.com/test?test=test"
-
-	if expectedUrl != url {
-		t.Errorf("expected url: %s, actual url: %s, when path is '/test'", expectedUrl, url)
+	tests := []struct {
+		name string
+		path string
+		want string
+	}{
+		{
+			name: "path is '/test'",
+			path: "/test",
+			want: "test.com/test?test=test",
+		},
+		{
+			name: "path is '/'",
+			path: "/",
+			want: "test.com?test=test",
+		},
 	}
 
-	path = "/"
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := PrepareUrl(host, tt.path, query)
 
-	url = PrepareUrl(host, path, query)
-
-	expectedUrl = "test.com?test=test"
-
-	if expectedUrl != url {
-		t.Errorf("expected url: %s, actual url: %s, when path is '/'", expectedUrl, url)
+			if got != tt.want {
+				t.Errorf("PrepareUrl() = %v, want %v", got, tt.want)
+			}
+		})
 	}
 }

@@ -7,11 +7,13 @@ import (
 func TestPrepareCurl(t *testing.T) {
 	request := generateTestRequest()
 
-	curl, _ := PrepareCurl(request)
+	want := "curl -X 'POST' -d '{\"test\":\"test\"}' -H 'Accept: test' -H 'Content-Type: application/json' 'http://test.com/test?test=test'"
 
-	expectedCurl := "curl -X 'POST' -d '{\"test\":\"test\"}' -H 'Accept: test' -H 'Content-Type: application/json' 'http://test.com/test?test=test'"
+	t.Run("prepare curl", func(t *testing.T) {
+		got, _ := PrepareCurl(request)
 
-	if curl != expectedCurl {
-		t.Errorf("expected curl: %s, actual curl: %s", expectedCurl, curl)
-	}
+		if got != want {
+			t.Errorf("PrepareCurl() = %v, want %v", got, want)
+		}
+	})
 }

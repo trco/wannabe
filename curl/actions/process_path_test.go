@@ -15,59 +15,72 @@ type TestCaseProcessPath struct {
 func TestProcessPath(t *testing.T) {
 	zero := 0
 
-	testCases := map[string]TestCaseProcessPath{
-		"withPlaceholder": {
-			Path: "/test1/test2/123456:test",
-			Config: types.Path{
+	tests := []struct {
+		name    string
+		path    string
+		config  types.Path
+		want    string
+		wantErr string
+	}{
+		{
+			name: "with placeholder",
+			path: "/test1/test2/123456:test",
+			config: types.Path{
 				Wildcards: []types.WildcardIndex{{Index: &zero, Placeholder: "{placeholder}"}},
 			},
-			Expected: "/{placeholder}/test2/123456:test",
+			want:    "/{placeholder}/test2/123456:test",
+			wantErr: "",
 		},
-		"withoutPlaceholder": {
-			Path: "/test1/test2/123456:test",
-			Config: types.Path{
+		{
+			name: "without placeholder",
+			path: "/test1/test2/123456:test",
+			config: types.Path{
 				Wildcards: []types.WildcardIndex{{Index: &zero}},
 			},
-			Expected: "/{wannabe}/test2/123456:test",
+			want:    "/{wannabe}/test2/123456:test",
+			wantErr: "",
 		},
-		"withRegex": {
-			Path: "/test1/test2/123456:test",
-			Config: types.Path{
+		{
+			name: "with regex",
+			path: "/test1/test2/123456:test",
+			config: types.Path{
 				Regexes: []types.Regex{{Pattern: "(\\d+):test", Placeholder: "{id}:test"}},
 			},
-			Expected: "/test1/test2/{id}:test",
+			want:    "/test1/test2/{id}:test",
+			wantErr: "",
 		},
-		"emptyString": {
-			Path: "",
-			Config: types.Path{
+		{
+			name: "empty string",
+			path: "",
+			config: types.Path{
 				Wildcards: []types.WildcardIndex{{Index: &zero}},
 			},
-			Expected: "",
+			want:    "",
+			wantErr: "",
 		},
-		"invalidRegex": {
-			Path: "/test1/test2/123456:test",
-			Config: types.Path{
+		{
+			name: "invalid regex",
+			path: "/test1/test2/123456:test",
+			config: types.Path{
 				Regexes: []types.Regex{{Pattern: "(?P<foo"}},
 			},
-			Expected: "",
+			want:    "",
+			wantErr: "ProcessPath: failed compiling regex: error parsing regexp: invalid named capture: `(?P<foo`",
 		},
 	}
 
-	for testKey, tc := range testCases {
-		processedPath, err := ProcessPath(tc.Path, tc.Config)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := ProcessPath(tt.path, tt.config)
 
-		if testKey == "invalidRegex" && err != nil {
-			expectedErr := "ProcessPath: failed compiling regex: error parsing regexp: invalid named capture: `(?P<foo`"
-
-			if err.Error() != expectedErr {
-				t.Errorf("expected error: %s, actual error: %s", expectedErr, err.Error())
+			if (err != nil) && err.Error() != tt.wantErr {
+				t.Errorf("ProcessPath() error = %v, wantErr %v", err, tt.wantErr)
+				return
 			}
 
-			continue
-		}
-
-		if !reflect.DeepEqual(tc.Expected, processedPath) {
-			t.Errorf("Failed test case: %v, Expected: %v, Actual: %v", testKey, tc.Expected, processedPath)
-		}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ProcessPath() = %v, want %v", got, tt.want)
+			}
+		})
 	}
 }

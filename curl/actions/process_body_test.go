@@ -13,64 +13,71 @@ type TestCaseProcessBody struct {
 }
 
 func TestProcessBody(t *testing.T) {
-	testCases := map[string]TestCaseProcessBody{
-		"withPlaceholder": {
-			Body: testBody,
-			Config: types.Body{
+	tests := []struct {
+		name    string
+		body    []byte
+		config  types.Body
+		want    string
+		wantErr string
+	}{
+		{
+			name: "with placeholder",
+			body: testBody,
+			config: types.Body{
 				Regexes: []types.Regex{
 					{Pattern: "\"dimensions\":\\s*\\[(.*?)\\][,}]", Placeholder: "\"dimensions\":\"{placeholder}\","},
 					{Pattern: "\"startDate\":\\s*\"(.*?)\"[,}]", Placeholder: "\"startDate\":\"{placeholder}\""},
 				},
 			},
-			Expected: "{\"dateRanges\":[{\"endDate\":\"2023-12-31\",\"startDate\":\"{placeholder}\"],\"dimensions\":\"{placeholder}\",\"limit\":10000,\"metrics\":[{\"name\":\"sessions\"}],\"returnPropertyQuota\":true}",
+			want:    "{\"dateRanges\":[{\"endDate\":\"2023-12-31\",\"startDate\":\"{placeholder}\"],\"dimensions\":\"{placeholder}\",\"limit\":10000,\"metrics\":[{\"name\":\"sessions\"}],\"returnPropertyQuota\":true}",
+			wantErr: "",
 		},
-		"withoutPlaceholder": {
-			Body: testBody,
-			Config: types.Body{
+		{
+			name: "without placeholder",
+			body: testBody,
+			config: types.Body{
 				Regexes: []types.Regex{
 					{Pattern: "\"startDate\":\\s*\"(.*?)\"[,}\"]"},
 				},
 			},
-			Expected: "{\"dateRanges\":[{\"endDate\":\"2023-12-31\",{wannabe}],\"dimensions\":[{\"name\":\"date\"},{\"name\":\"source\"}],\"limit\":10000,\"metrics\":[{\"name\":\"sessions\"}],\"returnPropertyQuota\":true}",
+			want:    "{\"dateRanges\":[{\"endDate\":\"2023-12-31\",{wannabe}],\"dimensions\":[{\"name\":\"date\"},{\"name\":\"source\"}],\"limit\":10000,\"metrics\":[{\"name\":\"sessions\"}],\"returnPropertyQuota\":true}",
+			wantErr: "",
 		},
-		"emptyBody": {
-			Body: []byte{},
-			Config: types.Body{
+		{
+			name: "empty body",
+			body: []byte{},
+			config: types.Body{
 				Regexes: []types.Regex{},
 			},
-			Expected: "",
+			want:    "",
+			wantErr: "",
 		},
-		"invalidRegex": {
-			Body: testBody,
-			Config: types.Body{
+		{
+			name: "invalid regex",
+			body: testBody,
+			config: types.Body{
 				Regexes: []types.Regex{
 					{Pattern: "(?P<foo"},
 				},
 			},
-			Expected: "",
+			want:    "",
+			wantErr: "ProcessBody: failed compiling regex: error parsing regexp: invalid named capture: `(?P<foo`",
 		},
 	}
 
-	for testKey, tc := range testCases {
-		processedBody, err := ProcessBody(tc.Body, tc.Config)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := ProcessBody(tt.body, tt.config)
 
-		if testKey == "invalidRegex" && err != nil {
-			expectedErr := "ProcessBody: failed compiling regex: error parsing regexp: invalid named capture: `(?P<foo`"
-
-			if err.Error() != expectedErr {
-				t.Errorf("expected error: %s, actual error: %s", expectedErr, err.Error())
+			if (err != nil) && err.Error() != tt.wantErr {
+				t.Errorf("ProcessBody() error = %v, wantErr %v", err, tt.wantErr)
+				return
 			}
 
-			continue
-		}
-
-		if testKey == "emptyBody" && !(len(tc.Body) == 0 && len(processedBody) == 0) {
-			t.Errorf("failed test case: %v, expected body: %v, actual body: %v", testKey, tc.Expected, processedBody)
-		}
-
-		if testKey != "emptyBody" && !reflect.DeepEqual(tc.Expected, processedBody) {
-			t.Errorf("failed test case: %v, expected body: %v, actual body: %v", testKey, tc.Expected, processedBody)
-		}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ProcessBody() = %v, want %v", got, tt.want)
+			}
+		})
 	}
 }
 

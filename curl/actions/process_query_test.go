@@ -6,80 +6,88 @@ import (
 	"wannabe/types"
 )
 
-type TestCaseProcessQuery struct {
-	QueryMap map[string][]string
-	Config   types.Query
-	Expected string
-}
-
 func TestProcessQuery(t *testing.T) {
-	testCases := map[string]TestCaseProcessQuery{
-		"withPlaceholder": {
-			QueryMap: testMapQuery,
-			Config: types.Query{
+	tests := []struct {
+		name     string
+		queryMap map[string][]string
+		config   types.Query
+		want     string
+		wantErr  string
+	}{
+		{
+			name:     "with placeholder",
+			queryMap: queryMap,
+			config: types.Query{
 				Wildcards: []types.WildcardKey{{Key: "user", Placeholder: "{placeholder}"}},
 			},
-			Expected: "?app=1&status=new&user=%7Bplaceholder%7D",
+			want:    "?app=1&status=new&user=%7Bplaceholder%7D",
+			wantErr: "",
 		},
-		"withoutPlaceholder": {
-			QueryMap: testMapQuery,
-			Config: types.Query{
+		{
+			name:     "without placeholder",
+			queryMap: queryMap,
+			config: types.Query{
 				Wildcards: []types.WildcardKey{{Key: "user"}},
 			},
-			Expected: "?app=1&status=new&user=%7Bwannabe%7D",
+			want:    "?app=1&status=new&user=%7Bwannabe%7D",
+			wantErr: "",
 		},
-		"withRegexWithPlaceholder": {
-			QueryMap: testMapQuery,
-			Config: types.Query{
+		{
+			name:     "with regex with placeholder",
+			queryMap: queryMap,
+			config: types.Query{
 				Regexes: []types.Regex{{Pattern: "paid", Placeholder: "{placeholder}"}},
 			},
-			Expected: "?app=1&status=new&user=%7Bplaceholder%7D",
+			want:    "?app=1&status=new&user=%7Bplaceholder%7D",
+			wantErr: "",
 		},
-		"withRegexWithoutPlaceholder": {
-			QueryMap: testMapQuery,
-			Config: types.Query{
+		{
+			name:     "with regex without placeholder",
+			queryMap: queryMap,
+			config: types.Query{
 				Regexes: []types.Regex{{Pattern: "paid"}},
 			},
-			Expected: "?app=1&status=new&user=%7Bwannabe%7D",
+			want:    "?app=1&status=new&user=%7Bwannabe%7D",
+			wantErr: "",
 		},
-		"emptyString": {
-			QueryMap: make(map[string][]string),
-			Config: types.Query{
+		{
+			name:     "empty string",
+			queryMap: make(map[string][]string),
+			config: types.Query{
 				Wildcards: []types.WildcardKey{{Key: "user"}},
 			},
-			Expected: "",
+			want:    "",
+			wantErr: "",
 		},
-		"invalidRegex": {
-			QueryMap: testMapQuery,
-			Config: types.Query{
+		{
+			name:     "invalid regex",
+			queryMap: queryMap,
+			config: types.Query{
 				Regexes: []types.Regex{{Pattern: "(?P<foo"}},
 			},
-			Expected: "",
+			want:    "",
+			wantErr: "ProcessQuery: failed compiling regex: error parsing regexp: invalid named capture: `(?P<foo`",
 		},
 	}
 
-	for testKey, tc := range testCases {
-		processedQuery, err := ProcessQuery(tc.QueryMap, tc.Config)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := ProcessQuery(tt.queryMap, tt.config)
 
-		if testKey == "invalidRegex" && err != nil {
-			expectedErr := "ProcessQuery: failed compiling regex: error parsing regexp: invalid named capture: `(?P<foo`"
-
-			if err.Error() != expectedErr {
-				t.Errorf("expected error: %s, actual error: %s", expectedErr, err.Error())
+			if (err != nil) && err.Error() != tt.wantErr {
+				t.Errorf("ProcessQuery() error = %v, wantErr %v", err, tt.wantErr)
+				return
 			}
 
-			continue
-		}
-
-		if !reflect.DeepEqual(tc.Expected, processedQuery) {
-			t.Errorf("failed test case: %v, expected query: %v, actual query: %v", testKey, tc.Expected, processedQuery)
-		}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ProcessQuery() = %v, want %v", got, tt.want)
+			}
+		})
 	}
+
 }
 
-// reusable variables
-
-var testMapQuery = map[string][]string{
+var queryMap = map[string][]string{
 	"status": {"new"},
 	"user":   {"paid"},
 	"app":    {"1"},

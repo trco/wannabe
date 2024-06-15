@@ -6,69 +6,76 @@ import (
 	"wannabe/types"
 )
 
-type TestCaseProcessHost struct {
-	Host     string
-	Config   types.Host
-	Expected string
-}
-
 func TestProcessHost(t *testing.T) {
 	zero := 0
 
-	testCases := map[string]TestCaseProcessHost{
-		"withHttp": {
-			Host: "http://test1.test2.com",
-			Config: types.Host{
+	tests := []struct {
+		name    string
+		host    string
+		config  types.Host
+		want    string
+		wantErr string
+	}{
+		{
+			name: "with http",
+			host: "http://test1.test2.com",
+			config: types.Host{
 				Wildcards: []types.WildcardIndex{{Index: &zero, Placeholder: "{placeholder}"}},
 			},
-			Expected: "{placeholder}.test2.com",
+			want:    "{placeholder}.test2.com",
+			wantErr: "",
 		},
-		"withHttps": {
-			Host: "https://test1.test2.com",
-			Config: types.Host{
+		{
+			name: "with https",
+			host: "https://test1.test2.com",
+			config: types.Host{
 				Wildcards: []types.WildcardIndex{{Index: &zero, Placeholder: "{placeholder}"}},
 			},
-			Expected: "{placeholder}.test2.com",
+			want:    "{placeholder}.test2.com",
+			wantErr: "",
 		},
-		"withoutPlaceholder": {
-			Host: "https://test1.test2.com",
-			Config: types.Host{
+		{
+			name: "without placeholder",
+			host: "https://test1.test2.com",
+			config: types.Host{
 				Wildcards: []types.WildcardIndex{{Index: &zero}},
 			},
-			Expected: "{wannabe}.test2.com",
+			want:    "{wannabe}.test2.com",
+			wantErr: "",
 		},
-		"withRegex": {
-			Host: "https://test1.test2.com",
-			Config: types.Host{
+		{
+			name: "with regex",
+			host: "https://test1.test2.com",
+			config: types.Host{
 				Wildcards: []types.WildcardIndex{{Index: &zero, Placeholder: "{placeholder}"}},
 				Regexes:   []types.Regex{{Pattern: "test2", Placeholder: "regexPlaceholder"}},
 			},
-			Expected: "{placeholder}.regexPlaceholder.com",
+			want:    "{placeholder}.regexPlaceholder.com",
+			wantErr: "",
 		},
-		"invalidRegex": {
-			Host: "https://test1.test2.com",
-			Config: types.Host{
+		{
+			name: "invalid regex",
+			host: "https://test1.test2.com",
+			config: types.Host{
 				Regexes: []types.Regex{{Pattern: "(?P<foo", Placeholder: "regexPlaceholder"}},
 			},
-			Expected: "",
+			want:    "",
+			wantErr: "ProcessHost: failed compiling regex: error parsing regexp: invalid named capture: `(?P<foo`",
 		},
 	}
 
-	for testKey, tc := range testCases {
-		processedHost, err := ProcessHost(tc.Host, tc.Config)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := ProcessHost(tt.host, tt.config)
 
-		if testKey == "invalidRegex" && err != nil {
-			expectedErr := "ProcessHost: failed compiling regex: error parsing regexp: invalid named capture: `(?P<foo`"
-
-			if err.Error() != expectedErr {
-				t.Errorf("expected error: %s, actual error: %s", expectedErr, err.Error())
+			if (err != nil) && err.Error() != tt.wantErr {
+				t.Errorf("ProcessHost() error = %v, wantErr %v", err, tt.wantErr)
+				return
 			}
 
-			continue
-		}
-
-		if !reflect.DeepEqual(tc.Expected, processedHost) {
-			t.Errorf("failed test case: %v, expected host: %v, actual host: %v", testKey, tc.Expected, processedHost)
-		}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ProcessHost() = %v, want %v", got, tt.want)
+			}
+		})
 	}
 }

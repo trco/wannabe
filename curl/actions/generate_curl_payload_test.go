@@ -11,7 +11,7 @@ import (
 func TestGenerateCurlPayload(t *testing.T) {
 	request := generateTestRequest()
 
-	expcetedPayload := types.CurlPayload{
+	want := types.CurlPayload{
 		HttpMethod: "POST",
 		Host:       "test.com",
 		Path:       "/test",
@@ -26,11 +26,13 @@ func TestGenerateCurlPayload(t *testing.T) {
 		RequestBody: []byte{123, 34, 116, 101, 115, 116, 34, 58, 34, 116, 101, 115, 116, 34, 125},
 	}
 
-	payload, _ := GenerateCurlPayload(request)
+	t.Run("generate curl payload", func(t *testing.T) {
+		got, _ := GenerateCurlPayload(request)
 
-	if !reflect.DeepEqual(expcetedPayload, payload) {
-		t.Errorf("expected payload: %v, actual payload: %v", expcetedPayload, payload)
-	}
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("GenerateCurlPayload() = %v, want %v", got, want)
+		}
+	})
 }
 
 func generateTestRequest() *http.Request {

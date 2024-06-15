@@ -6,77 +6,84 @@ import (
 	"wannabe/types"
 )
 
-type TestCaseProcessHeaders struct {
-	Map      map[string][]string
-	Config   types.Headers
-	Expected []types.Header
-}
-
 func TestProcessHeaders(t *testing.T) {
-	testCases := map[string]TestCaseProcessHeaders{
-		"includeAllHeaders": {
-			Map: testInitHeadersMap(),
-			Config: types.Headers{
+	tests := []struct {
+		name       string
+		headersMap map[string][]string
+		config     types.Headers
+		want       []types.Header
+	}{
+		{
+			name:       "include all headers",
+			headersMap: headersMap,
+			config: types.Headers{
 				Include:   []string{"Content-Type", "Authorization", "Accept", "X-test-header"},
 				Wildcards: []types.WildcardKey{},
 			},
-			Expected: []types.Header{
+			want: []types.Header{
 				{Key: "Accept", Value: "test1,test2,test3"},
 				{Key: "Authorization", Value: "test access token"},
 				{Key: "Content-Type", Value: "application/json"},
 				{Key: "X-test-header", Value: "test value"},
 			},
 		},
-		"withPlaceholderTwoHeaders": {
-			Map: testInitHeadersMap(),
-			Config: types.Headers{
+		{
+			name:       "with placeholder and with two headers",
+			headersMap: headersMap,
+			config: types.Headers{
 				Include:   []string{"Content-Type", "Authorization"},
 				Wildcards: []types.WildcardKey{{Key: "Authorization", Placeholder: "{placeholder}"}},
 			},
-			Expected: []types.Header{
+			want: []types.Header{
 				{Key: "Authorization", Value: "{placeholder}"},
 				{Key: "Content-Type", Value: "application/json"},
 			},
 		},
-		"withoutPlaceholderTwoHeaders": {
-			Map: testInitHeadersMap(),
-			Config: types.Headers{
+		{
+			name:       "without placeholder and with two headers",
+			headersMap: headersMap,
+			config: types.Headers{
 				Include:   []string{"Content-Type", "Authorization"},
 				Wildcards: []types.WildcardKey{{Key: "Authorization"}},
 			},
-			Expected: []types.Header{
+			want: []types.Header{
 				{Key: "Authorization", Value: "{wannabe}"},
 				{Key: "Content-Type", Value: "application/json"},
 			},
 		},
-		"emptyHeadersMap": {
-			Map: make(map[string][]string),
-			Config: types.Headers{
+
+		{
+			name:       "empty headers map",
+			headersMap: make(map[string][]string),
+			config: types.Headers{
 				Include:   []string{"Content-Type", "Authorization"},
 				Wildcards: []types.WildcardKey{{Key: "Authorization"}},
 			},
-			Expected: []types.Header{},
+			want: []types.Header{},
 		},
 	}
 
-	for testKey, tc := range testCases {
-		sortedHeaders := ProcessHeaders(tc.Map, tc.Config)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := ProcessHeaders(tt.headersMap, tt.config)
 
-		if testKey == "emptyHeadersMap" && !(len(tc.Map) == 0 && len(sortedHeaders) == 0) {
-			t.Errorf("failed test case: %v, expected headers: %v, actual headers: %v", testKey, tc.Expected, sortedHeaders)
-		}
+			if tt.name == "empty headers map" {
+				if len(tt.headersMap) != 0 || len(got) != 0 {
+					t.Errorf("ProcessHeaders() = %v, want %v", got, tt.want)
+				}
+				return
+			}
 
-		if testKey != "emptyHeadersMap" && !reflect.DeepEqual(tc.Expected, sortedHeaders) {
-			t.Errorf("failed test case: %v, expected headers: %v, actual headers: %v", testKey, tc.Expected, sortedHeaders)
-		}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ProcessHeaders() = %v, want %v", got, tt.want)
+			}
+		})
 	}
 }
 
-func testInitHeadersMap() map[string][]string {
-	return map[string][]string{
-		"Content-Type":  {"application/json"},
-		"Accept":        {"test1", "test2", "test3"},
-		"Authorization": {"test access token"},
-		"X-test-header": {"test value"},
-	}
+var headersMap = map[string][]string{
+	"Content-Type":  {"application/json"},
+	"Accept":        {"test1", "test2", "test3"},
+	"Authorization": {"test access token"},
+	"X-test-header": {"test value"},
 }
