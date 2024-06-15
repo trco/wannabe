@@ -148,8 +148,10 @@ func TestContains(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if contains(slice, tt.element) != tt.want {
-				t.Errorf("contains() = %v, got %v", tt.want, !tt.want)
+			got := contains(slice, tt.element)
+
+			if got != tt.want {
+				t.Errorf("contains() = %v, want %v", got, tt.want)
 			}
 		})
 	}
