@@ -7,14 +7,14 @@ import (
 )
 
 func TestSetHeaders(t *testing.T) {
-	request := generateTestRequest()
-
-	headers := []types.Header{
-		{Key: "Authorization", Value: "test access token"},
-		{Key: "X-test-header", Value: "test value"},
-	}
-
 	t.Run("set headers", func(t *testing.T) {
+		request := generateTestRequest()
+
+		headers := []types.Header{
+			{Key: "Authorization", Value: "test access token"},
+			{Key: "X-test-header", Value: "test value"},
+		}
+
 		SetHeaders(request, headers)
 
 		if request.Header["Authorization"][0] != headers[0].Value {

@@ -9,19 +9,19 @@ import (
 )
 
 func TestGenerateCurl(t *testing.T) {
-	request := generateTestRequest()
-
-	var wannabe = types.Wannabe{
-		RequestMatching: types.RequestMatching{
-			Headers: types.Headers{
-				Include: []string{"Content-Type", "Accept"},
-			},
-		},
-	}
-
-	want := "curl -X 'POST' -d '{\"test\":\"test\"}' -H 'Accept: test' -H 'Content-Type: application/json' 'test.com/test?test=test'"
-
 	t.Run("generate curl", func(t *testing.T) {
+		request := generateTestRequest()
+
+		wannabe := types.Wannabe{
+			RequestMatching: types.RequestMatching{
+				Headers: types.Headers{
+					Include: []string{"Content-Type", "Accept"},
+				},
+			},
+		}
+
+		want := "curl -X 'POST' -d '{\"test\":\"test\"}' -H 'Accept: test' -H 'Content-Type: application/json' 'test.com/test?test=test'"
+
 		got, _ := GenerateCurl(request, wannabe)
 
 		if !reflect.DeepEqual(got, want) {

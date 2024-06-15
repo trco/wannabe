@@ -6,11 +6,11 @@ import (
 )
 
 func TestPrepareRequest(t *testing.T) {
-	httpMethod := "POST"
-	url := "http://test.com/test?test=test"
-	body := "{\"test\":\"test\"}"
-
 	t.Run("prepare request", func(t *testing.T) {
+		httpMethod := "POST"
+		url := "http://test.com/test?test=test"
+		body := "{\"test\":\"test\"}"
+
 		request, _ := PrepareRequest(httpMethod, url, body)
 		requestBody, _ := io.ReadAll(request.Body)
 

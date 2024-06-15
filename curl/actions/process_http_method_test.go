@@ -3,11 +3,11 @@ package actions
 import "testing"
 
 func TestProcessHttpMethod(t *testing.T) {
-	httpMethod := "GET"
-
-	want := "GET"
-
 	t.Run("process http method", func(t *testing.T) {
+		httpMethod := "GET"
+
+		want := "GET"
+
 		got := ProcessHttpMethod(httpMethod)
 
 		if got != want {

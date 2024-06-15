@@ -9,24 +9,24 @@ import (
 )
 
 func TestGenerateCurlPayload(t *testing.T) {
-	request := generateTestRequest()
-
-	want := types.CurlPayload{
-		HttpMethod: "POST",
-		Host:       "test.com",
-		Path:       "/test",
-		Query: map[string][]string{
-			"test": {"test"},
-		},
-		RequestHeaders: map[string][]string{
-			"Content-Type": {"application/json"},
-			"Accept":       {"test"},
-		},
-		// {"test":"test"}
-		RequestBody: []byte{123, 34, 116, 101, 115, 116, 34, 58, 34, 116, 101, 115, 116, 34, 125},
-	}
-
 	t.Run("generate curl payload", func(t *testing.T) {
+		request := generateTestRequest()
+
+		want := types.CurlPayload{
+			HttpMethod: "POST",
+			Host:       "test.com",
+			Path:       "/test",
+			Query: map[string][]string{
+				"test": {"test"},
+			},
+			RequestHeaders: map[string][]string{
+				"Content-Type": {"application/json"},
+				"Accept":       {"test"},
+			},
+			// {"test":"test"}
+			RequestBody: []byte{123, 34, 116, 101, 115, 116, 34, 58, 34, 116, 101, 115, 116, 34, 125},
+		}
+
 		got, _ := GenerateCurlPayload(request)
 
 		if !reflect.DeepEqual(got, want) {
