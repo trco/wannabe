@@ -10,245 +10,302 @@ import (
 )
 
 func TestInternalErrorOnRequest(t *testing.T) {
-	session := &MockSession{
-		props: make(map[string]interface{}),
-	}
-	request, _ := http.NewRequest("GET", "test.com", nil)
+	t.Run("internal error on request", func(t *testing.T) {
+		session := &MockSession{
+			props: make(map[string]interface{}),
+		}
+		request, _ := http.NewRequest("GET", "test.com", nil)
 
-	_, response := InternalErrorOnRequest(session, request, &TestError{"test error"})
+		_, response := InternalErrorOnRequest(session, request, &TestError{"test error"})
+		body, _ := io.ReadAll(response.Body)
+		responseBody := string(body)
 
-	if http.StatusInternalServerError != response.StatusCode {
-		t.Errorf("expected response status code: %v, actual response status code: %v", http.StatusInternalServerError, response.StatusCode)
-	}
+		wantContentType := "application/json"
+		wantResponseBody := "{\"error\":\"test error\"}"
+		wantStatusCode := http.StatusInternalServerError
 
-	contentType := response.Header.Get("Content-Type")
-	if contentType != "application/json" {
-		t.Errorf("expected Content-Type header: %v, actual Content-Type header %v", "application/json", contentType)
-	}
+		if response.StatusCode != wantStatusCode {
+			t.Errorf("got status code %v, want status code %v", response.StatusCode, wantStatusCode)
+		}
 
-	body, _ := io.ReadAll(response.Body)
-	responseBody := string(body)
+		if response.Header.Get("Content-Type") != wantContentType {
+			t.Errorf("got content type %v, want content type %v", response.Header.Get("Content-Type"), wantContentType)
+		}
 
-	expectedResponseBody := "{\"error\":\"test error\"}"
-
-	if expectedResponseBody != responseBody {
-		t.Errorf("expected response body: %v, actual response body: %v", expectedResponseBody, responseBody)
-	}
+		if responseBody != wantResponseBody {
+			t.Errorf("got response body %v, want response body %v", responseBody, wantResponseBody)
+		}
+	})
 }
 
 func TestInternalErrorOnResponse(t *testing.T) {
-	request, _ := http.NewRequest("GET", "http://test.com", nil)
-	response := InternalErrorOnResponse(request, &TestError{"test error"})
+	t.Run("internal error on request", func(t *testing.T) {
+		request, _ := http.NewRequest("GET", "http://test.com", nil)
 
-	if http.StatusInternalServerError != response.StatusCode {
-		t.Errorf("expected response status code: %v, actual response status code: %v", http.StatusInternalServerError, response.StatusCode)
-	}
+		response := InternalErrorOnResponse(request, &TestError{"test error"})
+		body, _ := io.ReadAll(response.Body)
+		responseBody := string(body)
 
-	contentType := response.Header.Get("Content-Type")
-	if contentType != "application/json" {
-		t.Errorf("expected Content-Type header: %v, actual Content-Type header %v", "application/json", contentType)
-	}
+		wantContentType := "application/json"
+		wantResponseBody := "{\"error\":\"test error\"}"
+		wantStatusCode := http.StatusInternalServerError
 
-	body, _ := io.ReadAll(response.Body)
-	responseBody := string(body)
+		if response.StatusCode != wantStatusCode {
+			t.Errorf("got status code %v, want status code %v", response.StatusCode, wantStatusCode)
+		}
 
-	expectedResponseBody := "{\"error\":\"test error\"}"
+		if response.Header.Get("Content-Type") != wantContentType {
+			t.Errorf("got content type %v, want content type %v", response.Header.Get("Content-Type"), wantContentType)
+		}
 
-	if expectedResponseBody != responseBody {
-		t.Errorf("expected response body: %v, actual response body: %v", expectedResponseBody, responseBody)
-	}
+		if responseBody != wantResponseBody {
+			t.Errorf("got response body %v, want response body %v", responseBody, wantResponseBody)
+		}
+	})
 }
 
 func TestPrepareResponseBody(t *testing.T) {
-	reader := PrepareResponseBody(&TestError{"test error"})
+	want := "{\"error\":\"test error\"}"
 
-	responseBody, _ := io.ReadAll(reader)
+	t.Run("prepare response body", func(t *testing.T) {
+		reader := PrepareResponseBody(&TestError{"test error"})
+		got, _ := io.ReadAll(reader)
 
-	expected := "{\"error\":\"test error\"}"
-
-	if !bytes.Equal([]byte(expected), responseBody) {
-		t.Errorf("expected response body: %v, actual response body: %v", expected, string(responseBody))
-	}
+		if !bytes.Equal([]byte(want), got) {
+			t.Errorf("PrepareResponseBody() = %v, want %v", string(got), want)
+		}
+	})
 }
 
 func TestShouldSkipResponseProcessing(t *testing.T) {
-	sessionBlocked := &MockSession{
-		props: make(map[string]interface{}),
+	tests := []struct {
+		name    string
+		session *MockSession
+		want    bool
+	}{
+		{
+			name:    "'blocked' and 'responseSetFromRecord' not set on session",
+			session: &MockSession{props: make(map[string]interface{})},
+			want:    false,
+		},
+		{
+			name:    "'blocked' set to 'true' on session",
+			session: &MockSession{props: map[string]interface{}{"blocked": true}},
+			want:    true,
+		},
+		{
+			name:    "'responseSetFromRecord' set to 'true' on session",
+			session: &MockSession{props: map[string]interface{}{"responseSetFromRecord": true}},
+			want:    true,
+		},
 	}
 
-	skip := ShouldSkipResponseProcessing(sessionBlocked)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := ShouldSkipResponseProcessing(tt.session)
 
-	if skip != false {
-		t.Errorf("expected skip: false, actual skip: %v, when 'blocked' and 'responseSetFromRecord' are not set on session", skip)
+			if got != tt.want {
+				t.Errorf("ShouldSkipResponseProcessing() = %v, want %v", got, tt.want)
+			}
+		})
 	}
-
-	sessionBlocked.SetProp("blocked", true)
-
-	skip = ShouldSkipResponseProcessing(sessionBlocked)
-
-	if skip != true {
-		t.Errorf("expected skip: true, actual skip: %v, when 'blocked' is set to 'true' on session", skip)
-	}
-
-	sessionResponseSetFromRecord := &MockSession{
-		props: make(map[string]interface{}),
-	}
-
-	sessionResponseSetFromRecord.SetProp("responseSetFromRecord", true)
-
-	skip = ShouldSkipResponseProcessing(sessionResponseSetFromRecord)
-
-	if skip != true {
-		t.Errorf("expected skip: true, actual skip: %v, when 'responseSetFromRecord' is set to 'true' on session", skip)
-	}
-}
-
-type TestCaseGetHashAndCurlFromSession struct {
-	Session *MockSession
-	Hash    string
-	Curl    string
 }
 
 func TestGetHashAndCurlFromSession(t *testing.T) {
-	testCases := map[string]TestCaseGetHashAndCurlFromSession{
-		"noHash": {
-			Session: &MockSession{
+	tests := []struct {
+		name     string
+		session  *MockSession
+		wantHash string
+		wantCurl string
+	}{
+		{
+			name: "no hash",
+			session: &MockSession{
 				props: map[string]interface{}{
 					"noHash": "test hash",
 				},
 			},
-			Hash: "",
+			wantHash: "",
 		},
-		"hashNotString": {
-			Session: &MockSession{
+		{
+			name: "hash not string",
+			session: &MockSession{
 				props: map[string]interface{}{
 					"hash": true,
 				},
 			},
-			Hash: "",
+			wantHash: "",
 		},
-		"noCurl": {
-			Session: &MockSession{
+		{
+			name: "no curl",
+			session: &MockSession{
 				props: map[string]interface{}{
 					"hash":   "test hash",
 					"noCurl": "test curl",
 				},
 			},
-			Hash: "",
-			Curl: "",
+			wantHash: "",
+			wantCurl: "",
 		},
-		"curlNotString": {
-			Session: &MockSession{
+		{
+			name: "curl not string",
+			session: &MockSession{
 				props: map[string]interface{}{
 					"hash": "test hash",
 					"curl": true,
 				},
 			},
-			Hash: "",
-			Curl: "",
+			wantHash: "",
+			wantCurl: "",
 		},
-		"noHashAndCurl": {
-			Session: &MockSession{
+		{
+			name: "no hash and curl",
+			session: &MockSession{
 				props: map[string]interface{}{
 					"noHash": "test hash",
 					"noCurl": "test curl",
 				},
 			},
-			Hash: "",
-			Curl: "",
+			wantHash: "",
+			wantCurl: "",
 		},
-		"hashAndCurl": {
-			Session: &MockSession{
+		{
+			name: "hash and curl",
+			session: &MockSession{
 				props: map[string]interface{}{
 					"hash": "test hash",
 					"curl": "test curl",
 				},
 			},
-			Hash: "test hash",
-			Curl: "test curl",
+			wantHash: "test hash",
+			wantCurl: "test curl",
 		},
 	}
 
-	for testName, tc := range testCases {
-		hash, curl, _ := GetHashAndCurlFromSession(tc.Session)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			hash, curl, _ := GetHashAndCurlFromSession(tt.session)
 
-		if hash != tc.Hash || curl != tc.Curl {
-			t.Errorf("failed test case: %v, expected hash: %v, actual hash: %v, expected curl: %v, actual curl: %v", testName, tc.Hash, hash, tc.Curl, curl)
-		}
+			if hash != tt.wantHash || curl != tt.wantCurl {
+				t.Errorf("GetHashAndCurlFromSession() = hash %v, curl %v, want hash %v, want curl %v", hash, curl, tt.wantHash, tt.wantCurl)
+			}
+		})
 	}
 }
 
 func TestInternalErrorApi(t *testing.T) {
-	w := httptest.NewRecorder()
-	err := &TestError{"test error"}
-	status := 500
+	t.Run("internal error api", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		err := &TestError{"test error"}
+		status := 500
 
-	InternalErrorApi(w, err, status)
-	responseBody := w.Body.String()
-	responseStatusCode := w.Code
+		InternalErrorApi(w, err, status)
+		responseBody := w.Body.String()
 
-	expectedResponseBody := "{\"error\":\"test error\"}\n"
+		wantStatusCode := http.StatusInternalServerError
+		wantContentType := "application/json"
+		wantResponseBody := "{\"error\":\"test error\"}\n"
 
-	if http.StatusInternalServerError != responseStatusCode {
-		t.Errorf("expected response status code: %v, actual response status code: %v", http.StatusInternalServerError, responseStatusCode)
-	}
+		if w.Code != wantStatusCode {
+			t.Errorf("got status code %v, want status code %v", w.Code, wantStatusCode)
+		}
 
-	if expectedResponseBody != responseBody {
-		t.Errorf("expected response body: %v, actual response body: %v", expectedResponseBody, responseBody)
-	}
+		if w.Header().Get("Content-Type") != wantContentType {
+			t.Errorf("got content type %v, want content type %v", w.Header().Get("Content-Type"), wantContentType)
+		}
 
-	contentType := w.Header().Get("Content-Type")
-	if contentType != "application/json" {
-		t.Errorf("expected Content-Type header: %v, actual Content-Type header %v", "application/json", contentType)
-	}
+		if responseBody != wantResponseBody {
+			t.Errorf("got response body %v, want response body %v", responseBody, wantResponseBody)
+		}
+	})
 }
 
 func TestApiResponse(t *testing.T) {
-	w := httptest.NewRecorder()
-	response := map[string]string{"key": "value"}
+	t.Run("api response", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		response := map[string]string{"key": "value"}
 
-	ApiResponse(w, response)
-	responseBody := w.Body.String()
+		ApiResponse(w, response)
+		responseBody := w.Body.String()
 
-	expectedResponseBody := "{\"key\":\"value\"}\n"
+		wantStatusCode := http.StatusOK
+		wantContentType := "application/json"
+		wantResponseBody := "{\"key\":\"value\"}\n"
 
-	if expectedResponseBody != responseBody {
-		t.Errorf("expected response body: %v, actual response body: %v", expectedResponseBody, responseBody)
-	}
+		if w.Code != wantStatusCode {
+			t.Errorf("got status code %v, want status code %v", w.Code, wantStatusCode)
+		}
 
-	contentType := w.Header().Get("Content-Type")
-	if contentType != "application/json" {
-		t.Errorf("expected Content-Type header: %v, actual Content-Type header %v", "application/json", contentType)
-	}
+		if w.Header().Get("Content-Type") != wantContentType {
+			t.Errorf("got content type %v, want content type %v", w.Header().Get("Content-Type"), wantContentType)
+		}
+
+		if responseBody != wantResponseBody {
+			t.Errorf("got response body %v, want response body %v", responseBody, wantResponseBody)
+		}
+	})
 }
 
 func TestCheckDuplicates(t *testing.T) {
-	// duplicates exist
-	slice := []string{"a", "b", "c"}
-
-	duplicatesExist := CheckDuplicates(slice, "a")
-
-	if duplicatesExist != true {
-		t.Errorf("no duplicates detected although they are present in slice")
+	tests := []struct {
+		name  string
+		slice []string
+		item  string
+		want  bool
+	}{
+		{
+			name:  "duplicates exist",
+			slice: []string{"a", "b", "c"},
+			item:  "a",
+			want:  true,
+		},
+		{
+			name:  "no duplicates",
+			slice: []string{"a", "b", "c"},
+			item:  "d",
+			want:  false,
+		},
 	}
 
-	// no duplicates
-	duplicatesExist = CheckDuplicates(slice, "d")
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := CheckDuplicates(tt.slice, tt.item)
 
-	if duplicatesExist == true {
-		t.Errorf("duplicates detected although they are not present")
+			if got != tt.want {
+				t.Errorf("CheckDuplicates() = %v, got: %v", got, tt.want)
+			}
+		})
 	}
 }
 
 func TestProcessRecordValidation(t *testing.T) {
-	count := 0
-	var recordProcessingDetails []types.RecordProcessingDetails
+	t.Run("process record validation", func(t *testing.T) {
+		count := 0
+		var recordProcessingDetails []types.RecordProcessingDetails
 
-	ProcessRecordValidation(&recordProcessingDetails, "test hash", "test message", &count)
+		ProcessRecordValidation(&recordProcessingDetails, "test hash", "test message", &count)
 
-	if recordProcessingDetails[0].Hash != "test hash" || recordProcessingDetails[0].Message != "test message" || count != 1 {
-		t.Errorf("record processing details not valid, expected: hash: 'test hash', message: 'test message', count: 1, actual: hash: '%v', message: '%v', count: %v", recordProcessingDetails[0].Hash, recordProcessingDetails[0].Message, count)
-	}
+		wantHash := "test hash"
+		wantMessage := "test message"
+		wantCount := 1
+
+		gotHash := recordProcessingDetails[0].Hash
+		gotMessage := recordProcessingDetails[0].Message
+		gotCount := 1
+
+		if gotHash != wantHash {
+			t.Errorf("got hash %v, want hash %v", gotHash, wantHash)
+		}
+
+		if gotMessage != wantMessage {
+			t.Errorf("got message %v, want message %v", gotMessage, wantMessage)
+		}
+
+		if gotCount != wantCount {
+			t.Errorf("got count %v, want count %v", gotCount, wantCount)
+		}
+	})
+
 }
 
 type MockSession struct {

@@ -26,5 +26,4 @@ func TestPrepareRequest(t *testing.T) {
 			t.Errorf("got body %v, want body %v", body, string(requestBody))
 		}
 	})
-
 }
