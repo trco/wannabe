@@ -64,8 +64,6 @@ func loadConfigFromFile(configFilename string, config types.Config) (types.Confi
 		return types.Config{}, err
 	}
 
-	k.Print()
-
 	return config, nil
 }
 
