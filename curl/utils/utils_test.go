@@ -6,425 +6,498 @@ import (
 	"wannabe/types"
 )
 
-type TestCaseByIndex struct {
-	Slice     []string
-	Wildcards []types.WildcardIndex
-	Expected  []string
-}
-
-func testSlice() []string {
-	return []string{"analyticsdata", "googleapis", "com"}
-}
+var testSlice = []string{"analyticsdata", "googleapis", "com"}
 
 func TestSetWildcardsByIndex(t *testing.T) {
 	zero := 0
 	one := 1
 	five := 5
 
-	testCases := map[string]TestCaseByIndex{
-		"withPlaceholder": {
-			Slice:     testSlice(),
-			Wildcards: []types.WildcardIndex{{Index: &zero, Placeholder: "{placeholder}"}},
-			Expected:  []string{"{placeholder}", "googleapis", "com"},
+	tests := []struct {
+		name      string
+		slice     []string
+		wildcards []types.WildcardIndex
+		want      []string
+	}{
+		{
+			name:      "with placeholder",
+			slice:     testSlice,
+			wildcards: []types.WildcardIndex{{Index: &zero, Placeholder: "{placeholder}"}},
+			want:      []string{"{placeholder}", "googleapis", "com"},
 		},
-		"withoutPlaceholder": {
-			Slice:     testSlice(),
-			Wildcards: []types.WildcardIndex{{Index: &zero}},
-			Expected:  []string{"{wannabe}", "googleapis", "com"},
+		{
+			name:      "without placeholder",
+			slice:     testSlice,
+			wildcards: []types.WildcardIndex{{Index: &zero}},
+			want:      []string{"{wannabe}", "googleapis", "com"},
 		},
-		"withAndWithoutPlaceholder": {
-			Slice:     testSlice(),
-			Wildcards: []types.WildcardIndex{{Index: &zero, Placeholder: "{placeholder}"}, {Index: &one}},
-			Expected:  []string{"{placeholder}", "{wannabe}", "com"},
+		{
+			name:      "with and without placeholder",
+			slice:     testSlice,
+			wildcards: []types.WildcardIndex{{Index: &zero, Placeholder: "{placeholder}"}, {Index: &one}},
+			want:      []string{"{placeholder}", "{wannabe}", "com"},
 		},
-		"indexOutOfBounds": {
-			Slice:     testSlice(),
-			Wildcards: []types.WildcardIndex{{Index: &five}},
-			Expected:  testSlice(),
+		{
+			name:      "index out of bounds",
+			slice:     testSlice,
+			wildcards: []types.WildcardIndex{{Index: &five}},
+			want:      testSlice,
 		},
 	}
 
-	for testKey, tc := range testCases {
-		SetWildcardsByIndex(tc.Slice, tc.Wildcards)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			SetWildcardsByIndex(tt.slice, tt.wildcards)
 
-		if !reflect.DeepEqual(tc.Expected, tc.Slice) {
-			t.Errorf("failed test case: %v, expected slice: %v, actual slice: %v", testKey, tc.Expected, tc.Slice)
-		}
+			if !reflect.DeepEqual(tt.slice, tt.want) {
+				t.Errorf("SetWildcardsByIndex() = %v, want %v", tt.slice, tt.want)
+			}
+		})
 	}
 }
 
-type TestCaseByKey struct {
-	Map       map[string]string
-	Wildcards []types.WildcardKey
-	Expected  map[string]string
-}
-
-func testMap() map[string]string {
-	return map[string]string{
-		"status": "test",
-		"appId":  "test",
-	}
+var testMap = map[string]string{
+	"status": "test",
+	"appId":  "test",
 }
 
 func TestSetWildcardsByKey(t *testing.T) {
-	testCases := map[string]TestCaseByKey{
-		"withPlaceholder": {
-			Map:       testMap(),
-			Wildcards: []types.WildcardKey{{Key: "status", Placeholder: "{placeholder}"}},
-			Expected: map[string]string{
+	tests := []struct {
+		name      string
+		testMap   map[string]string
+		wildcards []types.WildcardKey
+		want      map[string]string
+	}{
+		{
+			name:      "with placeholder",
+			testMap:   testMap,
+			wildcards: []types.WildcardKey{{Key: "status", Placeholder: "{placeholder}"}},
+			want: map[string]string{
 				"status": "{placeholder}",
 				"appId":  "test",
 			},
 		},
-		"withoutPlaceholder": {
-			Map:       testMap(),
-			Wildcards: []types.WildcardKey{{Key: "status"}},
-			Expected: map[string]string{
+		{
+			name:      "without placeholder",
+			testMap:   testMap,
+			wildcards: []types.WildcardKey{{Key: "status"}},
+			want: map[string]string{
 				"status": "{wannabe}",
 				"appId":  "test",
 			},
 		},
-		"withAndWithoutPlaceholder": {
-			Map:       testMap(),
-			Wildcards: []types.WildcardKey{{Key: "status", Placeholder: "{placeholder}"}, {Key: "appId"}},
-			Expected: map[string]string{
+		{
+			name:      "with and without placeholder",
+			testMap:   testMap,
+			wildcards: []types.WildcardKey{{Key: "status", Placeholder: "{placeholder}"}, {Key: "appId"}},
+			want: map[string]string{
 				"status": "{placeholder}",
 				"appId":  "{wannabe}",
 			},
 		},
-		"nonExistingKey": {
-			Map:       testMap(),
-			Wildcards: []types.WildcardKey{{Key: "nonExistingKey"}},
-			Expected:  testMap(),
+		{
+			name:      "non existing key",
+			testMap:   testMap,
+			wildcards: []types.WildcardKey{{Key: "nonExistingKey"}},
+			want:      testMap,
 		},
 	}
 
-	for testKey, tc := range testCases {
-		SetWildcardsByKey(tc.Map, tc.Wildcards)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			SetWildcardsByKey(tt.testMap, tt.wildcards)
 
-		if !reflect.DeepEqual(tc.Expected, tc.Map) {
-			t.Errorf("failed test case: %v, expected map: %v, actual map: %v", testKey, tc.Expected, tc.Map)
-		}
+			if !reflect.DeepEqual(tt.testMap, tt.want) {
+				t.Errorf("SetWildcardsByKey() = %v, want %v", tt.testMap, tt.want)
+			}
+		})
 	}
-}
-
-type TestCasePlaceholderByIndex struct {
-	Slice     []string
-	Wildcards types.WildcardIndex
-	Expected  []string
 }
 
 func TestSetPlaceholderByIndex(t *testing.T) {
 	zero := 0
 
-	testCases := map[string]TestCasePlaceholderByIndex{
-		"withPlaceholder": {
-			Slice:     testSlice(),
-			Wildcards: types.WildcardIndex{Index: &zero, Placeholder: "{placeholder}"},
-			Expected:  []string{"{placeholder}", "googleapis", "com"},
+	tests := []struct {
+		name      string
+		slice     []string
+		wildcards types.WildcardIndex
+		want      []string
+	}{
+		{
+			name:      "with placeholder",
+			slice:     testSlice,
+			wildcards: types.WildcardIndex{Index: &zero, Placeholder: "{placeholder}"},
+			want:      []string{"{placeholder}", "googleapis", "com"},
 		},
-		"withoutPlaceholder": {
-			Slice:     testSlice(),
-			Wildcards: types.WildcardIndex{Index: &zero},
-			Expected:  []string{"{wannabe}", "googleapis", "com"},
+		{
+			name:      "without placeholder",
+			slice:     testSlice,
+			wildcards: types.WildcardIndex{Index: &zero},
+			want:      []string{"{wannabe}", "googleapis", "com"},
 		},
 	}
 
-	for testKey, tc := range testCases {
-		SetPlaceholderByIndex(tc.Slice, tc.Wildcards)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			SetPlaceholderByIndex(tt.slice, tt.wildcards)
 
-		if !reflect.DeepEqual(tc.Expected, tc.Slice) {
-			t.Errorf("failed test case: %v, expected slice: %v, actual slice: %v", testKey, tc.Expected, tc.Slice)
-		}
+			if !reflect.DeepEqual(tt.slice, tt.want) {
+				t.Errorf("SetPlaceholderByIndex() = %v, want %v", tt.slice, tt.want)
+			}
+		})
 	}
-}
-
-type TestCasePlaceholderByKey struct {
-	Map      map[string]string
-	Wildcard types.WildcardKey
-	Expected map[string]string
 }
 
 func TestSetPlaceholderByKey(t *testing.T) {
-	testCases := map[string]TestCasePlaceholderByKey{
-		"withPlaceholder": {
-			Map:      testMap(),
-			Wildcard: types.WildcardKey{Key: "status", Placeholder: "{placeholder}"},
-			Expected: map[string]string{
+	tests := []struct {
+		name     string
+		testMap  map[string]string
+		wildcard types.WildcardKey
+		want     map[string]string
+	}{
+		{
+			name:     "with placeholder",
+			testMap:  testMap,
+			wildcard: types.WildcardKey{Key: "status", Placeholder: "{placeholder}"},
+			want: map[string]string{
 				"status": "{placeholder}",
 				"appId":  "test",
 			},
 		},
-		"withoutPlaceholder": {
-			Map:      testMap(),
-			Wildcard: types.WildcardKey{Key: "status"},
-			Expected: map[string]string{
+		{
+			name:     "without placeholder",
+			testMap:  testMap,
+			wildcard: types.WildcardKey{Key: "status"},
+			want: map[string]string{
 				"status": "{wannabe}",
 				"appId":  "test",
 			},
 		},
 	}
 
-	for testKey, tc := range testCases {
-		SetPlaceholderByKey(tc.Map, tc.Wildcard)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			SetPlaceholderByKey(tt.testMap, tt.wildcard)
 
-		if !reflect.DeepEqual(tc.Expected, tc.Map) {
-			t.Errorf("failed test case: %v, expected map: %v, actual map: %v", testKey, tc.Expected, tc.Map)
-		}
+			if !reflect.DeepEqual(tt.testMap, tt.want) {
+				t.Errorf("SetPlaceholderByKey() = %v, want %v", tt.testMap, tt.want)
+			}
+		})
 	}
-}
-
-type TestCaseReplaceRegexPatterns struct {
-	String   string
-	Regexes  []types.Regex
-	Expected string
-	IsQuery  bool
 }
 
 func TestReplaceRegexPatterns(t *testing.T) {
-	testCases := map[string]TestCaseReplaceRegexPatterns{
-		"matchWithPlaceholder": {
-			String:   "/v1beta/properties/375748157:runReport?user=paid&status=new&app=1",
-			Regexes:  []types.Regex{{Pattern: "(\\d+):runReport", Placeholder: "{propertyId}:runReport"}},
-			Expected: "/v1beta/properties/{propertyId}:runReport?user=paid&status=new&app=1",
-			IsQuery:  false,
+	tests := []struct {
+		name       string
+		testString string
+		regexes    []types.Regex
+		want       string
+		isQuery    bool
+	}{
+		{
+			name:       "match with placeholder",
+			testString: "/v1beta/properties/375748157:runReport?user=paid&status=new&app=1",
+			regexes:    []types.Regex{{Pattern: "(\\d+):runReport", Placeholder: "{propertyId}:runReport"}},
+			want:       "/v1beta/properties/{propertyId}:runReport?user=paid&status=new&app=1",
+			isQuery:    false,
 		},
-		"matchWithoutPlaceholder": {
-			String:   "/v1beta/properties/375748157:runReport?user=paid&status=new&app=1",
-			Regexes:  []types.Regex{{Pattern: "(\\d+):runReport"}},
-			Expected: "/v1beta/properties/{wannabe}?user=paid&status=new&app=1",
-			IsQuery:  false,
+		{
+			name:       "match without placeholder",
+			testString: "/v1beta/properties/375748157:runReport?user=paid&status=new&app=1",
+			regexes:    []types.Regex{{Pattern: "(\\d+):runReport"}},
+			want:       "/v1beta/properties/{wannabe}?user=paid&status=new&app=1",
+			isQuery:    false,
 		},
-		"matchInQueryWithPlaceholder": {
-			String:   "/v1beta/properties/375748157:runReport?user=paid&status=new&app=1",
-			Regexes:  []types.Regex{{Pattern: "paid", Placeholder: "{placeholder}"}},
-			Expected: "/v1beta/properties/375748157:runReport?user=%7Bplaceholder%7D&status=new&app=1",
-			IsQuery:  true,
+		{
+			name:       "match in query with placeholder",
+			testString: "/v1beta/properties/375748157:runReport?user=paid&status=new&app=1",
+			regexes:    []types.Regex{{Pattern: "paid", Placeholder: "{placeholder}"}},
+			want:       "/v1beta/properties/375748157:runReport?user=%7Bplaceholder%7D&status=new&app=1",
+			isQuery:    true,
 		},
-		"noMatch": {
-			String:   "/v1beta/properties/375748157:runReport?user=paid&status=new&app=1",
-			Regexes:  []types.Regex{{Pattern: "\"dimensions\":\\s*\\[(.*?)\\][,}]"}},
-			Expected: "/v1beta/properties/375748157:runReport?user=paid&status=new&app=1",
-			IsQuery:  false,
+		{
+			name:       "no match",
+			testString: "/v1beta/properties/375748157:runReport?user=paid&status=new&app=1",
+			regexes:    []types.Regex{{Pattern: "\"dimensions\":\\s*\\[(.*?)\\][,}]"}},
+			want:       "/v1beta/properties/375748157:runReport?user=paid&status=new&app=1",
+			isQuery:    false,
 		},
 	}
 
-	for testKey, tc := range testCases {
-		processedString, _ := ReplaceRegexPatterns(tc.String, tc.Regexes, tc.IsQuery)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, _ := ReplaceRegexPatterns(tt.testString, tt.regexes, tt.isQuery)
 
-		if processedString != tc.Expected {
-			t.Errorf("failed test case: %v, expected string: %v, actual string: %v", testKey, tc.Expected, processedString)
-		}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ReplaceRegexPatterns() = %v, want %v", got, tt.want)
+			}
+		})
 	}
-}
-
-type TestCaseMapValuesToSingleString struct {
-	QueryMap map[string][]string
-	Expected map[string]string
 }
 
 func TestMapValuesToSingleString(t *testing.T) {
-	testCases := map[string]TestCaseMapValuesToSingleString{
-		"singleValue": {
-			QueryMap: map[string][]string{
+	tests := []struct {
+		name     string
+		queryMap map[string][]string
+		want     map[string]string
+	}{
+		{
+			name: "single value",
+			queryMap: map[string][]string{
 				"key1": {"value1"},
 			},
-			Expected: map[string]string{
+			want: map[string]string{
 				"key1": "value1",
 			},
 		},
-		"multipleValues": {
-			QueryMap: map[string][]string{
+		{
+
+			name: "multiple values",
+			queryMap: map[string][]string{
 				"key1": {"value1", "value2"},
 				"key2": {"value3", "value4"},
 			},
-			Expected: map[string]string{
+			want: map[string]string{
 				"key1": "value1,value2",
 				"key2": "value3,value4",
 			},
 		},
 	}
 
-	for testKey, tc := range testCases {
-		queryMap := MapValuesToSingleString(tc.QueryMap)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := MapValuesToSingleString(tt.queryMap)
 
-		if !reflect.DeepEqual(tc.Expected, queryMap) {
-			t.Errorf("failed test case: %v, expected map: %v, actual map: %v", testKey, tc.Expected, queryMap)
-		}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("MapValuesToSingleString() = %v, want %v", got, tt.want)
+			}
+		})
 	}
 }
 
 func TestBuildQuery(t *testing.T) {
-	query := testMap()
-	rebuiltQuery := BuildQuery(query)
+	t.Run("build query", func(t *testing.T) {
+		query := testMap
 
-	expected := "?appId=test&status=test"
+		want := "?appId=test&status=test"
 
-	if rebuiltQuery != expected {
-		t.Errorf("expected query: %s, actual query: %s", expected, rebuiltQuery)
-	}
+		got := BuildQuery(query)
+
+		if got != want {
+			t.Errorf("BuildQuery() = %v, want %v", got, want)
+		}
+	})
 }
 
-type TestCaseFilterHeadersToInclude struct {
-	Map      map[string][]string
-	Include  []string
-	Expected map[string]string
-}
-
-func testInitHeadersMap() map[string][]string {
-	return map[string][]string{
-		"Content-Type":  {"application/json"},
-		"Accept":        {"test1", "test2", "test3"},
-		"Authorization": {"test access token"},
-		"X-test-header": {"test value"},
-	}
+var initHeadersMap = map[string][]string{
+	"Content-Type":  {"application/json"},
+	"Accept":        {"test1", "test2", "test3"},
+	"Authorization": {"test access token"},
+	"X-test-header": {"test value"},
 }
 
 func TestFilterHeadersToInclude(t *testing.T) {
-	testCases := map[string]TestCaseFilterHeadersToInclude{
-		"includeAllHeaders": {
-			Map:     testInitHeadersMap(),
-			Include: []string{"Accept", "Content-Type", "Authorization", "X-test-header"},
-			Expected: map[string]string{
+	tests := []struct {
+		name       string
+		headersMap map[string][]string
+		include    []string
+		want       map[string]string
+	}{
+		{
+			name:       "include all headers",
+			headersMap: initHeadersMap,
+			include:    []string{"Accept", "Content-Type", "Authorization", "X-test-header"},
+			want: map[string]string{
 				"Accept":        "test1,test2,test3",
 				"Authorization": "test access token",
 				"Content-Type":  "application/json",
 				"X-test-header": "test value",
 			},
 		},
-		"includeTwoHeaders": {
-			Map:     testInitHeadersMap(),
-			Include: []string{"Content-Type", "X-test-header"},
-			Expected: map[string]string{
+		{
+			name:       "include two headers",
+			headersMap: initHeadersMap,
+			include:    []string{"Content-Type", "X-test-header"},
+			want: map[string]string{
 				"Content-Type":  "application/json",
 				"X-test-header": "test value",
 			},
 		},
-		"nonExistingKey": {
-			Map:     testInitHeadersMap(),
-			Include: []string{"Non-Existing-Key", "Content-Type", "X-test-header"},
-			Expected: map[string]string{
+		{
+			name:       "non existing key",
+			headersMap: initHeadersMap,
+			include:    []string{"Non-Existing-Key", "Content-Type", "X-test-header"},
+			want: map[string]string{
 				"Content-Type":  "application/json",
 				"X-test-header": "test value",
 			},
 		},
-		"dontIncludeHeadersWithEmptyInclude": {
-			Map:      testInitHeadersMap(),
-			Include:  []string{},
-			Expected: map[string]string{},
+		{
+			name:       "don't include headers with empty include",
+			headersMap: initHeadersMap,
+			include:    []string{},
+			want:       map[string]string{},
 		},
 	}
 
-	for testName, tc := range testCases {
-		headers := FilterHeadersToInclude(tc.Map, tc.Include)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := FilterHeadersToInclude(tt.headersMap, tt.include)
 
-		if !reflect.DeepEqual(tc.Expected, headers) {
-			t.Errorf("failed test case: %v, expected headers: %v, actual headers: %v", testName, tc.Expected, headers)
-		}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("FilterHeadersToInclude() = %v, want %v", got, tt.want)
+			}
+		})
 	}
 }
 
-type TestCaseHeadersMapToSlice struct {
-	Map      map[string]string
-	Expected []types.Header
-}
-
-func testHeadersMap() map[string]string {
-	return map[string]string{
-		"Content-Type":  "application/json",
-		"Accept":        "test1,test2,test3",
-		"Authorization": "test access token",
-		"X-test-header": "test value",
-	}
+var testHeadersMap = map[string]string{
+	"Content-Type":  "application/json",
+	"Accept":        "test1,test2,test3",
+	"Authorization": "test access token",
+	"X-test-header": "test value",
 }
 
 func TestHeadersMapToSlice(t *testing.T) {
-	testCases := map[string]TestCaseHeadersMapToSlice{
-		"includeAllHeaders": {
-			Map: testHeadersMap(),
-			Expected: []types.Header{
+	tests := []struct {
+		name       string
+		headersMap map[string]string
+		want       []types.Header
+	}{
+		{
+			name:       "include all headers",
+			headersMap: testHeadersMap,
+			want: []types.Header{
 				{Key: "Accept", Value: "test1,test2,test3"},
 				{Key: "Authorization", Value: "test access token"},
 				{Key: "Content-Type", Value: "application/json"},
 				{Key: "X-test-header", Value: "test value"},
 			},
 		},
-		"emptyHeadersMap": {
-			Map:      make(map[string]string),
-			Expected: []types.Header{},
+		{
+			name:       "empty headers map",
+			headersMap: make(map[string]string),
+			want:       []types.Header{},
 		},
 	}
 
-	for testName, tc := range testCases {
-		headers := HeadersMapToSlice(tc.Map)
-		sortedSlice := SortHeaderSlice(headers)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			headers := HeadersMapToSlice(tt.headersMap)
+			got := SortHeaderSlice(headers)
 
-		if testName == "emptyHeadersMap" && !(len(tc.Map) == 0 && len(sortedSlice) == 0) {
-			t.Errorf("failed test case: %v, expected slice: %v, actual slice: %v", testName, tc.Expected, sortedSlice)
-		}
+			if tt.name == "empty headers map" {
+				if len(tt.headersMap) != 0 || len(got) != 0 {
+					t.Errorf("HeadersMapToSlice() + SortHeaderSlice() = %v, want %v", got, tt.want)
+				}
+				return
+			}
 
-		if testName != "emptyHeadersMap" && !reflect.DeepEqual(tc.Expected, sortedSlice) {
-			t.Errorf("failed test case: %v, expected slice: %v, actual slice: %v", testName, tc.Expected, sortedSlice)
-		}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("HeadersMapToSlice() + SortHeaderSlice() = %v, want %v", got, tt.want)
+			}
+		})
 	}
 }
-
-type TestCaseSortHeaderSlice struct {
-	Slice    []types.Header
-	Expected []types.Header
-}
-
 func TestSortHeaderSlice(t *testing.T) {
-	testCases := map[string]TestCaseSortHeaderSlice{
-		"nonEmptyHeaderSlice": {
-			Slice: []types.Header{
+	tests := []struct {
+		name  string
+		slice []types.Header
+		want  []types.Header
+	}{
+		{
+			name: "non empty header slice",
+			slice: []types.Header{
 				{Key: "Accept", Value: "test1,test2,test3"},
 				{Key: "X-test-header", Value: "test value"},
 				{Key: "Content-Type", Value: "application/json"},
 				{Key: "Authorization", Value: "test access token"},
 			},
-			Expected: []types.Header{
+			want: []types.Header{
 				{Key: "Accept", Value: "test1,test2,test3"},
 				{Key: "Authorization", Value: "test access token"},
 				{Key: "Content-Type", Value: "application/json"},
 				{Key: "X-test-header", Value: "test value"},
 			},
 		},
-		"emptyHeaderSlice": {
-			Slice:    []types.Header{},
-			Expected: []types.Header{},
+		{
+			name:  "empty header slice",
+			slice: []types.Header{},
+			want:  []types.Header{},
 		},
 	}
 
-	for testName, tc := range testCases {
-		sortedSlice := SortHeaderSlice(tc.Slice)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := SortHeaderSlice(tt.slice)
 
-		if !reflect.DeepEqual(tc.Expected, sortedSlice) {
-			t.Errorf("failed test case: %v, expected slice: %v, actual slice: %v", testName, tc.Expected, sortedSlice)
-		}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("SortHeaderSlice() = %v, want %v", got, tt.want)
+			}
+		})
 	}
 }
 
 func TestIsIndexOutOfBounds(t *testing.T) {
-	indexOutOfBounds := IsIndexOutOfBounds(testSlice(), 1)
-	if indexOutOfBounds {
-		t.Errorf("index out of bounds although it's not")
+	tests := []struct {
+		name  string
+		slice []string
+		index int
+		want  bool
+	}{
+		{
+			name:  "index not out of bounds",
+			slice: testSlice,
+			index: 1,
+			want:  false,
+		},
+		{
+			name:  "index out of bounds",
+			slice: testSlice,
+			index: 5,
+			want:  true,
+		},
 	}
 
-	indexOutOfBounds = IsIndexOutOfBounds(testSlice(), 5)
-	if !indexOutOfBounds {
-		t.Errorf("index within the bounds although it's not")
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := IsIndexOutOfBounds(tt.slice, tt.index)
+
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("IsIndexOutOfBounds() = %v, want %v", got, tt.want)
+			}
+		})
 	}
 }
 
 func TestKeyExists(t *testing.T) {
-	exists := KeyExists(testMap(), "status")
-	if !exists {
-		t.Errorf("key doesn't exist, but it should exists")
+	tests := []struct {
+		name    string
+		testMap map[string]string
+		key     string
+		want    bool
+	}{
+		{
+			name:    "key exist",
+			testMap: testMap,
+			key:     "status",
+			want:    true,
+		},
+		{
+			name:    "key doesn't exists",
+			testMap: testMap,
+			key:     "test",
+			want:    false,
+		},
 	}
 
-	exists = KeyExists(testMap(), "test")
-	if exists {
-		t.Errorf("key exists, but it shouldn't")
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := KeyExists(tt.testMap, tt.key)
+
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("KeyExists() = %v, want %v", got, tt.want)
+			}
+		})
 	}
 }
