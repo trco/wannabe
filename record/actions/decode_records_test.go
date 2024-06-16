@@ -17,7 +17,6 @@ func TestDecodeRecords(t *testing.T) {
 	})
 }
 
-// reusable variables
 var wantRecord = types.Record{
 	Request: types.Request{
 		Hash:       "testHash",

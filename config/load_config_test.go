@@ -10,9 +10,8 @@ import (
 )
 
 func TestLoadConfig(t *testing.T) {
-	configFilename, _ := createTestConfigFile("config.json")
-
 	t.Run("load config", func(t *testing.T) {
+		configFilename, _ := createTestConfigFile("config.json")
 		config, _ := LoadConfig(configFilename)
 
 		if !reflect.DeepEqual(config, wantConfig) {
@@ -127,8 +126,6 @@ func TestValidateConfig(t *testing.T) {
 }
 
 func TestContains(t *testing.T) {
-	slice := []string{"a", "b", "c"}
-
 	tests := []struct {
 		name    string
 		element string
@@ -146,6 +143,8 @@ func TestContains(t *testing.T) {
 		},
 	}
 
+	slice := []string{"a", "b", "c"}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := contains(slice, tt.element)
@@ -157,7 +156,6 @@ func TestContains(t *testing.T) {
 	}
 }
 
-// reusable variables and methods
 var zero = 0
 var wantConfig = types.Config{
 	Mode: "mixed",

@@ -18,7 +18,6 @@ func TestExtractRecords(t *testing.T) {
 	})
 }
 
-// reusable variables
 var wantRecordTwo = types.Record{
 	Request: types.Request{
 		HttpMethod: "POST",

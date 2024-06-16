@@ -65,7 +65,6 @@ func TestInternalErrorOnResponse(t *testing.T) {
 }
 
 func TestPrepareResponseBody(t *testing.T) {
-
 	t.Run("prepare response body", func(t *testing.T) {
 		reader := PrepareResponseBody(&TestError{"test error"})
 		want := "{\"error\":\"test error\"}"
@@ -306,7 +305,6 @@ func TestProcessRecordValidation(t *testing.T) {
 			t.Errorf("got count %v, want count %v", gotCount, wantCount)
 		}
 	})
-
 }
 
 type MockSession struct {

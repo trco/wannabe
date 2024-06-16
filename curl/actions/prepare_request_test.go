@@ -15,11 +15,11 @@ func TestPrepareRequest(t *testing.T) {
 		requestBody, _ := io.ReadAll(request.Body)
 
 		if request.Method != httpMethod {
-			t.Errorf("got httpMethod %v, want httpMethod %v", httpMethod, request.Method)
+			t.Errorf("got http method %v, want http method %v", httpMethod, request.Method)
 		}
 
 		if request.URL.String() != url {
-			t.Errorf("got url %v, actual url %v", url, request.URL)
+			t.Errorf("got url %v, want url %v", url, request.URL)
 		}
 
 		if string(requestBody) != body {
