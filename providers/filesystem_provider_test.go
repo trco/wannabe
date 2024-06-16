@@ -1,6 +1,7 @@
 package providers
 
 import (
+	"fmt"
 	"os"
 	"reflect"
 	"testing"
@@ -29,6 +30,8 @@ var testRecord = []byte{53}
 
 func TestInsertAndReadRecord(t *testing.T) {
 	t.Run("insert and read record", func(t *testing.T) {
+		t.Cleanup(teardown)
+
 		_ = filesystemProvider.InsertRecords("test.api.com", []string{"testHash3"}, [][]byte{testRecord}, false)
 
 		records, _ := filesystemProvider.ReadRecords("test.api.com", []string{"testHash3"})
@@ -44,6 +47,8 @@ func TestInsertAndReadRecord(t *testing.T) {
 
 func TestDeleteRecord(t *testing.T) {
 	t.Run("delete record", func(t *testing.T) {
+		t.Cleanup(teardown)
+
 		filesystemProvider.InsertRecords("test.api.com", []string{"testHash4"}, [][]byte{testRecord}, false)
 		filesystemProvider.DeleteRecords("test.api.com", []string{"testHash4"})
 		fileContents, _ := filesystemProvider.ReadRecords("test.api.com", []string{"testHash4"})
@@ -54,13 +59,13 @@ func TestDeleteRecord(t *testing.T) {
 		if got != want {
 			t.Errorf("InsertRecords() + DeleteRecords() results in %v records stored in filesystem, want %v records stored in filesystem", got, want)
 		}
-
-		filesystemProvider.DeleteRecords("test.api.com", []string{"testHash4"})
 	})
 }
 
 func TestGetHashes(t *testing.T) {
 	t.Run("get hashes", func(t *testing.T) {
+		t.Cleanup(teardown)
+
 		_ = filesystemProvider.InsertRecords("test.api.com", []string{"testHash5"}, [][]byte{testRecord}, false)
 		_ = filesystemProvider.InsertRecords("test.api.com", []string{"testHash6"}, [][]byte{testRecord}, false)
 		_ = filesystemProvider.InsertRecords("test.api.com", []string{"testHash7"}, [][]byte{testRecord}, false)
@@ -76,13 +81,17 @@ func TestGetHashes(t *testing.T) {
 
 func TestGetHostsAndHashes(t *testing.T) {
 	t.Run("get hosts and hashes", func(t *testing.T) {
+		t.Cleanup(teardown)
+
 		_ = filesystemProvider.InsertRecords("test2.api.com", []string{"testHash8"}, [][]byte{testRecord}, false)
 		_ = filesystemProvider.InsertRecords("test2.api.com", []string{"testHash9"}, [][]byte{testRecord}, false)
 		_ = filesystemProvider.InsertRecords("test3.api.com", []string{"testHash10"}, [][]byte{testRecord}, false)
 
 		hostsAndHashes, _ := filesystemProvider.GetHostsAndHashes()
 
-		want := 3
+		fmt.Println(hostsAndHashes)
+
+		want := 2
 		got := len(hostsAndHashes)
 
 		if got != want {
@@ -129,6 +138,8 @@ func TestGenerateFilepathRegenerate(t *testing.T) {
 
 func TestCreateFolder(t *testing.T) {
 	t.Run("create folder", func(t *testing.T) {
+		t.Cleanup(teardown)
+
 		folder := testConfig.StorageProvider.FilesystemConfig.Folder
 		subfolder := "test.subfolder.com"
 		isRegenerate := false

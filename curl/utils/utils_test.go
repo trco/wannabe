@@ -6,7 +6,9 @@ import (
 	"wannabe/types"
 )
 
-var testSlice = []string{"analyticsdata", "googleapis", "com"}
+func testSlice() []string {
+	return []string{"analyticsdata", "googleapis", "com"}
+}
 
 func TestSetWildcardsByIndex(t *testing.T) {
 	zero := 0
@@ -21,27 +23,27 @@ func TestSetWildcardsByIndex(t *testing.T) {
 	}{
 		{
 			name:      "with placeholder",
-			slice:     testSlice,
+			slice:     testSlice(),
 			wildcards: []types.WildcardIndex{{Index: &zero, Placeholder: "{placeholder}"}},
 			want:      []string{"{placeholder}", "googleapis", "com"},
 		},
 		{
 			name:      "without placeholder",
-			slice:     testSlice,
+			slice:     testSlice(),
 			wildcards: []types.WildcardIndex{{Index: &zero}},
 			want:      []string{"{wannabe}", "googleapis", "com"},
 		},
 		{
 			name:      "with and without placeholder",
-			slice:     testSlice,
+			slice:     testSlice(),
 			wildcards: []types.WildcardIndex{{Index: &zero, Placeholder: "{placeholder}"}, {Index: &one}},
 			want:      []string{"{placeholder}", "{wannabe}", "com"},
 		},
 		{
 			name:      "index out of bounds",
-			slice:     testSlice,
+			slice:     testSlice(),
 			wildcards: []types.WildcardIndex{{Index: &five}},
-			want:      testSlice,
+			want:      testSlice(),
 		},
 	}
 
@@ -56,9 +58,11 @@ func TestSetWildcardsByIndex(t *testing.T) {
 	}
 }
 
-var testMap = map[string]string{
-	"status": "test",
-	"appId":  "test",
+func testMap() map[string]string {
+	return map[string]string{
+		"status": "test",
+		"appId":  "test",
+	}
 }
 
 func TestSetWildcardsByKey(t *testing.T) {
@@ -70,7 +74,7 @@ func TestSetWildcardsByKey(t *testing.T) {
 	}{
 		{
 			name:      "with placeholder",
-			testMap:   testMap,
+			testMap:   testMap(),
 			wildcards: []types.WildcardKey{{Key: "status", Placeholder: "{placeholder}"}},
 			want: map[string]string{
 				"status": "{placeholder}",
@@ -79,7 +83,7 @@ func TestSetWildcardsByKey(t *testing.T) {
 		},
 		{
 			name:      "without placeholder",
-			testMap:   testMap,
+			testMap:   testMap(),
 			wildcards: []types.WildcardKey{{Key: "status"}},
 			want: map[string]string{
 				"status": "{wannabe}",
@@ -88,7 +92,7 @@ func TestSetWildcardsByKey(t *testing.T) {
 		},
 		{
 			name:      "with and without placeholder",
-			testMap:   testMap,
+			testMap:   testMap(),
 			wildcards: []types.WildcardKey{{Key: "status", Placeholder: "{placeholder}"}, {Key: "appId"}},
 			want: map[string]string{
 				"status": "{placeholder}",
@@ -97,9 +101,9 @@ func TestSetWildcardsByKey(t *testing.T) {
 		},
 		{
 			name:      "non existing key",
-			testMap:   testMap,
+			testMap:   testMap(),
 			wildcards: []types.WildcardKey{{Key: "nonExistingKey"}},
-			want:      testMap,
+			want:      testMap(),
 		},
 	}
 
@@ -125,13 +129,13 @@ func TestSetPlaceholderByIndex(t *testing.T) {
 	}{
 		{
 			name:      "with placeholder",
-			slice:     testSlice,
+			slice:     testSlice(),
 			wildcards: types.WildcardIndex{Index: &zero, Placeholder: "{placeholder}"},
 			want:      []string{"{placeholder}", "googleapis", "com"},
 		},
 		{
 			name:      "without placeholder",
-			slice:     testSlice,
+			slice:     testSlice(),
 			wildcards: types.WildcardIndex{Index: &zero},
 			want:      []string{"{wannabe}", "googleapis", "com"},
 		},
@@ -157,7 +161,7 @@ func TestSetPlaceholderByKey(t *testing.T) {
 	}{
 		{
 			name:     "with placeholder",
-			testMap:  testMap,
+			testMap:  testMap(),
 			wildcard: types.WildcardKey{Key: "status", Placeholder: "{placeholder}"},
 			want: map[string]string{
 				"status": "{placeholder}",
@@ -166,7 +170,7 @@ func TestSetPlaceholderByKey(t *testing.T) {
 		},
 		{
 			name:     "without placeholder",
-			testMap:  testMap,
+			testMap:  testMap(),
 			wildcard: types.WildcardKey{Key: "status"},
 			want: map[string]string{
 				"status": "{wannabe}",
@@ -277,7 +281,7 @@ func TestMapValuesToSingleString(t *testing.T) {
 
 func TestBuildQuery(t *testing.T) {
 	t.Run("build query", func(t *testing.T) {
-		query := testMap
+		query := testMap()
 
 		want := "?appId=test&status=test"
 
@@ -447,13 +451,13 @@ func TestIsIndexOutOfBounds(t *testing.T) {
 	}{
 		{
 			name:  "index not out of bounds",
-			slice: testSlice,
+			slice: testSlice(),
 			index: 1,
 			want:  false,
 		},
 		{
 			name:  "index out of bounds",
-			slice: testSlice,
+			slice: testSlice(),
 			index: 5,
 			want:  true,
 		},
@@ -479,13 +483,13 @@ func TestKeyExists(t *testing.T) {
 	}{
 		{
 			name:    "key exist",
-			testMap: testMap,
+			testMap: testMap(),
 			key:     "status",
 			want:    true,
 		},
 		{
 			name:    "key doesn't exists",
-			testMap: testMap,
+			testMap: testMap(),
 			key:     "test",
 			want:    false,
 		},
