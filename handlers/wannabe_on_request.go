@@ -5,7 +5,7 @@ import (
 	"net/http"
 	curl "wannabe/curl/services"
 	"wannabe/handlers/utils"
-	hash "wannabe/hash/actions"
+	"wannabe/hash/actions"
 	"wannabe/providers"
 	"wannabe/response/services"
 	"wannabe/types"
@@ -36,7 +36,7 @@ func processSessionOnRequest(config types.Config, storageProvider providers.Stor
 	}
 	session.SetProp("curl", curl)
 
-	hash, err := hash.GenerateHash(curl)
+	hash, err := actions.GenerateHash(curl)
 	if err != nil {
 		return utils.InternalErrorOnRequest(session, request, err)
 	}
