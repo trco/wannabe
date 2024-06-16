@@ -7,62 +7,59 @@ import (
 )
 
 func TestGenerateRequest(t *testing.T) {
-	recordRequest := types.Request{
-		Hash:       "testHash",
-		Curl:       "testCurl",
-		HttpMethod: "POST",
-		Host:       "test.com",
-		Path:       "",
-		Query: map[string][]string{
-			"test": {"test"},
-		},
-		Headers: map[string][]string{
-			"Content-Type": {"application/json"},
-			"Accept":       {"test"},
-		},
-		Body: map[string]interface{}{
-			"test": "test",
-		},
-	}
+	t.Run("generate request", func(t *testing.T) {
+		recordRequest := types.Request{
+			Hash:       "testHash",
+			Curl:       "testCurl",
+			HttpMethod: "POST",
+			Host:       "test.com",
+			Path:       "",
+			Query: map[string][]string{
+				"test": {"test"},
+			},
+			Headers: map[string][]string{
+				"Content-Type": {"application/json"},
+				"Accept":       {"test"},
+			},
+			Body: map[string]interface{}{
+				"test": "test",
+			},
+		}
 
-	request, _ := GenerateRequest(recordRequest)
+		got, _ := GenerateRequest(recordRequest)
 
-	expectedHttpMethod := "POST"
+		wantHttpMethod := "POST"
+		wantHost := "test.com"
+		wantPath := "/"
+		wantQuery := "test=test"
+		wantHeader := "application/json"
+		wantRequestBody := "{\"test\":\"test\"}"
 
-	if expectedHttpMethod != request.Method {
-		t.Errorf("expected http method: %v, actual http method: %v", expectedHttpMethod, request.Method)
-	}
+		body, _ := io.ReadAll(got.Body)
+		gotRequestBody := string(body)
 
-	expectedHost := "test.com"
+		if got.Method != wantHttpMethod {
+			t.Errorf("got http method = %v, want http method %v", got.Method, wantHttpMethod)
+		}
 
-	if expectedHost != request.URL.Host {
-		t.Errorf("expected host: %v, actual host: %v", expectedHost, request.URL.Host)
-	}
+		if got.URL.Host != wantHost {
+			t.Errorf("got host = %v, want host %v", got.URL.Host, wantHost)
+		}
 
-	expectedPath := "/"
+		if got.URL.Path != wantPath {
+			t.Errorf("got path = %v, want path %v", got.URL.Path, wantPath)
+		}
 
-	if expectedPath != request.URL.Path {
-		t.Errorf("expected path: %v, actual path: %v", expectedPath, request.URL.Path)
-	}
+		if got.URL.RawQuery != wantQuery {
+			t.Errorf("got query = %v, want query %v", got.URL.RawQuery, wantQuery)
+		}
 
-	expectedQuery := "test=test"
+		if got.Header.Get("Content-Type") != wantHeader {
+			t.Errorf("got Content-Type header = %v, want Content-Type header %v", got.Header.Get("Content-Type"), wantHeader)
+		}
 
-	if expectedQuery != request.URL.RawQuery {
-		t.Errorf("expected query: %v, actual query: %v", expectedQuery, request.URL.RawQuery)
-	}
-
-	expectedHeader := "application/json"
-
-	if expectedHeader != request.Header.Get("Content-Type") {
-		t.Errorf("expected Content-Type header: %v, actual Content-Type header: %v", expectedHeader, request.Header.Get("Content-Type"))
-	}
-
-	expectedRequestBody := "{\"test\":\"test\"}"
-
-	body, _ := io.ReadAll(request.Body)
-	requestBody := string(body)
-
-	if expectedRequestBody != requestBody {
-		t.Errorf("expected request body: %v, actual request body: %v", expectedRequestBody, requestBody)
-	}
+		if gotRequestBody != wantRequestBody {
+			t.Errorf("got request body = %v, want request body %v", gotRequestBody, wantRequestBody)
+		}
+	})
 }

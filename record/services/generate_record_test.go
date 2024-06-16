@@ -8,23 +8,27 @@ import (
 )
 
 func TestGenerateRecord(t *testing.T) {
-	encodedRecord, _ := GenerateRecord(testConfigA, payload)
+	t.Run("generate record", func(t *testing.T) {
+		encodedRecord, _ := GenerateRecord(testConfig, payload)
 
-	var record types.Record
+		var record types.Record
 
-	_ = json.Unmarshal(encodedRecord, &record)
+		_ = json.Unmarshal(encodedRecord, &record)
 
-	if !reflect.DeepEqual(expectedRecordC.Request, record.Request) {
-		t.Errorf("expected record request: %v, actual record request: %v", expectedRecordC, record)
-	}
+		if !reflect.DeepEqual(record.Request, wantRecordThree.Request) {
+			t.Errorf("got record request: %v, want record request: %v", record.Request, wantRecordThree.Request)
+		}
 
-	if !reflect.DeepEqual(expectedRecordC.Response, record.Response) {
-		t.Errorf("expected record response: %v, actual record response: %v", expectedRecordC, record)
-	}
+		if !reflect.DeepEqual(record.Response, wantRecordThree.Response) {
+			t.Errorf("got record response: %v, want record response: %v", record.Response, wantRecordThree.Response)
+		}
+
+	})
+
 }
 
 // reusable variables
-var testConfigA = types.Records{
+var testConfig = types.Records{
 	Headers: types.HeadersToRecord{
 		Exclude: []string{"Header-To-Exclude"},
 	},
@@ -55,7 +59,7 @@ var payload = types.RecordPayload{
 	ResponseBody: []byte{123, 10, 32, 32, 32, 32, 34, 116, 101, 115, 116, 34, 58, 32, 34, 116, 101, 115, 116, 34, 10, 125},
 }
 
-var expectedRecordC = types.Record{
+var wantRecordThree = types.Record{
 	Request: types.Request{
 		Hash:       "testHash",
 		Curl:       "testCurl",

@@ -8,16 +8,18 @@ import (
 )
 
 func TestExtractRecords(t *testing.T) {
-	records, _ := ExtractRecords(requestBody)
-	record := records[0]
+	t.Run("extract records", func(t *testing.T) {
+		records, _ := ExtractRecords(requestBody)
+		got := records[0]
 
-	if !reflect.DeepEqual(expectedRecordB, record) {
-		t.Errorf("expected record: %v, actual record: %v", expectedRecordB, record)
-	}
+		if !reflect.DeepEqual(got, wantRecordTwo) {
+			t.Errorf("ExtractRecords() = %v, want %v", got, wantRecordTwo)
+		}
+	})
 }
 
 // reusable variables
-var expectedRecordB = types.Record{
+var wantRecordTwo = types.Record{
 	Request: types.Request{
 		HttpMethod: "POST",
 		Host:       "https://analyticsdata.googleapis.com",

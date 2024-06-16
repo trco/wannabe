@@ -7,20 +7,18 @@ import (
 )
 
 func TestDecodeRecords(t *testing.T) {
-	decodedRecords, _ := DecodeRecords(encodedRecords)
-	record := decodedRecords[0]
+	t.Run("decode records", func(t *testing.T) {
+		decodedRecords, _ := DecodeRecords(encodedRecords)
+		got := decodedRecords[0]
 
-	if !reflect.DeepEqual(expectedRecordA.Request, record.Request) {
-		t.Errorf("expected record request: %v, actual record request: %v", expectedRecordA.Request, record.Request)
-	}
-
-	if !reflect.DeepEqual(expectedRecordA.Response, record.Response) {
-		t.Errorf("expected record response: %v, actual record response: %v", expectedRecordA.Response, record.Response)
-	}
+		if !reflect.DeepEqual(got, wantRecord) {
+			t.Errorf("DecodeRecords() = %v, want %v", got, wantRecord)
+		}
+	})
 }
 
 // reusable variables
-var expectedRecordA = types.Record{
+var wantRecord = types.Record{
 	Request: types.Request{
 		Hash:       "testHash",
 		Curl:       "testCurl",
