@@ -2,6 +2,7 @@ package providers
 
 import (
 	"os"
+	"reflect"
 	"testing"
 	"wannabe/types"
 )
@@ -27,112 +28,134 @@ var filesystemProvider = FilesystemProvider{
 var testRecord = []byte{53}
 
 func TestInsertAndReadRecord(t *testing.T) {
-	_ = filesystemProvider.InsertRecords("test.api.com", []string{"testHash3"}, [][]byte{testRecord}, false)
+	t.Run("insert and read record", func(t *testing.T) {
+		_ = filesystemProvider.InsertRecords("test.api.com", []string{"testHash3"}, [][]byte{testRecord}, false)
 
-	records, _ := filesystemProvider.ReadRecords("test.api.com", []string{"testHash3"})
+		records, _ := filesystemProvider.ReadRecords("test.api.com", []string{"testHash3"})
 
-	if len(records) == 0 {
-		t.Errorf("failed inserting and reading records")
-	}
+		want := 1
+		got := len(records)
+
+		if got != want {
+			t.Errorf("InsertRecords() + ReadRecords() = %v, want %v", got, want)
+		}
+	})
 }
 
 func TestDeleteRecord(t *testing.T) {
-	filesystemProvider.InsertRecords("test.api.com", []string{"testHash4"}, [][]byte{testRecord}, false)
+	t.Run("delete record", func(t *testing.T) {
+		filesystemProvider.InsertRecords("test.api.com", []string{"testHash4"}, [][]byte{testRecord}, false)
+		filesystemProvider.DeleteRecords("test.api.com", []string{"testHash4"})
+		fileContents, _ := filesystemProvider.ReadRecords("test.api.com", []string{"testHash4"})
 
-	filesystemProvider.DeleteRecords("test.api.com", []string{"testHash4"})
+		want := 0
+		got := len(fileContents)
 
-	fileContents, _ := filesystemProvider.ReadRecords("test.api.com", []string{"testHash4"})
+		if got != want {
+			t.Errorf("InsertRecords() + DeleteRecords() results in %v records stored in filesystem, want %v records stored in filesystem", got, want)
+		}
 
-	if len(fileContents) != 0 {
-		t.Errorf("failed deleting record")
-	}
-
-	filesystemProvider.DeleteRecords("test.api.com", []string{"testHash4"})
+		filesystemProvider.DeleteRecords("test.api.com", []string{"testHash4"})
+	})
 }
 
 func TestGetHashes(t *testing.T) {
-	_ = filesystemProvider.InsertRecords("test.api.com", []string{"testHash5"}, [][]byte{testRecord}, false)
-	_ = filesystemProvider.InsertRecords("test.api.com", []string{"testHash6"}, [][]byte{testRecord}, false)
-	_ = filesystemProvider.InsertRecords("test.api.com", []string{"testHash7"}, [][]byte{testRecord}, false)
+	t.Run("get hashes", func(t *testing.T) {
+		_ = filesystemProvider.InsertRecords("test.api.com", []string{"testHash5"}, [][]byte{testRecord}, false)
+		_ = filesystemProvider.InsertRecords("test.api.com", []string{"testHash6"}, [][]byte{testRecord}, false)
+		_ = filesystemProvider.InsertRecords("test.api.com", []string{"testHash7"}, [][]byte{testRecord}, false)
 
-	hashes, _ := filesystemProvider.GetHashes("test.api.com")
+		want := []string{"testHash5", "testHash6", "testHash7"}
+		got, _ := filesystemProvider.GetHashes("test.api.com")
 
-	expectedHashes := []string{"testHash5", "testHash6", "testHash7"}
-
-	for _, hash := range expectedHashes {
-		if !contains(hashes, hash) {
-			t.Errorf("expected hashes: %v does not contain hash: %v", expectedHashes, hash)
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("GetHashes() = %v, want %v", got, want)
 		}
-	}
+	})
 }
 
 func TestGetHostsAndHashes(t *testing.T) {
-	_ = filesystemProvider.InsertRecords("test2.api.com", []string{"testHash8"}, [][]byte{testRecord}, false)
-	_ = filesystemProvider.InsertRecords("test2.api.com", []string{"testHash9"}, [][]byte{testRecord}, false)
-	_ = filesystemProvider.InsertRecords("test3.api.com", []string{"testHash10"}, [][]byte{testRecord}, false)
+	t.Run("get hosts and hashes", func(t *testing.T) {
+		_ = filesystemProvider.InsertRecords("test2.api.com", []string{"testHash8"}, [][]byte{testRecord}, false)
+		_ = filesystemProvider.InsertRecords("test2.api.com", []string{"testHash9"}, [][]byte{testRecord}, false)
+		_ = filesystemProvider.InsertRecords("test3.api.com", []string{"testHash10"}, [][]byte{testRecord}, false)
 
-	hostsAndHashes, _ := filesystemProvider.GetHostsAndHashes()
+		hostsAndHashes, _ := filesystemProvider.GetHostsAndHashes()
 
-	if len(hostsAndHashes) == 0 {
-		t.Errorf("failed getting hosts and hashes")
-	}
+		want := 3
+		got := len(hostsAndHashes)
+
+		if got != want {
+			t.Errorf("GetHostsAndHashes() returns %v entries, want %v entries", got, want)
+		}
+	})
 }
 
 func TestGenerateFilepath(t *testing.T) {
-	isRegenerate := false
-	folder := testConfig.StorageProvider.FilesystemConfig.Folder
-	subfolder := "test.api.com"
-	hash := "testHash1"
+	t.Run("generate filepath", func(t *testing.T) {
+		isRegenerate := false
+		folder := testConfig.StorageProvider.FilesystemConfig.Folder
+		subfolder := "test.api.com"
+		hash := "testHash1"
 
-	generateFilepath := filesystemProvider.generateFilepath(subfolder, hash, isRegenerate)
+		want := folder + "/" + subfolder + "/" + hash + ".json"
 
-	expectedFilepath := folder + "/" + subfolder + "/" + hash + ".json"
+		got := filesystemProvider.generateFilepath(subfolder, hash, isRegenerate)
 
-	if expectedFilepath != generateFilepath {
-		t.Errorf("expected generate filepath: %v, actual generate filepath: %v", expectedFilepath, generateFilepath)
-	}
+		if got != want {
+			t.Errorf("generateFilepath() = %v, want %v", got, want)
+		}
+	})
 }
 
 func TestGenerateFilepathRegenerate(t *testing.T) {
-	isRegenerate := true
-	regenerateFolder := testConfig.StorageProvider.FilesystemConfig.RegenerateFolder
-	subfolder := "test.api.com"
-	hash := "testHash2"
+	t.Run("generate filepath regenerate", func(t *testing.T) {
+		isRegenerate := true
+		regenerateFolder := testConfig.StorageProvider.FilesystemConfig.RegenerateFolder
+		subfolder := "test.api.com"
+		hash := "testHash2"
 
-	regenerateFilepath := filesystemProvider.generateFilepath(subfolder, hash, isRegenerate)
+		want := regenerateFolder + "/" + subfolder + "/" + hash + ".json"
 
-	expectedFilepath := regenerateFolder + "/" + subfolder + "/" + hash + ".json"
+		got := filesystemProvider.generateFilepath(subfolder, hash, isRegenerate)
 
-	if expectedFilepath != regenerateFilepath {
-		t.Errorf("expected regenerate filepath: %v, actual regenerate filepath: %v", expectedFilepath, regenerateFilepath)
-	}
+		if got != want {
+			t.Errorf("generateFilepath() = %v, want %v", got, want)
+		}
 
-	isRegenerate = false
+		isRegenerate = false
+	})
 }
 
 func TestCreateFolder(t *testing.T) {
-	folder := testConfig.StorageProvider.FilesystemConfig.Folder
-	subfolder := "test.subfolder.com"
-	isRegenerate := false
+	t.Run("create folder", func(t *testing.T) {
+		folder := testConfig.StorageProvider.FilesystemConfig.Folder
+		subfolder := "test.subfolder.com"
+		isRegenerate := false
 
-	_ = filesystemProvider.createFolder(subfolder, isRegenerate)
+		_ = filesystemProvider.createFolder(subfolder, isRegenerate)
 
-	fileInfo, _ := os.Stat(folder + "/" + subfolder)
+		fileInfo, _ := os.Stat(folder + "/" + subfolder)
 
-	if fileInfo.IsDir() == false {
-		t.Errorf("failed creating subfolder: %v in folder: %v", subfolder, folder)
-	}
+		if fileInfo.IsDir() == false {
+			t.Errorf("failed creating subfolder: %v in folder: %v", subfolder, folder)
+		}
 
-	isRegenerate = true
-	rengenerateFolder := testConfig.StorageProvider.FilesystemConfig.RegenerateFolder
+		isRegenerate = true
+		rengenerateFolder := testConfig.StorageProvider.FilesystemConfig.RegenerateFolder
 
-	_ = filesystemProvider.createFolder(subfolder, isRegenerate)
+		_ = filesystemProvider.createFolder(subfolder, isRegenerate)
 
-	fileInfo, _ = os.Stat(rengenerateFolder + "/" + subfolder)
+		fileInfo, _ = os.Stat(rengenerateFolder + "/" + subfolder)
 
-	if fileInfo.IsDir() == false {
-		t.Errorf("failed creating subfolder: %v in regenerate folder: %v", subfolder, rengenerateFolder)
-	}
+		want := true
+		got := fileInfo.IsDir()
+
+		if got != want {
+			t.Errorf("createFolder() = %v, want %v", got, want)
+		}
+	})
+
 }
 
 func contains(slice []string, value string) bool {

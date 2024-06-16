@@ -22,10 +22,6 @@ func StorageProviderFactory(config types.Config) (StorageProvider, error) {
 		return storageProvider, nil
 	}
 
-	if config.StorageProvider.Type == "redis" {
-		return RedisProvider{}, nil
-	}
-
 	return nil, &StorageProviderGenerationError{
 		Type: config.StorageProvider.Type,
 	}

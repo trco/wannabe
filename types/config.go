@@ -13,19 +13,14 @@ const (
 )
 
 type StorageProvider struct {
-	Type             string           `koanf:"type" validate:"required,oneof=filesystem redis"`
+	Type             string           `koanf:"type" validate:"required,oneof=filesystem"`
 	FilesystemConfig FilesystemConfig `koanf:"filesystemConfig" validate:"required_if=Type filesystem,omitempty"`
-	RedisConfig      RedisConfig      `koanf:"redisConfig" validate:"required_if=Type redis,omitempty"`
 }
 
 type FilesystemConfig struct {
 	Folder           string `koanf:"folder" validate:"required"`
 	RegenerateFolder string `koanf:"regenerateFolder"`
 	Format           string `koanf:"format" validate:"required,oneof=json"`
-}
-
-type RedisConfig struct {
-	Database string `koanf:"database" validate:"required"`
 }
 
 type Wannabe struct {
