@@ -65,10 +65,11 @@ func TestInternalErrorOnResponse(t *testing.T) {
 }
 
 func TestPrepareResponseBody(t *testing.T) {
-	want := "{\"error\":\"test error\"}"
 
 	t.Run("prepare response body", func(t *testing.T) {
 		reader := PrepareResponseBody(&TestError{"test error"})
+		want := "{\"error\":\"test error\"}"
+
 		got, _ := io.ReadAll(reader)
 
 		if !bytes.Equal([]byte(want), got) {
