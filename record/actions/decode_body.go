@@ -30,7 +30,7 @@ func DecodeBody(encodedBody []byte, contentTypeHeader []string) (interface{}, er
 			return body, fmt.Errorf("DecodeBody: failed unmarshaling XML body: %v", err)
 		}
 		body = xmlMap
-	case contentType == "text/plain":
+	case contentType == "text/plain", contentType == "text/html":
 		body = string(encodedBody)
 	default:
 		return body, fmt.Errorf("DecodeBody: unsupported content type: %s", contentType)

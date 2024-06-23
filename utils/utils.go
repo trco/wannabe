@@ -12,6 +12,8 @@ func GetContentType(contentTypeHeader []string) string {
 		return "text/xml"
 	case sliceItemContains(contentTypeHeader, "text/plain"):
 		return "text/plain"
+	case sliceItemContains(contentTypeHeader, "text/html"):
+		return "text/html"
 	default:
 		return ""
 	}

@@ -28,7 +28,7 @@ func EncodeBody(decodedBody interface{}, contentTypeHeader []string) ([]byte, er
 		}
 
 		return body, nil
-	case contentType == "text/plain":
+	case contentType == "text/plain", contentType == "text/html":
 		body := []byte(decodedBody.(string))
 
 		return body, nil
