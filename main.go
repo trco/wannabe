@@ -23,7 +23,7 @@ func main() {
 		log.Fatalf("fatal error starting app: %v", err)
 	}
 
-	mitmConfig, err := cfg.LoadMitmConfig("demo.crt", "demo.key")
+	mitmConfig, err := cfg.LoadMitmConfig("wannabe.crt", "wannabe.key")
 	if err != nil {
 		log.Fatalf("fatal error starting app: %v", err)
 	}
@@ -65,8 +65,8 @@ func startWannabeApiServer(config types.Config, storageProvider providers.Storag
 	http.HandleFunc("/wannabe/api/records", handlers.Records(config, storageProvider))
 	http.HandleFunc("/wannabe/api/regenerate", handlers.Regenerate(config, storageProvider))
 
-	fmt.Println("Listening on localhost:1234")
-	err := http.ListenAndServe("localhost:1234", nil)
+	fmt.Println("API server listening on :6790")
+	err := http.ListenAndServe(":6790", nil)
 	if err != nil {
 		log.Fatal(err)
 	}
