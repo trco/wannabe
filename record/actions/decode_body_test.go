@@ -45,6 +45,12 @@ func TestDecodeBody(t *testing.T) {
 			want:        "plain text",
 		},
 		{
+			name:        "html text content type",
+			encodedBody: []byte("\u003c!DOCTYPE html\u003e\n \u003chtml\u003e\n \u003ch1\u003eHerman Melville - Moby-Dick\u003c/h1\u003e\n \u003c/html\u003e"),
+			contentType: []string{"text/html"},
+			want:        "\u003c!DOCTYPE html\u003e\n \u003chtml\u003e\n \u003ch1\u003eHerman Melville - Moby-Dick\u003c/h1\u003e\n \u003c/html\u003e",
+		},
+		{
 			name:        "unsupported content type",
 			encodedBody: []byte(`{"key": "value"}`),
 			contentType: []string{"unsupported/type"},

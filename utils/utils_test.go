@@ -31,6 +31,11 @@ func TestGetContentType(t *testing.T) {
 			want:   "text/plain",
 		},
 		{
+			name:   "text/html content type",
+			header: []string{"text/html"},
+			want:   "text/html",
+		},
+		{
 			name:   "unknown content type",
 			header: []string{"unknown"},
 			want:   "",
