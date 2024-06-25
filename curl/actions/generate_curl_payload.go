@@ -1,6 +1,7 @@
 package actions
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"net/http"
@@ -13,6 +14,9 @@ func GenerateCurlPayload(request *http.Request) (types.CurlPayload, error) {
 		return types.CurlPayload{}, fmt.Errorf("PrepareGenerateCurlPayload: failed reading request body: %v", err)
 	}
 	defer request.Body.Close()
+
+	// set body back to request
+	request.Body = io.NopCloser(bytes.NewBuffer(body))
 
 	curlPayload := types.CurlPayload{
 		HttpMethod:     request.Method,
