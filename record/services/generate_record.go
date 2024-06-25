@@ -9,18 +9,21 @@ import (
 )
 
 var contentType = "Content-Type"
+var contentEncoding = "Content-Encoding"
 
 func GenerateRecord(config types.Records, payload types.RecordPayload) ([]byte, error) {
 	requestHeaders := actions.FilterHeaders(payload.RequestHeaders, config.Headers.Exclude)
 
 	requestContentType := payload.RequestHeaders[contentType]
-	requestBody, err := actions.DecodeBody(payload.RequestBody, requestContentType)
+	requestContentEncoding := payload.RequestHeaders[contentEncoding]
+	requestBody, err := actions.DecodeBody(payload.RequestBody, requestContentType, requestContentEncoding)
 	if err != nil {
 		return nil, err
 	}
 
 	responseContentType := payload.ResponseHeaders[contentType]
-	responseBody, err := actions.DecodeBody(payload.ResponseBody, responseContentType)
+	responseContentEncoding := payload.ResponseHeaders[contentEncoding]
+	responseBody, err := actions.DecodeBody(payload.ResponseBody, responseContentType, responseContentEncoding)
 	if err != nil {
 		return nil, err
 	}

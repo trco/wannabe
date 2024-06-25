@@ -1,6 +1,12 @@
 package utils
 
-import "strings"
+import (
+	"bytes"
+	"compress/gzip"
+	"fmt"
+	"io"
+	"strings"
+)
 
 func GetContentType(contentTypeHeader []string) string {
 	switch {
@@ -17,6 +23,48 @@ func GetContentType(contentTypeHeader []string) string {
 	default:
 		return ""
 	}
+}
+
+func GetContentEncoding(contentEncodingHeader []string) string {
+	switch {
+	case sliceItemContains(contentEncodingHeader, "gzip"):
+		return "gzip"
+	default:
+		return ""
+	}
+}
+
+// Gunzip decompresses a gzip-compressed byte slice.
+func Gunzip(data []byte) ([]byte, error) {
+	gzReader, err := gzip.NewReader(bytes.NewReader(data))
+	if err != nil {
+		return nil, fmt.Errorf("Gunzip: failed to create gzip reader: %v", err)
+	}
+	defer gzReader.Close()
+
+	decompressedData, err := io.ReadAll(gzReader)
+	if err != nil {
+		return nil, fmt.Errorf("Gunzip: failed to read decompressed data: %v", err)
+	}
+
+	return decompressedData, nil
+}
+
+// Gzip compresses a byte slice using gzip.
+func Gzip(data []byte) ([]byte, error) {
+	var buf bytes.Buffer
+	gzWriter := gzip.NewWriter(&buf)
+
+	_, err := gzWriter.Write(data)
+	if err != nil {
+		return nil, fmt.Errorf("Gzip: failed to write data to gzip writer: %v", err)
+	}
+
+	if err := gzWriter.Close(); err != nil {
+		return nil, fmt.Errorf("Gzip: failed to close gzip writer: %v", err)
+	}
+
+	return buf.Bytes(), nil
 }
 
 func sliceItemContains(slice []string, value string) bool {

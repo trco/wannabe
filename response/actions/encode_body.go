@@ -9,30 +9,40 @@ import (
 	"github.com/clbanning/mxj"
 )
 
-func EncodeBody(decodedBody interface{}, contentTypeHeader []string) ([]byte, error) {
-	contentType := utils.GetContentType(contentTypeHeader)
+func EncodeBody(decodedBody interface{}, contentEncodingHeader []string, contentTypeHeader []string) ([]byte, error) {
+	var body []byte
 
+	contentType := utils.GetContentType(contentTypeHeader)
 	switch {
 	case contentType == "application/json":
-		body, err := json.Marshal(decodedBody)
+		var err error
+		body, err = json.Marshal(decodedBody)
 		if err != nil {
 			return nil, fmt.Errorf("SetResponse: failed marshaling body: %v", err)
 		}
-
-		return body, nil
 	case contentType == "application/xml", contentType == "text/xml":
+		var err error
 		mapValue := mxj.Map(decodedBody.(map[string]interface{}))
-		body, err := mapValue.Xml()
+		body, err = mapValue.Xml()
 		if err != nil {
 			return body, fmt.Errorf("GenerateRecord: failed unmarshaling XML body: %v", err)
 		}
-
-		return body, nil
 	case contentType == "text/plain", contentType == "text/html":
-		body := []byte(decodedBody.(string))
-
-		return body, nil
+		body = []byte(decodedBody.(string))
 	default:
 		return nil, fmt.Errorf("SetResponse: unsupported content type: %s", contentTypeHeader)
 	}
+
+	// gzip the body that was unzipped before storing it to the record
+	contentEncoding := utils.GetContentEncoding(contentEncodingHeader)
+	if contentEncoding == "gzip" {
+		compressedBody, err := utils.Gzip(body)
+		if err != nil {
+			return nil, fmt.Errorf("SetResponse: failed compressing response body: %s", err)
+		}
+
+		return compressedBody, nil
+	}
+
+	return body, nil
 }
