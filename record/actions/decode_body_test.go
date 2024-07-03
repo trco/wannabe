@@ -3,6 +3,7 @@ package actions
 import (
 	"reflect"
 	"testing"
+	"wannabe/utils"
 
 	"github.com/clbanning/mxj"
 )
@@ -64,6 +65,13 @@ func TestDecodeBody(t *testing.T) {
 			contentEncoding: []string{},
 			want:            nil,
 		},
+		{
+			name:            "json content type, gzip content encoding",
+			encodedBody:     getCompressedEncodedBody([]byte(`{"key": "value"}`)),
+			contentType:     []string{"application/json"},
+			contentEncoding: []string{"gzip"},
+			want:            map[string]interface{}{"key": "value"},
+		},
 	}
 
 	for _, tt := range tests {
@@ -80,4 +88,9 @@ func TestDecodeBody(t *testing.T) {
 			}
 		})
 	}
+}
+
+func getCompressedEncodedBody(data []byte) []byte {
+	compressedEncodedBody, _ := utils.Gzip(data)
+	return compressedEncodedBody
 }
