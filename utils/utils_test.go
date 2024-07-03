@@ -1,8 +1,6 @@
 package utils
 
 import (
-	"bytes"
-	"compress/gzip"
 	"reflect"
 	"testing"
 )
@@ -82,15 +80,7 @@ func TestGetContentEncoding(t *testing.T) {
 
 func TestGunzip(t *testing.T) {
 	originalData := []byte("test data")
-	var buf bytes.Buffer
-	gz := gzip.NewWriter(&buf)
-	if _, err := gz.Write(originalData); err != nil {
-		t.Fatalf("Failed to write gzip data: %v", err)
-	}
-	if err := gz.Close(); err != nil {
-		t.Fatalf("Failed to close gzip writer: %v", err)
-	}
-	compressedData := buf.Bytes()
+	compressedData, _ := Gzip(originalData)
 
 	tests := []struct {
 		name    string
