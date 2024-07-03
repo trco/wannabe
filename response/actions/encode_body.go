@@ -9,7 +9,7 @@ import (
 	"github.com/clbanning/mxj"
 )
 
-func EncodeBody(decodedBody interface{}, contentEncodingHeader []string, contentTypeHeader []string) ([]byte, error) {
+func EncodeBody(decodedBody interface{}, contentTypeHeader []string, contentEncodingHeader []string) ([]byte, error) {
 	var body []byte
 
 	contentType := utils.GetContentType(contentTypeHeader)

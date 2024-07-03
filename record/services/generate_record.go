@@ -14,16 +14,16 @@ var contentEncoding = "Content-Encoding"
 func GenerateRecord(config types.Records, payload types.RecordPayload) ([]byte, error) {
 	requestHeaders := actions.FilterHeaders(payload.RequestHeaders, config.Headers.Exclude)
 
-	requestContentType := payload.RequestHeaders[contentType]
 	requestContentEncoding := payload.RequestHeaders[contentEncoding]
-	requestBody, err := actions.DecodeBody(payload.RequestBody, requestContentType, requestContentEncoding)
+	requestContentType := payload.RequestHeaders[contentType]
+	requestBody, err := actions.DecodeBody(payload.RequestBody, requestContentEncoding, requestContentType)
 	if err != nil {
 		return nil, err
 	}
 
-	responseContentType := payload.ResponseHeaders[contentType]
 	responseContentEncoding := payload.ResponseHeaders[contentEncoding]
-	responseBody, err := actions.DecodeBody(payload.ResponseBody, responseContentType, responseContentEncoding)
+	responseContentType := payload.ResponseHeaders[contentType]
+	responseBody, err := actions.DecodeBody(payload.ResponseBody, responseContentEncoding, responseContentType)
 	if err != nil {
 		return nil, err
 	}

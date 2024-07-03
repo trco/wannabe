@@ -76,7 +76,7 @@ func TestDecodeBody(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, _ := DecodeBody(tt.encodedBody, tt.contentType, tt.contentEncoding)
+			got, _ := DecodeBody(tt.encodedBody, tt.contentEncoding, tt.contentType)
 
 			if tt.name == "xml content type" {
 				xmlMap, _ := mxj.NewMapXml(tt.encodedBody)

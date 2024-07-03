@@ -9,7 +9,7 @@ import (
 	"github.com/clbanning/mxj"
 )
 
-func DecodeBody(encodedBody []byte, contentTypeHeader []string, contentEncodingHeader []string) (interface{}, error) {
+func DecodeBody(encodedBody []byte, contentEncodingHeader []string, contentTypeHeader []string) (interface{}, error) {
 	var body interface{}
 
 	if len(encodedBody) == 0 {

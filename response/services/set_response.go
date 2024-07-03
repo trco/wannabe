@@ -20,9 +20,9 @@ func SetResponse(encodedRecord []byte, request *http.Request) (*http.Response, e
 	}
 
 	decodedBody := record.Response.Body
-	contentEncodingHeader := record.Response.Headers["Content-Encoding"]
 	contentTypeHeader := record.Response.Headers["Content-Type"]
-	body, err := actions.EncodeBody(decodedBody, contentEncodingHeader, contentTypeHeader)
+	contentEncodingHeader := record.Response.Headers["Content-Encoding"]
+	body, err := actions.EncodeBody(decodedBody, contentTypeHeader, contentEncodingHeader)
 	if err != nil {
 		return nil, fmt.Errorf("SetResponse: failed encoding response body: %v", err)
 	}
