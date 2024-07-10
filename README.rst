@@ -219,11 +219,11 @@ Wannabes
         "wannabes": {
             "example.com": {
                 "requestMatching": "{...}", // see Request matching section
-                "records": "{...}"" // see Records section
+                "records": "{...}" // see Records section
             },
             "api.github.com": {
                 "requestMatching": "{...}",
-                "records: "{...}"
+                "records": "{...}"
             },
             ...
     }
@@ -272,13 +272,13 @@ and none of them can be excluded from being stored in the request field of recor
                 "wildcards": [
                     {
                         "index": "integer", // required
-                        "placeholder": "string" // optional; defaults to "{wannabe}"
+                        "placeholder": "string" // optional; defaults to '{wannabe}'
                     }
                 ],
                 "regexes": [
                     {
                         "pattern": "string", // required
-                        "placeholder": "string" // optional; defaults to "{wannabe}"
+                        "placeholder": "string" // optional; defaults to '{wannabe}'
                     }
                 ]
             },
@@ -286,13 +286,13 @@ and none of them can be excluded from being stored in the request field of recor
                 "wildcards": [
                     {
                         "index": "integer", // required
-                        "placeholder": "string" // optional; defaults to "{wannabe}"
+                        "placeholder": "string" // optional; defaults to '{wannabe}'
                     }
                 ],
                 "regexes": [
                     {
                         "pattern": "string", // required
-                        "placeholder": "string" // optional; defaults to "{wannabe}"
+                        "placeholder": "string" // optional; defaults to '{wannabe}'
                     }
                 ]
             },
@@ -300,13 +300,13 @@ and none of them can be excluded from being stored in the request field of recor
                 "wildcards": [
                     {
                         "key": "string", // required,
-                        "placeholder": "string" // optional; defaults to "{wannabe}"
+                        "placeholder": "string" // optional; defaults to '{wannabe}'
                     }
                 ],
                 "regexes": [
                     {
                         "pattern": "string", // required
-                        "placeholder": "string" // optional; defaults to "{wannabe}"
+                        "placeholder": "string" // optional; defaults to '{wannabe}'
                     }
                 ]
             },
@@ -314,7 +314,7 @@ and none of them can be excluded from being stored in the request field of recor
                 "regexes": [
                     {
                         "pattern": "string", // required
-                        "placeholder": "string" // optional; defaults to "{wannabe}"
+                        "placeholder": "string" // optional; defaults to '{wannabe}'
                     }
                 ]
             },
@@ -323,7 +323,7 @@ and none of them can be excluded from being stored in the request field of recor
                 "wildcards": [
                     {
                         "key": "string", // required
-                        "placeholder": "string" // optional; defaults to "{wannabe}"
+                        "placeholder": "string" // optional; defaults to '{wannabe}'
                     }
                 ]
             }
