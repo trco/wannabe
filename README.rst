@@ -151,7 +151,7 @@ See following subsections for the details of all the options that can be configu
 
 Mode
 ****
-.. code-block:: json
+.. code-block:: JSON
     {
         "mode": string // “proxy”, “server”, “mixed”; defaults to “mixed”
     }
@@ -162,7 +162,7 @@ section for details.
 Storage provider
 ****************
 
-.. code-block:: json
+.. code-block:: JSON
     {
         "storageProvider": {
             "type": string, // “filesystem”; defaults to “filesystem”
@@ -182,7 +182,7 @@ The type field defines the type of storage provider Wannabe should use.
 FilesystemConfig
 ----------------
 
-.. code-block:: json
+.. code-block:: JSON
     {
         "filesystemConfig": {
             "folder": string, // path to the folder, relative to the configuration file
@@ -210,7 +210,7 @@ The format field defines the format in which the records are stored.
 Wannabes
 ********
 
-.. code-block:: json
+.. code-block:: JSON
     {
         "wannabes": {
             "example.com": {
@@ -260,7 +260,7 @@ with a new request matching configuration, including this specific header. If he
 to be included in request matching are not set, all of them are included in matching, \
 and none of them can be excluded from being stored in the request field of records.
 
-.. code-block:: json
+.. code-block:: JSON
     {
         "requestMatching": {
             "host": {
@@ -328,7 +328,7 @@ and none of them can be excluded from being stored in the request field of recor
 Usage of index wildcards
 ------------------------
 
-.. code-block:: json
+.. code-block:: JSON
     {
         "host": {
             "wildcards": [
@@ -354,7 +354,7 @@ a single record with the underlying response in storage.
 Usage of key wildcards
 ----------------------
 
-.. code-block:: json
+.. code-block:: JSON
     {
         "query": {
             "wildcards": [
@@ -381,7 +381,7 @@ stored as a single record with the underlying response in storage.
 Usage of regexes
 ----------------
 
-.. code-block:: json
+.. code-block:: JSON
     {
         "path": {
             "regexes": [
@@ -406,7 +406,7 @@ be stored as a single record with the underlying response in storage.
 Records
 -------
 
-.. code-block:: json
+.. code-block:: JSON
     {
         "records": {
             "headers": {
@@ -435,7 +435,7 @@ Defaults
 When the “mode” or “storageProvider” fields are not defined in the \
 configuration, they default to the values below.
 
-.. code-block:: json
+.. code-block:: JSON
     {
         "mode": "mixed",
         "storageProvider": {
@@ -510,7 +510,7 @@ parameter is provided, <host> is required.
 
 Response body
 
-.. code-block:: json
+.. code-block:: JSON
   [
       {
           "request": {
@@ -564,7 +564,7 @@ for why storing failed.
 
 Request body
 
-.. code-block:: json
+.. code-block:: JSON
   [
       {
           "request": {
@@ -594,7 +594,7 @@ Request body
 
 Response body
 
-.. code-block:: json
+.. code-block:: JSON
   {
       "insertedRecordsCount": integer,
       "notInsertedRecordsCount": integer,
@@ -620,7 +620,7 @@ If the <hash> parameter is provided, <host> is required.
 
 Response body
 
-.. code-block:: json
+.. code-block:: JSON
   {
       "message": string,
       "hashes": string[]
@@ -636,7 +636,7 @@ section for details.
 
 Response body
 
-.. code-block:: json
+.. code-block:: JSON
   {
       "message": string,
       "regeneratedHashes": string[],
