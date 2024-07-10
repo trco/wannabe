@@ -152,8 +152,9 @@ See following subsections for the details of all the options that can be configu
 Mode
 ****
 .. code-block:: JSON
+
     {
-        "mode": string // “proxy”, “server”, “mixed”; defaults to “mixed”
+        "mode": "string" // "proxy", "server", "mixed"; defaults to "mixed"
     }
 
 The mode field defines how a Wannabe container operates. Refer to the "How does it work?" \
@@ -163,10 +164,11 @@ Storage provider
 ****************
 
 .. code-block:: JSON
+
     {
         "storageProvider": {
-            "type": string, // “filesystem”; defaults to “filesystem”
-            "filesystemConfig": filesystemConfig // see below
+            "type": "string", // “filesystem”; defaults to “filesystem”
+            "filesystemConfig": "filesystemConfig" // see below
         }
     }
 
@@ -183,11 +185,12 @@ FilesystemConfig
 ----------------
 
 .. code-block:: JSON
+
     {
         "filesystemConfig": {
-            "folder": string, // path to the folder, relative to the configuration file
-            "regenerateFolder": string, //  path to the folder, relative to the configuration file
-            "format": string // “json”
+            "folder": "string", // path to the folder, relative to the configuration file
+            "regenerateFolder": "string", //  path to the folder, relative to the configuration file
+            "format": "string" // "json" is currently the only supported format
         }
     }
 
@@ -211,15 +214,16 @@ Wannabes
 ********
 
 .. code-block:: JSON
+
     {
         "wannabes": {
             "example.com": {
-                "requestMatching": {...}, // see Request matching section
-                “records”: {...} // see Records section
+                "requestMatching": "{...}", // see Request matching section
+                "records": "{...}"" // see Records section
             },
             "api.github.com": {
-                "requestMatching": {...},
-                “records”: {...}
+                "requestMatching": "{...}",
+                "records: "{...}"
             },
             ...
     }
@@ -261,64 +265,65 @@ to be included in request matching are not set, all of them are included in matc
 and none of them can be excluded from being stored in the request field of records.
 
 .. code-block:: JSON
+
     {
         "requestMatching": {
             "host": {
                 "wildcards": [
                     {
-                        "index": number, // required
-                        "placeholder": string // optional; defaults to "{wannabe}"
+                        "index": "integer", // required
+                        "placeholder": "string" // optional; defaults to "{wannabe}"
                     }
                 ],
                 "regexes": [
                     {
-                        "pattern": string, // required
-                        "placeholder": string // optional; defaults to "{wannabe}"
+                        "pattern": "string", // required
+                        "placeholder": "string" // optional; defaults to "{wannabe}"
                     }
                 ]
             },
             "path": {
                 "wildcards": [
                     {
-                        "index": number, // required
-                        "placeholder": string // optional; defaults to "{wannabe}"
+                        "index": "integer", // required
+                        "placeholder": "string" // optional; defaults to "{wannabe}"
                     }
                 ],
                 "regexes": [
                     {
-                        "pattern": string, // required
-                        "placeholder": string // optional; defaults to "{wannabe}"
+                        "pattern": "string", // required
+                        "placeholder": "string" // optional; defaults to "{wannabe}"
                     }
                 ]
             },
             "query": {
                 "wildcards": [
                     {
-                        "key": string, // required,
-                        "placeholder": string // optional; defaults to "{wannabe}"
+                        "key": "string", // required,
+                        "placeholder": "string" // optional; defaults to "{wannabe}"
                     }
                 ],
                 "regexes": [
                     {
-                        "pattern": string, // required
-                        "placeholder": string // optional; defaults to "{wannabe}"
+                        "pattern": "string", // required
+                        "placeholder": "string" // optional; defaults to "{wannabe}"
                     }
                 ]
             },
             "body": {
                 "regexes": [
                     {
-                        "pattern": string, // required
-                        "placeholder": string // optional; defaults to "{wannabe}"
+                        "pattern": "string", // required
+                        "placeholder": "string" // optional; defaults to "{wannabe}"
                     }
                 ]
             },
             "headers": {
-                "include": array of strings, // if not set all headers are included
+                "include": "string[]", // if not set all headers are included
                 "wildcards": [
                     {
-                        "key": string, // required
-                        "placeholder": string // optional; defaults to "{wannabe}"
+                        "key": "string", // required
+                        "placeholder": "string" // optional; defaults to "{wannabe}"
                     }
                 ]
             }
@@ -329,12 +334,13 @@ Usage of index wildcards
 ------------------------
 
 .. code-block:: JSON
+
     {
         "host": {
             "wildcards": [
                 {
                     "index": 0,
-                    "placeholder": “placeholder”
+                    "placeholder": "placeholder"
                 }
             ]
         }
@@ -355,6 +361,7 @@ Usage of key wildcards
 ----------------------
 
 .. code-block:: JSON
+
     {
         "query": {
             "wildcards": [
@@ -382,6 +389,7 @@ Usage of regexes
 ----------------
 
 .. code-block:: JSON
+
     {
         "path": {
             "regexes": [
@@ -407,10 +415,11 @@ Records
 -------
 
 .. code-block:: JSON
+
     {
         "records": {
             "headers": {
-                "exclude": []string
+                "exclude": "string[]"
             }
         }
     }
@@ -436,6 +445,7 @@ When the “mode” or “storageProvider” fields are not defined in the \
 configuration, they default to the values below.
 
 .. code-block:: JSON
+
     {
         "mode": "mixed",
         "storageProvider": {
@@ -511,40 +521,38 @@ parameter is provided, <host> is required.
 Response body
 
 .. code-block:: JSON
+
   [
       {
           "request": {
-              "hash": string,
-              "curl": string,
-              "httpMethod": string,
-              "host": string,
-              "path": string
+              "hash": "string",
+              "curl": "string",
+              "httpMethod": "string",
+              "host": "string",
+              "path": "string"
               "query": {
-                  “key”: string
-                  …
+                  "key": "string"
               },
               "headers": {
-                  “key”: string[],
-                  …
+                  "key": "string[]"
               },
-              "body": object                
+              "body": "object"
           },
           "response": {
-              "statusCode": integer,
+              "statusCode": "integer",
               "headers": {
-                  “key”: string[],
-                  …
+                  "key": "string[]"
               },
-              "body": object / string
+              "body": "object / string"
           },
           "metadata": {
               "generatedAt": {
-                  "unix": integer,
-                  "utc": string
+                  "unix": "integer",
+                  "utc": "string"
               },
               "regeneratedAt": {
-                  "unix": integer,
-                  "utc": string
+                  "unix": "integer",
+                  "utc": "string"
               },
           }
       }
@@ -569,26 +577,23 @@ Request body
   [
       {
           "request": {
-              "httpMethod": string,
-              "host": string,
-              "path": string
+              "httpMethod": "string",
+              "host": "string",
+              "path": "string"
               "query": {
-                  “key”: string
-                  …
+                  "key": "string"
               },
               "headers": {
-                  “key”: string[],
-                  …
+                  "key": "string[]"
               },
-              "body": object                
+              "body": "object"
           },
           "response": {
-              "statusCode": integer,
+              "statusCode": "integer",
               "headers": {
-                  “key”: string[],
-                  …
+                  "key": "string[]"
               },
-              "body": object
+              "body": "object"
           },
       }
   ]
@@ -596,13 +601,14 @@ Request body
 Response body
 
 .. code-block:: JSON
+
   {
-      "insertedRecordsCount": integer,
-      "notInsertedRecordsCount": integer,
+      "insertedRecordsCount": "integer",
+      "notInsertedRecordsCount": "integer",
       "recordProcessingDetails": [
           {
-              "hash": string
-              "message": string
+              "hash": "string"
+              "message": "string"
           }
       ]
   }
@@ -622,9 +628,10 @@ If the <hash> parameter is provided, <host> is required.
 Response body
 
 .. code-block:: JSON
+
   {
-      "message": string,
-      "hashes": string[]
+      "message": "string",
+      "hashes": "string[]"
   }
 
 **GET /wannabe/api/regenerate?host=<host>**
@@ -638,10 +645,11 @@ section for details.
 Response body
 
 .. code-block:: JSON
+
   {
-      "message": string,
-      "regeneratedHashes": string[],
-      "failedHashes": string[]
+      "message": "string",
+      "regeneratedHashes": "string[]",
+      "failedHashes": "string[]"
   }
 
 Contributing
