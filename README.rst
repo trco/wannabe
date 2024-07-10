@@ -101,6 +101,7 @@ Creation of self-signed certificate
 ***********************************
 
 .. code-block:: shell
+
     $ openssl genrsa -out wannabe.key 2048
     $ openssl req -new -x509 -key wannabe.key -out wannabe.crt -days 3650
 
@@ -108,6 +109,7 @@ Example of adding the certificate to the containerized service
 ***************************************************************
 
 .. code-block:: shell
+
     $ docker cp ./wannabe.crt containerized-service:/usr/local/share/ca-certificates/
     $ update-ca-certificates
 
@@ -117,6 +119,7 @@ Running Wannabe container
 The Wannabe server runs on port 6789 within the container, while the API runs on port 6790.
 
 .. code-block:: shell
+
     $ docker run -d \
     -p 6789:6789 \
     -p 6790:6790 \
