@@ -103,7 +103,7 @@ The configuration file currently consists of three root fields: [mode](#mode), [
 
 When the `"mode"` or `"storageProvider"` fields are not defined in the configuration, they default to the values below. The `"wannabes"` field is optional.
 
-```json
+```jsonc
 {
     "mode": "mixed",
     "storageProvider": {
@@ -119,7 +119,7 @@ When the `"mode"` or `"storageProvider"` fields are not defined in the configura
 
 ### Mode
 
-```json
+```jsonc
 {
     // options: "proxy", "server", "mixed"; defaults to "mixed"
     "mode": string
@@ -130,7 +130,7 @@ The `"mode"` field defines how a [Wannabe](#wannabe) container operates. Refer t
 
 ### Storage provider
 
-```json
+```jsonc
 {
     "storageProvider": {
         // options: “filesystem”; defaults to “filesystem”
@@ -149,7 +149,7 @@ The `"type"` field defines the type of storage provider [Wannabe](#wannabe) shou
 
 #### FilesystemConfig
 
-```json
+```jsonc
 {
     "filesystemConfig": {
         // path to the folder, relative to the configuration file
@@ -178,7 +178,7 @@ The `"format"` field defines the format in which the records are stored.
 
 ### Wannabes
 
-```json
+```jsonc
 {
     "wannabes": {
         "example.com": {
@@ -207,7 +207,7 @@ For a better understanding of how this works, refer to the [Usage of index wildc
 
 **Important note:** When configuring request matching to include a specific header in the generation of the cURL command and the underlying unique hash identifier for requests, you cannot exclude the same header from being stored in the request field of the records. This ensures that you can always regenerate existing records with a new request matching configuration, including this specific header. If headers to be included in request matching are not set, all of them are included in matching, and none of them can be excluded from being stored in the request field of records.
 
-```json
+```jsonc
 {
     "requestMatching": {
         "host": {
@@ -291,7 +291,7 @@ For a better understanding of how this works, refer to the [Usage of index wildc
 
 ##### Usage of index wildcards
 
-```json
+```jsonc
 {
     "host": {
         "wildcards": [
@@ -312,7 +312,7 @@ Requests that differ only in the value at the first index of the host will resul
 
 ##### Usage of key wildcards
 
-```json
+```jsonc
 {
     "query": {
         "wildcards": [
@@ -333,7 +333,7 @@ Requests that differ only in the value of the defined key in the query will resu
 
 ##### Usage of regexes
 
-```json
+```jsonc
 {
     "path": {
         "regexes": [
@@ -354,7 +354,7 @@ Requests that differ only in the regex-defined pattern of the path will result i
 
 #### Records
 
-```json
+```jsonc
 {
     "records": {
         "headers": {
@@ -376,7 +376,7 @@ For example, if the storage provider is the file system, and the default `"recor
 
 ### Example of the Record
 
-```json
+```jsonc
 {
     "request": {
         "hash": "f9150cd75f617b8f6a751cab3fc2b2f19b47e2b67cb496c91e5a54a0cf923ff0",
@@ -459,7 +459,7 @@ Retrieves either all the records, all the records for a specified host, or a sin
 
 **Response body**
 
-```json
+```jsonc
 [
     {
         "request": {
@@ -503,7 +503,7 @@ Stores received records in the configured storage provider.
 
 **Request body**
 
-```json
+```jsonc
 [
     {
         "request": {
@@ -531,7 +531,7 @@ Stores received records in the configured storage provider.
 
 **Response body**
 
-```json
+```jsonc
 {
     "insertedRecordsCount": integer,
     "notInsertedRecordsCount": integer,
@@ -558,7 +558,7 @@ Deletes all the records for a specified host or a single record for a specified 
 
 **Response body**
 
-```json
+```jsonc
 {
     "message": string,
     "hashes": string[]
@@ -573,7 +573,7 @@ Regenerates records for a specific host using the provided [wannabe](#wannabes) 
 
 **Response body**
 
-```json
+```jsonc
 {
     "message": string,
     "regeneratedHashes": string[],
