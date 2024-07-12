@@ -569,6 +569,8 @@ Deletes all the records for a specified host or a single record for a specified 
 
 Regenerates records for a specific host using the provided [wannabe](#wannabes) configuration. See the [Regenerate records](#regenerate-records) section for details.
 
+**Parameters**
+
 `{host}` (string, required) - Host for which the records should be regenerated.
 
 **Response body**
