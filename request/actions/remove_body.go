@@ -2,8 +2,8 @@ package actions
 
 import "net/http"
 
-// prevent sending body for GET requests
-func ProcessGet(request *http.Request) *http.Request {
+// prevents sending body and related headers in GET requests
+func RemoveBody(request *http.Request) *http.Request {
 	isGet := request.Method == "GET"
 	if isGet {
 		request.Body = http.NoBody

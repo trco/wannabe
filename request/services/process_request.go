@@ -6,8 +6,8 @@ import (
 )
 
 func ProcessRequest(request *http.Request) *http.Request {
-	processedRequest := actions.ProcessGet(request)
-	processedRequest = actions.ProcessHttps(processedRequest)
+	processedRequest := actions.RemoveBody(request)
+	processedRequest = actions.ProcessScheme(processedRequest)
 
 	return processedRequest
 }
