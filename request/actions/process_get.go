@@ -2,6 +2,7 @@ package actions
 
 import "net/http"
 
+// prevent sending body for GET requests
 func ProcessGet(request *http.Request) *http.Request {
 	isGet := request.Method == "GET"
 	if isGet {
