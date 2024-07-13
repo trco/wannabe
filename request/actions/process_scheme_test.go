@@ -6,7 +6,7 @@ import (
 )
 
 func TestProcessScheme(t *testing.T) {
-	t.Run("process https", func(t *testing.T) {
+	t.Run("process scheme", func(t *testing.T) {
 		httpMethod := "GET"
 		url := "http://test.com"
 
