@@ -7,6 +7,7 @@ import (
 	"wannabe/handlers/utils"
 	"wannabe/hash/actions"
 	"wannabe/providers"
+	requestServices "wannabe/request/services"
 	"wannabe/response/services"
 	"wannabe/types"
 
@@ -26,6 +27,8 @@ func processSessionOnRequest(config types.Config, storageProvider providers.Stor
 	if isConnect {
 		return nil, nil
 	}
+
+	request = requestServices.ProcessRequest(request)
 
 	host := request.URL.Host
 	wannabe := config.Wannabes[host]
