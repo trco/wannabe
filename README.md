@@ -1,6 +1,6 @@
 # Wannabe
 
-A versatile Go tool for effortlessly generating mock APIs.
+A versatile Go tool for effortlessly generating mock APIs for all your needs.
 
 ## Getting started
 
