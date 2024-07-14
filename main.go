@@ -23,41 +23,18 @@ func main() {
 		log.Fatalf("fatal error starting app: %v", err)
 	}
 
-	mitmConfig, err := cfg.LoadMitmConfig("wannabe.crt", "wannabe.key")
-	if err != nil {
-		log.Fatalf("fatal error starting app: %v", err)
-	}
-
 	storageProvider, err := providers.StorageProviderFactory(config)
 	if err != nil {
 		log.Fatalf("fatal error starting app: %v", err)
 	}
 
-	go startWannabeApiServer(config, storageProvider)
-	startWannabeServer(config, mitmConfig, storageProvider)
-}
-
-func startWannabeServer(config types.Config, mitmConfig *mitm.Config, storageProvider providers.StorageProvider) {
-	proxy := gomitmproxy.NewProxy(gomitmproxy.Config{
-		ListenAddr: &net.TCPAddr{
-			IP:   net.IPv4(0, 0, 0, 0),
-			Port: 6789,
-		},
-		MITMConfig: mitmConfig,
-		OnRequest:  handlers.WannabeOnRequest(config, storageProvider),
-		OnResponse: handlers.WannabeOnResponse(config, storageProvider),
-	})
-
-	err := proxy.Start()
+	mitmConfig, err := cfg.LoadMitmConfig("wannabe.crt", "wannabe.key")
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("fatal error starting app: %v", err)
 	}
 
-	signalChannel := make(chan os.Signal, 1)
-	signal.Notify(signalChannel, syscall.SIGINT, syscall.SIGTERM)
-	<-signalChannel
-
-	proxy.Close()
+	go startWannabeApiServer(config, storageProvider)
+	startWannabeProxyServer(config, mitmConfig, storageProvider)
 }
 
 func startWannabeApiServer(config types.Config, storageProvider providers.StorageProvider) {
@@ -70,4 +47,33 @@ func startWannabeApiServer(config types.Config, storageProvider providers.Storag
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func startWannabeProxyServer(config types.Config, mitmConfig *mitm.Config, storageProvider providers.StorageProvider) {
+	wannabeProxy := initWannabeProxy(config, mitmConfig, storageProvider)
+
+	err := wannabeProxy.Start()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	signalChannel := make(chan os.Signal, 1)
+	signal.Notify(signalChannel, syscall.SIGINT, syscall.SIGTERM)
+	<-signalChannel
+
+	wannabeProxy.Close()
+}
+
+func initWannabeProxy(config types.Config, mitmConfig *mitm.Config, storageProvider providers.StorageProvider) *gomitmproxy.Proxy {
+	wannabeProxy := gomitmproxy.NewProxy(gomitmproxy.Config{
+		ListenAddr: &net.TCPAddr{
+			IP:   net.IPv4(0, 0, 0, 0),
+			Port: 6789,
+		},
+		MITMConfig: mitmConfig,
+		OnRequest:  handlers.WannabeOnRequest(config, storageProvider),
+		OnResponse: handlers.WannabeOnResponse(config, storageProvider),
+	})
+
+	return wannabeProxy
 }
