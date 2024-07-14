@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-// sets scheme to https if request uri contains it but the scheme is http due to proxying
+// sets scheme to https if request uri contains it but the scheme set on url is http
 func ProcessScheme(request *http.Request) *http.Request {
 	if strings.Contains(request.RequestURI, "https://") {
 		request.URL.Scheme = "https"
