@@ -42,7 +42,7 @@ func startWannabeApiServer(config types.Config, storageProvider providers.Storag
 	http.HandleFunc("/wannabe/api/records", handlers.Records(config, storageProvider))
 	http.HandleFunc("/wannabe/api/regenerate", handlers.Regenerate(config, storageProvider))
 
-	fmt.Println("API server listening on :6790")
+	fmt.Println("API server start listening to [::]:6790")
 	err := http.ListenAndServe(":6790", nil)
 	if err != nil {
 		log.Fatal(err)
