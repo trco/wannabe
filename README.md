@@ -1,6 +1,6 @@
 # Wannabe
 
-A versatile Go tool for effortlessly generating mock APIs for all your needs.
+A versatile Go tool for effortlessly generating mock HTTP APIs for all your needs.
 
 ## Getting started
 
@@ -28,7 +28,7 @@ $ openssl genrsa -out wannabe.key 2048
 $ openssl req -new -x509 -key wannabe.key -out wannabe.crt -days 3650
 ```
 
-#### Adding a self-signed certificate to a containerized service
+#### Adding a self-signed certificate to a containerized service using Wannabe
 
 ```
 $ docker cp ./wannabe.crt containerized-service:/usr/local/share/ca-certificates/
@@ -58,18 +58,23 @@ Like any Go program, [Wannabe](#wannabe) can be launched by simply cloning the r
 
 ## How does it work?
 
-### Proxy mode
-
-In `proxy` mode, [Wannabe](#wannabe) operates as a proxy server. It derives a cURL command from the received request based on your [Request matching](#request-matching) configuration and hashes it to create a unique identifier. [Wannabe](#wannabe) then proxies the received request to the host defined in the request and, upon receiving the response, stores a [Record](#records) in the configured [Storage provider](#storage-provider) using the previously generated hash as the key. Each record includes the original request and its corresponding response from the upstream server.
-
 ### Server mode
 
 In `server` mode, [Wannabe](#wannabe) functions as a standalone server. Upon receiving a request, it generates a cURL command from it based on your [Request matching](#request-matching) configuration and generates a hash from the prepared cURL command. [Wannabe](#wannabe) then looks up the matching [Record](#records) in the [Storage provider](#storage-provider) using the hash as a record key and responds with the stored response if it finds a match, or with an error if a matching record is not found.
+
+![Server mode](docs/media/server_mode.png)
 
 ### Mixed mode
 
 In `mixed` mode, [Wannabe](#wannabe) functions as both a standalone server and a proxy server. Upon receiving a request, it generates a cURL command from it based on your [Request matching](#request-matching) configuration and generates a hash from the prepared cURL command. If it finds a matching [Record](#records) for the received request using the hash as a record key, [Wannabe](#wannabe) responds with the recorded response. If no matching records are found in the storage, [Wannabe](#wannabe) proxies the received request to the host defined in the request and, upon receiving the response, stores a record in the configured [Storage provider](#storage-provider) using the previously generated hash as the key.
 
+![Mixed mode](docs/media/mixed_mode.png)
+
+### Proxy mode
+
+In `proxy` mode, [Wannabe](#wannabe) operates as a proxy server. It derives a cURL command from the received request based on your [Request matching](#request-matching) configuration and hashes it to create a unique identifier. [Wannabe](#wannabe) then proxies the received request to the host defined in the request and, upon receiving the response, stores a [Record](#records) in the configured [Storage provider](#storage-provider) using the previously generated hash as the key. Each record includes the original request and its corresponding response from the upstream server.
+
+![Proxy mode](docs/media/proxy_mode.png)
 
 ## Usage examples
 
@@ -97,7 +102,7 @@ TODO
 
 [Wannabe](#wannabe) requires a `config.json` configuration file. Any changes made to the configuration file will only take effect after restarting the standalone [Wannabe](#wannabe) server or the one running in the container.
 
-The configuration file currently consists of three root fields: [mode](#mode), [storageProvider](#storage-provider), and [wannabes](#wannabes). Refer to the following subsections for details on all the options that can be configured using these root fields."
+The configuration file consists of three root fields: [mode](#mode), [storageProvider](#storage-provider), and [wannabes](#wannabes). Refer to the following subsections for details on all the options that can be configured using these root fields.
 
 ### Defaults
 
@@ -205,7 +210,7 @@ For example, you can record responses for all possible requests to the Google An
 
 For a better understanding of how this works, refer to the [Usage of index wildcards](#usage-of-index-wildcards), [Usage of key wildcards](#usage-of-key-wildcards) and [Usage of regexes](#usage-of-regexes) sections and the explanations provided therein.
 
-**Important note:** When configuring request matching to include a specific header in the generation of the cURL command and the underlying unique hash identifier for requests, you cannot exclude the same header from being stored in the request field of the records. This ensures that you can always regenerate existing records with a new request matching configuration, including this specific header. If headers to be included in request matching are not set, all of them are included in matching, and none of them can be excluded from being stored in the request field of records.
+**Important note:** When configuring request matching to include a specific header in the generation of the cURL command and the underlying unique hash identifier for requests, you cannot exclude the same header from being stored in the request field of the records. This ensures that you can always [regenerate](#regenerate-records) existing records with a new request matching configuration, including this specific header. If headers to be included in request matching are not set, all of them are included in matching, and none of them can be excluded from being stored in the request field of records.
 
 ```jsonc
 {
@@ -366,7 +371,7 @@ Requests that differ only in the regex-defined pattern of the path will result i
 
 The `"records"` field allows configuring headers to be excluded from the request field of the stored records. This allows exclusion of headers that might pose security risks, such as `Authorization` headers containing access tokens, API keys, or other credentials.
 
-**Important note:** When configuring request matching to include a specific header in the generation of the cURL command and the underlying unique hash identifier for requests, you cannot exclude the same header from being stored in the request field of the records. This ensures that you can always regenerate existing records with a new request matching configuration, including this specific header. If headers to be included in request matching are not set, all of them are included in matching, and none of them can be excluded from being stored in the request field of records.
+**Important note:** When configuring request matching to include a specific header in the generation of the cURL command and the underlying unique hash identifier for requests, you cannot exclude the same header from being stored in the request field of the records. This ensures that you can always [regenerate](#regenerate-records) existing records with a new request matching configuration, including this specific header. If headers to be included in request matching are not set, all of them are included in matching, and none of them can be excluded from being stored in the request field of records.
 
 ## Record entity
 
