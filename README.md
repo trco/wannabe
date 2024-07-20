@@ -84,6 +84,12 @@ In `proxy` mode, [Wannabe](#wannabe) operates as a proxy server. It derives a cU
 
 [Wannabe](#wannabe) allows developers to record and simulate the behavior of external services, eliminating the need for reliance on those services during development and testing. This spans from initial development to regression testing.
 
+#### Example
+
+The scheme below shows a containerized testing environment for integration tests of `service1.local`. In a production environment, `service1.local` would make an HTTP request to an external API in step 4. However, in this testing environment, all outbound requests from `service1.local` are proxied to `wannabe.local`, except those targeting services defined in the `NO_PROXY` Docker environment variable for `service1.local`. `wannabe.local` finds the matching request and response pair in its records and responds to `service1.local`.
+
+![Example](docs/media/example.png)
+
 ### Mocking internal APIs
 
 Developers can use [Wannabe](#wannabe) to prepare mocks of non-existing APIs and share them with other teams before implementing any business logic. These mocks facilitate development and testing processes, spanning from initial development to regression testing.
@@ -93,10 +99,6 @@ Developers can use [Wannabe](#wannabe) to prepare mocks of non-existing APIs and
 Wannabe [Records](#records), along with their underlying [Configuration](#configuration) files, can be shared among developers, teams, and businesses. This accelerates development processes by providing robust and well-tested mocks.
 
 [Wannabe](#wannabe) can certainly support numerous other use cases. If you discover an innovative use case for [Wannabe](#wannabe), please share it with us.
-
-## Example
-
-TODO
 
 ## Configuration
 
