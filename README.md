@@ -62,19 +62,19 @@ Like any Go program, [Wannabe](#wannabe) can be launched by simply cloning the r
 
 In `server` mode, [Wannabe](#wannabe) functions as a standalone server. Upon receiving a request, it generates a cURL command from it based on your [Request matching](#request-matching) configuration and generates a hash from the prepared cURL command. [Wannabe](#wannabe) then looks up the matching [Record](#records) in the [Storage provider](#storage-provider) using the hash as a record key and responds with the stored response if it finds a match, or with an error if a matching record is not found.
 
-![Server mode](docs/media/server.png)
+![Server mode](docs/media/server_mode.png)
 
 ### Mixed mode
 
 In `mixed` mode, [Wannabe](#wannabe) functions as both a standalone server and a proxy server. Upon receiving a request, it generates a cURL command from it based on your [Request matching](#request-matching) configuration and generates a hash from the prepared cURL command. If it finds a matching [Record](#records) for the received request using the hash as a record key, [Wannabe](#wannabe) responds with the recorded response. If no matching records are found in the storage, [Wannabe](#wannabe) proxies the received request to the host defined in the request and, upon receiving the response, stores a record in the configured [Storage provider](#storage-provider) using the previously generated hash as the key.
 
-![Mixed mode](docs/media/mixed.png)
+![Mixed mode](docs/media/mixed_mode.png)
 
 ### Proxy mode
 
 In `proxy` mode, [Wannabe](#wannabe) operates as a proxy server. It derives a cURL command from the received request based on your [Request matching](#request-matching) configuration and hashes it to create a unique identifier. [Wannabe](#wannabe) then proxies the received request to the host defined in the request and, upon receiving the response, stores a [Record](#records) in the configured [Storage provider](#storage-provider) using the previously generated hash as the key. Each record includes the original request and its corresponding response from the upstream server.
 
-![Proxy mode](docs/media/proxy.png)
+![Proxy mode](docs/media/proxy_mode.png)
 
 ## Usage examples
 
