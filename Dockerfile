@@ -13,11 +13,13 @@ RUN go build -ldflags="-s -w" -o wannabe .
 
 FROM alpine
 
-COPY --from=builder /build/wannabe /wannabe
+WORKDIR /usr/src/app
+
+COPY --from=builder /build/wannabe /usr/src/app/wannabe
 
 RUN apk add --no-cache bash curl
 
 EXPOSE 6789
 EXPOSE 6790
 
-ENTRYPOINT ["/wannabe"]
+ENTRYPOINT ["/usr/src/app/wannabe"]
