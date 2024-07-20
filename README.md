@@ -88,6 +88,8 @@ In `proxy` mode, [Wannabe](#wannabe) operates as a proxy server. It derives a cU
 
 The scheme below shows a containerized testing environment for integration tests of `service-1`. In a production environment, `service-1` would make an HTTP request to an external API in step 4. However, in this testing environment, all outbound requests from `service-1` are proxied to `wannabe` based on the proxy configuration of `service-1` (HTTP_PROXY, HTTPS_PROXY, NO_PROXY environment variables). Once the HTTP request is executed against `wannabe`, it finds the response for the matching request in the relevant record and responds to `service-1` with it.
 
+This way, integration tests of `service-1` are completely independent of external services and can be run without any limitations imposed by external APIs. This includes issues such as downtime, rate limiting, varying response times, temporary errors, or access fees.
+
 ![Example](docs/media/example.png)
 
 ### Mocking internal APIs
