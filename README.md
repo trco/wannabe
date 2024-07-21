@@ -4,42 +4,31 @@ A versatile Go tool for effortlessly generating mock HTTP APIs for all your need
 
 ## Getting started
 
-### Running in Docker
+For a successful startup, [Wannabe](#wannabe) requires the `config.json`, `wannabe.crt`, and `wannabe.key` files.
 
-[Wannabe](#wannabe) provides an official Docker image for running the application within a container.
+For information on configuring `config.json`, see the [Configuration](#configuration) section. You must generate and use the self-signed certificate `wannabe.crt` and key `wannabe.key` for [Wannabe](#wannabe) to securely proxy HTTPS requests to other servers. It's crucial to ensure that the client's operating system, whether on a local machine or within a containerized environment, trusts the `wannabe.crt` certificate for secure communication with [Wannabe](#wannabe). For guidance on adding the certificate to your operating system and configuring trust settings, please refer to the relevant documentation.
 
-To ensure the application starts correctly, it is mandatory to mount the following files from the filesystem where the [Wannabe](#wannabe) container is running to the root folder of the container:
-
-1. `config.json` - configuration file
-2. `wannabe.crt` - private key
-3. `wannabe.key` - self-signed certificate, a certificate that’s signed with its own private key
-
-The `wannabe.crt` and `wannabe.key` files represent the self-signed certificate that you need to create and mount to the [Wannabe](#wannabe) container. This is necessary for [Wannabe](#wannabe) to proxy requests to other servers using the HTTPS protocol. This certificate should also be added to the service that will be using [Wannabe](#wannabe). For details on the configuration file usage, refer to the [Configuration](#configuration) section.
-
-#### Creation of self-signed certificate
+### Generate self-signed certificate
 
 ```
-// create 2048-bit private key
+// generate 2048-bit private key
 $ openssl genrsa -out wannabe.key 2048
 ```
 
 ```
-// create self-signed certificate valid for 10 years
+// generate self-signed certificate valid for 10 years
 $ openssl req -new -x509 -key wannabe.key -out wannabe.crt -days 3650
 ```
 
-#### Adding a self-signed certificate to a containerized service using Wannabe
+### Running as a standalone server
 
-```
-$ docker cp ./wannabe.crt containerized-service:/usr/local/share/ca-certificates/
-$ update-ca-certificates
-```
+Like any Go program, [Wannabe](#wannabe) can be launched by simply cloning the repository, adding a `config.json`, `wannabe.crt` and `wannabe.key` to the root of the cloned repository, compiling the source code into an executable binary file using the `go build` command, and then running the program with the `go run` command.
 
-**Important note:** The above example demonstrates updating the system's trusted certificates store in Debian/Ubuntu or Alpine base images. The process for updating the system's trusted certificates store can vary depending on the operating system and the type of base image used in your container.
+### Running in Docker
 
-#### Running Wannabe container
+[Wannabe](#wannabe) provides an official Docker image for running the application within a container.
 
-The [Wannabe](#wannabe) server runs on port 6789 within the container, while the API runs on port 6790.
+To guarantee a successful launch of the application, `config.json`, `wannabe.crt` and `wannabe.key` should be mounted from the host operating system to the root directory of the [Wannabe](#wannabe) container. Inside the container, the [Wannabe](#wannabe) server operates on port 6789, and the API is accessible through port 6790.
 
 ```
 $ docker run -d \
@@ -52,29 +41,25 @@ $ docker run -d \
 wannabe // add official image
 ```
 
-### Running as a standalone server
-
-Like any Go program, [Wannabe](#wannabe) can be launched by simply cloning the repository, adding a custom `config.json`, `wannabe.crt` and `wannabe.key` to the root of the cloned repository, compiling the source code into an executable binary file using the `go build` command, and then running the program with the `go run` command.
-
 ## How does it work?
 
 ### Server mode
 
 In `server` mode, [Wannabe](#wannabe) functions as a standalone server. Upon receiving a request, it generates a cURL command from it based on your [Request matching](#request-matching) configuration and generates a hash from the prepared cURL command. [Wannabe](#wannabe) then looks up the matching [Record](#records) in the [Storage provider](#storage-provider) using the hash as a record key and responds with the stored response if it finds a match, or with an error if a matching record is not found.
 
-![Server mode](docs/media/server.png)
+![Server mode](docs/media/server_mode.png)
 
 ### Mixed mode
 
 In `mixed` mode, [Wannabe](#wannabe) functions as both a standalone server and a proxy server. Upon receiving a request, it generates a cURL command from it based on your [Request matching](#request-matching) configuration and generates a hash from the prepared cURL command. If it finds a matching [Record](#records) for the received request using the hash as a record key, [Wannabe](#wannabe) responds with the recorded response. If no matching records are found in the storage, [Wannabe](#wannabe) proxies the received request to the host defined in the request and, upon receiving the response, stores a record in the configured [Storage provider](#storage-provider) using the previously generated hash as the key.
 
-![Mixed mode](docs/media/mixed.png)
+![Mixed mode](docs/media/mixed_mode.png)
 
 ### Proxy mode
 
 In `proxy` mode, [Wannabe](#wannabe) operates as a proxy server. It derives a cURL command from the received request based on your [Request matching](#request-matching) configuration and hashes it to create a unique identifier. [Wannabe](#wannabe) then proxies the received request to the host defined in the request and, upon receiving the response, stores a [Record](#records) in the configured [Storage provider](#storage-provider) using the previously generated hash as the key. Each record includes the original request and its corresponding response from the upstream server.
 
-![Proxy mode](docs/media/proxy.png)
+![Proxy mode](docs/media/proxy_mode.png)
 
 ## Usage examples
 
@@ -86,7 +71,7 @@ In `proxy` mode, [Wannabe](#wannabe) operates as a proxy server. It derives a cU
 
 #### Example
 
-The scheme below shows a containerized testing environment for integration tests of `service-1`. In a production environment, `service-1` would make an HTTP request to an external API in step 4. However, in this testing environment, all outbound requests from `service-1` are proxied to `wannabe` based on the proxy configuration of `service-1` (HTTP_PROXY, HTTPS_PROXY, NO_PROXY environment variables). Once the HTTP request is executed against `wannabe`, it finds the response for the matching request in the relevant record and responds to `service-1` with it.
+The scheme below shows a containerized testing environment for integration tests of `service-1`. In a production environment, `service-1` would make an HTTP request to an external API. However, in this testing environment, all outbound requests from `service-1` are proxied to `wannabe` based on the proxy configuration of `service-1` (HTTP_PROXY, HTTPS_PROXY, NO_PROXY environment variables). Once the HTTP request is executed against `wannabe`, it finds the response for the matching request in the relevant record and responds to `service-1` with it.
 
 This way, integration tests of `service-1` are completely independent of external services and can be run without any limitations imposed by external APIs. This includes issues such as downtime, rate limiting, varying response times, temporary errors, or access fees.
 
