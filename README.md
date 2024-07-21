@@ -63,23 +63,23 @@ In `proxy` mode, [Wannabe](#wannabe) operates as a proxy server. It derives a cU
 
 ## Usage examples
 
-[Wannabe](#wannabe) seamlessly mimics any desired API, whether external or internal, existing or still in development, and without business logic. It can effectively become the API you need for faster and better development and testing processes.
+[Wannabe](#wannabe) seamlessly mimics any desired HTTP API, whether external or internal, existing or still in development, and without business logic. It can effectively become the HTTP API you need for faster and better development and testing processes.
 
-### Mocking external APIs
+### Mocking external HTTP APIs
 
 [Wannabe](#wannabe) allows developers to record and simulate the behavior of external services, eliminating the need for reliance on those services during development and testing. This spans from initial development to regression testing.
 
 #### Example
 
-The scheme below shows a containerized testing environment for integration tests of `service-1`. In a production environment, `service-1` would make an HTTP request to an external API. However, in this testing environment, all outbound requests from `service-1` are proxied to `wannabe` based on the proxy configuration of `service-1` (HTTP_PROXY, HTTPS_PROXY, NO_PROXY environment variables). Once the HTTP request is executed against `wannabe`, it finds the response for the matching request in the relevant record and responds to `service-1` with it.
+The scheme below shows a containerized testing environment for integration tests of `service-1`. In a production environment, `service-1` would make an HTTP request to an external HTTP API. However, in this testing environment, all outbound requests from `service-1` are proxied to `wannabe` based on the proxy configuration of `service-1` (HTTP_PROXY, HTTPS_PROXY, NO_PROXY environment variables). Once the HTTP request is executed against `wannabe`, it finds the response for the matching request in the relevant record and responds to `service-1` with it.
 
-This way, integration tests of `service-1` are completely independent of external services and can be run without any limitations imposed by external APIs. This includes issues such as downtime, rate limiting, varying response times, temporary errors, or access fees.
+This way, integration tests of `service-1` are completely independent of external services and can be run without any limitations imposed by external HTTP APIs. This includes issues such as downtime, rate limiting, varying response times, temporary errors, or access fees.
 
 ![Example](docs/media/example.png)
 
-### Mocking internal APIs
+### Mocking internal HTTP APIs
 
-Developers can use [Wannabe](#wannabe) to prepare mocks of non-existing APIs and share them with other teams before implementing any business logic. These mocks facilitate development and testing processes, spanning from initial development to regression testing.
+Developers can use [Wannabe](#wannabe) to prepare mocks of non-existing HTTP APIs and share them with other teams before implementing any business logic. These mocks facilitate development and testing processes, spanning from initial development to regression testing.
 
 ### Reusability
 
