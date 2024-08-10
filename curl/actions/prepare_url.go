@@ -1,8 +1,8 @@
 package actions
 
-func PrepareUrl(host string, path string, query string) string {
+func PrepareUrl(scheme string, host string, path string, query string) string {
 	if path == "/" {
 		path = ""
 	}
-	return host + path + query
+	return scheme + "://" + host + path + query
 }

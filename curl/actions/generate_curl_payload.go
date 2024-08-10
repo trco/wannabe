@@ -19,6 +19,7 @@ func GenerateCurlPayload(request *http.Request) (types.CurlPayload, error) {
 	request.Body = io.NopCloser(bytes.NewBuffer(body))
 
 	curlPayload := types.CurlPayload{
+		Scheme:         request.URL.Scheme,
 		HttpMethod:     request.Method,
 		Host:           request.URL.Host,
 		Path:           request.URL.Path,

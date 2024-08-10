@@ -20,7 +20,7 @@ func TestGenerateCurl(t *testing.T) {
 			},
 		}
 
-		want := "curl -X 'POST' -d '{\"test\":\"test\"}' -H 'Accept: test' -H 'Content-Type: application/json' 'test.com/test?test=test'"
+		want := "curl -X 'POST' -d '{\"test\":\"test\"}' -H 'Accept: test' -H 'Content-Type: application/json' 'https://test.com/test?test=test'"
 
 		got, _ := GenerateCurl(request, wannabe)
 
@@ -33,7 +33,7 @@ func TestGenerateCurl(t *testing.T) {
 
 func generateTestRequest() *http.Request {
 	httpMethod := "POST"
-	url := "http://test.com/test?test=test"
+	url := "https://test.com/test?test=test"
 	body := "{\"test\":\"test\"}"
 	bodyBuffer := bytes.NewBufferString(body)
 

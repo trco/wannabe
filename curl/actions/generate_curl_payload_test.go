@@ -13,6 +13,7 @@ func TestGenerateCurlPayload(t *testing.T) {
 		request := generateTestRequest()
 
 		want := types.CurlPayload{
+			Scheme:     "https",
 			HttpMethod: "POST",
 			Host:       "test.com",
 			Path:       "/test",
@@ -37,7 +38,7 @@ func TestGenerateCurlPayload(t *testing.T) {
 
 func generateTestRequest() *http.Request {
 	httpMethod := "POST"
-	url := "http://test.com/test?test=test"
+	url := "https://test.com/test?test=test"
 	body := "{\"test\":\"test\"}"
 	bodyBuffer := bytes.NewBufferString(body)
 

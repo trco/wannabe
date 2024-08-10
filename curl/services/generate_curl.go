@@ -36,7 +36,7 @@ func GenerateCurl(request *http.Request, wannabe types.Wannabe) (string, error) 
 		return "", err
 	}
 
-	url := actions.PrepareUrl(processedHost, processedPath, processedQuery)
+	url := actions.PrepareUrl(payload.Scheme, processedHost, processedPath, processedQuery)
 
 	processedRequest, err := actions.PrepareRequest(httpMethod, url, processedBody)
 	if err != nil {

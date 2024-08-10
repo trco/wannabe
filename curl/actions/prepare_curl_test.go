@@ -8,7 +8,7 @@ func TestPrepareCurl(t *testing.T) {
 	t.Run("prepare curl", func(t *testing.T) {
 		request := generateTestRequest()
 
-		want := "curl -X 'POST' -d '{\"test\":\"test\"}' -H 'Accept: test' -H 'Content-Type: application/json' 'http://test.com/test?test=test'"
+		want := "curl -X 'POST' -d '{\"test\":\"test\"}' -H 'Accept: test' -H 'Content-Type: application/json' 'https://test.com/test?test=test'"
 
 		got, _ := PrepareCurl(request)
 

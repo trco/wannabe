@@ -1,6 +1,7 @@
 package types
 
 type CurlPayload struct {
+	Scheme         string
 	HttpMethod     string
 	Host           string
 	Path           string
