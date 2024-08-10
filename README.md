@@ -585,6 +585,14 @@ Regenerates records for a specific host using the provided [wannabe](#wannabes) 
 
 The package or logic used for making HTTP requests must support proxying. Otherwise, setting HTTP_PROXY and HTTPS_PROXY environment variables in containers won't result in HTTP requests being properly routed through the proxy. For example, Node.js's [node-fetch](https://github.com/node-fetch/node-fetch) does not support proxying until Node.js version 20, and another package for making HTTP requests, [got](https://github.com/sindresorhus/got), also lacks proxy support, while [axios](https://github.com/axios/axios) does support proxying.
 
+**Which request and response body content types are currently supported?**
+
+Wannabe currently supports the following content types: *application/json*, *application/xml*, *text/xml*, *text/plain*, and *text/html*.
+
+**Which request and response body content encodings are currently supported?**
+
+Wannabe currently supports the following content encodings: *gzip*.
+
 ## Contributing
 
 Thank you for considering contributing to Wannabe! Contributions from the community are more than welcome to help improve the project and make it even better.
