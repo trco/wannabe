@@ -4,9 +4,9 @@ A versatile Go tool for effortlessly generating mock HTTP APIs for all your need
 
 ## Getting started
 
-For a successful startup, [Wannabe](#wannabe) requires the `config.json`, `wannabe.crt`, and `wannabe.key` files.
+For a successful startup, Wannabe requires the `config.json`, `wannabe.crt`, and `wannabe.key` files.
 
-For information on configuring `config.json`, see the [Configuration](#configuration) section. You must generate and use the self-signed certificate `wannabe.crt` and key `wannabe.key` for [Wannabe](#wannabe) to securely proxy HTTPS requests to other servers. It's crucial to ensure that the client's operating system, whether on a local machine or within a containerized environment, trusts the `wannabe.crt` certificate for secure communication with [Wannabe](#wannabe). For guidance on adding the certificate to your operating system and configuring trust settings, please refer to the relevant documentation.
+For information on configuring `config.json`, see the [Configuration](#configuration) section. You must generate and use the self-signed certificate `wannabe.crt` and key `wannabe.key` for Wannabe to securely proxy HTTPS requests to other servers. It's crucial to ensure that the client's operating system, whether on a local machine or within a containerized environment, trusts the `wannabe.crt` certificate for secure communication with Wannabe. For guidance on adding the certificate to your operating system and configuring trust settings, please refer to the relevant documentation.
 
 ### Generate self-signed certificate
 
@@ -22,13 +22,13 @@ $ openssl req -new -x509 -key wannabe.key -out wannabe.crt -days 3650
 
 ### Running as a standalone server
 
-Like any Go program, [Wannabe](#wannabe) can be launched by simply cloning the repository, adding a `config.json`, `wannabe.crt` and `wannabe.key` to the root of the cloned repository, compiling the source code into an executable binary file using the `go build` command, and then running the program with the `go run` command.
+Like any Go program, Wannabe can be launched by simply cloning the repository, adding a `config.json`, `wannabe.crt` and `wannabe.key` to the root of the cloned repository, compiling the source code into an executable binary file using the `go build` command, and then running the program with the `go run` command.
 
 ### Running in Docker
 
-[Wannabe](#wannabe) provides an official Docker image for running the application within a container.
+Wannabe provides an official Docker image for running the application within a container.
 
-To guarantee a successful launch of the application, `config.json`, `wannabe.crt` and `wannabe.key` should be mounted from the host operating system to the root directory of the [Wannabe](#wannabe) container. Inside the container, the [Wannabe](#wannabe) server operates on port 6789, and the API is accessible through port 6790.
+To guarantee a successful launch of the application, `config.json`, `wannabe.crt` and `wannabe.key` should be mounted from the host operating system to the root directory of the Wannabe container. Inside the container, the Wannabe server operates on port 6789, and the API is accessible through port 6790.
 
 ```
 $ docker run -d \
@@ -41,33 +41,35 @@ $ docker run -d \
 wannabe // add official image
 ```
 
+To proxy requests from containers through Wannabe, the HTTP_PROXY and HTTPS_PROXY environment variables of the container should be set to the Wannabe address. In a container network where a single container communicates through the HTTP layer with multiple other containers, the NO_PROXY environment variable should be set to the addresses of containers that should be excluded from proxying requests through Wannabe. See [Example](#example) for a detailed setup.
+
 ## How does it work?
 
 ### Server mode
 
-In `server` mode, [Wannabe](#wannabe) functions as a standalone server. Upon receiving a request, it generates a cURL command from it based on your [Request matching](#request-matching) configuration and generates a hash from the prepared cURL command. [Wannabe](#wannabe) then looks up the matching [Record](#records) in the [Storage provider](#storage-provider) using the hash as a record key and responds with the stored response if it finds a match, or with an error if a matching record is not found.
+In `server` mode, Wannabe functions as a standalone server. Upon receiving a request, it generates a cURL command from it based on your [Request matching](#request-matching) configuration and generates a hash from the prepared cURL command. Wannabe then looks up the matching [Record](#records) in the [Storage provider](#storage-provider) using the hash as a record key and responds with the stored response if it finds a match, or with an error if a matching record is not found.
 
 ![Server mode](docs/media/server_mode.png)
 
 ### Mixed mode
 
-In `mixed` mode, [Wannabe](#wannabe) functions as both a standalone server and a proxy server. Upon receiving a request, it generates a cURL command from it based on your [Request matching](#request-matching) configuration and generates a hash from the prepared cURL command. If it finds a matching [Record](#records) for the received request using the hash as a record key, [Wannabe](#wannabe) responds with the recorded response. If no matching records are found in the storage, [Wannabe](#wannabe) proxies the received request to the host defined in the request and, upon receiving the response, stores a record in the configured [Storage provider](#storage-provider) using the previously generated hash as the key.
+In `mixed` mode, Wannabe functions as both a standalone server and a proxy server. Upon receiving a request, it generates a cURL command from it based on your [Request matching](#request-matching) configuration and generates a hash from the prepared cURL command. If it finds a matching [Record](#records) for the received request using the hash as a record key, Wannabe responds with the recorded response. If no matching records are found in the storage, Wannabe proxies the received request to the host defined in the request and, upon receiving the response, stores a record in the configured [Storage provider](#storage-provider) using the previously generated hash as the key.
 
 ![Mixed mode](docs/media/mixed_mode.png)
 
 ### Proxy mode
 
-In `proxy` mode, [Wannabe](#wannabe) operates as a proxy server. It derives a cURL command from the received request based on your [Request matching](#request-matching) configuration and hashes it to create a unique identifier. [Wannabe](#wannabe) then proxies the received request to the host defined in the request and, upon receiving the response, stores a [Record](#records) in the configured [Storage provider](#storage-provider) using the previously generated hash as the key. Each record includes the original request and its corresponding response from the upstream server.
+In `proxy` mode, Wannabe operates as a proxy server. It derives a cURL command from the received request based on your [Request matching](#request-matching) configuration and hashes it to create a unique identifier. Wannabe then proxies the received request to the host defined in the request and, upon receiving the response, stores a [Record](#records) in the configured [Storage provider](#storage-provider) using the previously generated hash as the key. Each record includes the original request and its corresponding response from the upstream server.
 
 ![Proxy mode](docs/media/proxy_mode.png)
 
 ## Usage examples
 
-[Wannabe](#wannabe) seamlessly mimics any desired HTTP API, whether external or internal, existing or still in development, and without business logic. It can effectively become the HTTP API you need for faster and better development and testing processes.
+Wannabe seamlessly mimics any desired HTTP API, whether external or internal, existing or still in development, and without business logic. It can effectively become the HTTP API you need for faster and better development and testing processes.
 
 ### Mocking external HTTP APIs
 
-[Wannabe](#wannabe) allows developers to record and simulate the behavior of external services, eliminating the need for reliance on those services during development and testing. This spans from initial development to regression testing.
+Wannabe allows developers to record and simulate the behavior of external services, eliminating the need for reliance on those services during development and testing. This spans from initial development to regression testing.
 
 #### Example
 
@@ -79,17 +81,17 @@ This way, integration tests of `service-1` are completely independent of externa
 
 ### Mocking internal HTTP APIs
 
-Developers can use [Wannabe](#wannabe) to prepare mocks of non-existing HTTP APIs and share them with other teams before implementing any business logic. These mocks facilitate development and testing processes, spanning from initial development to regression testing.
+Developers can use Wannabe to prepare mocks of non-existing HTTP APIs and share them with other teams before implementing any business logic. These mocks facilitate development and testing processes, spanning from initial development to regression testing.
 
 ### Reusability
 
 Wannabe [Records](#records), along with their underlying [Configuration](#configuration) files, can be shared among developers, teams, and businesses. This accelerates development processes by providing robust and well-tested mocks.
 
-[Wannabe](#wannabe) can certainly support numerous other use cases. If you discover an innovative use case for [Wannabe](#wannabe), please share it with us.
+Wannabe can certainly support numerous other use cases. If you discover an innovative use case for Wannabe, please share it with us.
 
 ## Configuration
 
-[Wannabe](#wannabe) requires a `config.json` configuration file. Any changes made to the configuration file will only take effect after restarting the standalone [Wannabe](#wannabe) server or the one running in the container.
+Wannabe requires a `config.json` configuration file. Any changes made to the configuration file will only take effect after restarting the standalone Wannabe server or the one running in the container.
 
 The configuration file consists of three root fields: [mode](#mode), [storageProvider](#storage-provider), and [wannabes](#wannabes). Refer to the following subsections for details on all the options that can be configured using these root fields.
 
@@ -120,7 +122,7 @@ When the `"mode"` or `"storageProvider"` fields are not defined in the configura
 }
 ```
 
-The `"mode"` field defines how a [Wannabe](#wannabe) container operates. Refer to the [How does it work?](#how-does-it-work) section for details.
+The `"mode"` field defines how a Wannabe container operates. Refer to the [How does it work?](#how-does-it-work) section for details.
 
 ### Storage provider
 
@@ -139,7 +141,7 @@ The `"storageProvider"` field configures the storage for saving the records. Bas
 
 #### Type
 
-The `"type"` field defines the type of storage provider [Wannabe](#wannabe) should use.
+The `"type"` field defines the type of storage provider Wannabe should use.
 
 #### FilesystemConfig
 
@@ -189,13 +191,13 @@ The `"format"` field defines the format in which the records are stored.
 }
 ```
 
-Wannabes are a map of configurations for [Request matching](#request-matching) and [Records](#records) for the hosts that [Wannabe](#wannabe) mocks, where the host name should be used as a key in the map.
+Wannabes are a map of configurations for [Request matching](#request-matching) and [Records](#records) for the hosts that Wannabe mocks, where the host name should be used as a key in the map.
 
 #### Request matching
 
-The `"requestMatching"` field configures the generation of cURL commands and the underlying unique hash identifier for each request received by [Wannabe](#wannabe). It allows you to include or exclude specific parts of the requests, whether static or dynamic, from the generation of cURL commands corresponding to those requests, or replace specific request parts with placeholders. This approach enables **the generation of identical cURL commands and underlying hashes for multiple unique requests, thereby enabling [Wannabe](#wannabe) to store a single record with one response for all those multiple unique requests** in `proxy` mode, and to respond with an identical response for all those requests when in `server` or `mixed` mode.
+The `"requestMatching"` field configures the generation of cURL commands and the underlying unique hash identifier for each request received by Wannabe. It allows you to include or exclude specific parts of the requests, whether static or dynamic, from the generation of cURL commands corresponding to those requests, or replace specific request parts with placeholders. This approach enables **the generation of identical cURL commands and underlying hashes for multiple unique requests, thereby enabling Wannabe to store a single record with one response for all those multiple unique requests** in `proxy` mode, and to respond with an identical response for all those requests when in `server` or `mixed` mode.
 
-For example, you can record responses for all possible requests to the Google Analytics Data API for a single `propertyId`, but since you excluded the dynamic `propertyId` from request matching by replacing it with a static placeholder, different `propertyIds` in the request will result in identical cURL commands and underlying hashes, and [Wannabe](#wannabe) will respond with the responses recorded for a single `propertyId`.
+For example, you can record responses for all possible requests to the Google Analytics Data API for a single `propertyId`, but since you excluded the dynamic `propertyId` from request matching by replacing it with a static placeholder, different `propertyIds` in the request will result in identical cURL commands and underlying hashes, and Wannabe will respond with the responses recorded for a single `propertyId`.
 
 For a better understanding of how this works, refer to the [Usage of index wildcards](#usage-of-index-wildcards), [Usage of key wildcards](#usage-of-key-wildcards) and [Usage of regexes](#usage-of-regexes) sections and the explanations provided therein.
 
@@ -364,7 +366,7 @@ The `"records"` field allows configuring headers to be excluded from the request
 
 ## Record entity
 
-After [Wannabe](#wannabe) retrieves a response for a specific request, it stores it in a record within the [Storage provider](#storage-provider). The hash generated from the request's cURL command is used as the key for the stored record, and the record is added to the folder named after the host the request was made to.
+After Wannabe retrieves a response for a specific request, it stores it in a record within the [Storage provider](#storage-provider). The hash generated from the request's cURL command is used as the key for the stored record, and the record is added to the folder named after the host the request was made to.
 
 For example, if the storage provider is the file system, and the default `"records"` folder is set for storing records, and the hash generated from the request's cURL command is `d050d9e39f…190b4037a`, and the request was made to `api.github.com`, the record would be stored at the path `records/api.github.com/d050d9e39f…190b4037a.json`.
 
@@ -426,10 +428,10 @@ For example, if the storage provider is the file system, and the default `"recor
 
 ## Regenerate records
 
-[Wannabe](#wannabe) supports the regeneration of existing records with new [Request matching](#request-matching) configurations. To prepare for the regeneration of existing records, follow these steps:
+Wannabe supports the regeneration of existing records with new [Request matching](#request-matching) configurations. To prepare for the regeneration of existing records, follow these steps:
 
 1. Prepare a new [Configuration](#configuration) file with updated [Request matching](#request-matching) configurations for [wannabes](#wannabes) you would like to regenerate records for and set custom [regenerateFolder](#regeneratefolder) when the file system is configured as the [Storage provider](#storage-provider).
-2. Restart the running [Wannabe](#wannabe) instance to load the new configuration file.
+2. Restart the running Wannabe instance to load the new configuration file.
 3. Execute the regeneration by calling the `GET /wannabe/api/regenerate` endpoint. Refer to the [API Reference](#api-reference) for details.
 4. To use the newly regenerated records, copy them to the relevant location in the configured storage provider, ensuring they are not mixed with previous records associated with different configuration files.
 
@@ -577,13 +579,19 @@ Regenerates records for a specific host using the provided [wannabe](#wannabes) 
 }
 ```
 
+## Frequently Asked Questions
+
+**Why are my requests not proxied through Wannabe although I have setup HTTP_PROXY and HTTPS_PROXY environment variables to the Wannabe address in the container making outbound HTTP requests?**
+
+The package or logic used for making HTTP requests must support proxying. Otherwise, setting HTTP_PROXY and HTTPS_PROXY environment variables in containers won't result in HTTP requests being properly routed through the proxy. For example, Node.js's [node-fetch](https://github.com/node-fetch/node-fetch) does not support proxying until Node.js version 20, and another package for making HTTP requests, [got](https://github.com/sindresorhus/got), also lacks proxy support, while [axios](https://github.com/axios/axios) does support proxying.
+
 ## Contributing
 
-Thank you for considering contributing to [Wannabe](#wannabe)! Contributions from the community are more than welcome to help improve the project and make it even better.
+Thank you for considering contributing to Wannabe! Contributions from the community are more than welcome to help improve the project and make it even better.
 
 ### How to Contribute
 
-To contribute to [Wannabe](#wannabe), follow these steps:
+To contribute to Wannabe, follow these steps:
 
 1. Fork the repository.
 2. Create a branch.
@@ -595,7 +603,7 @@ Your pull request will be reviewed, and you may be asked to make further changes
 
 ### Where to start
 
-If you're eager to contribute to [Wannabe](#wannabe) but aren't sure where to begin, we've got you covered! You can dive right in by exploring our open issues or checking out our existing "next step" ideas. Simply head over to the Issues tab to get started!
+If you're eager to contribute to Wannabe but aren't sure where to begin, we've got you covered! You can dive right in by exploring our open issues or checking out our existing "next step" ideas. Simply head over to the Issues tab to get started!
 
 ## Author
 Uroš Trstenjak (Trčo), [github.com/trco](https://github.com/trco), [Connect on LinkedIn](https://www.linkedin.com/in/uros-trstenjak/).
