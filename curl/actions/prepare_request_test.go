@@ -6,24 +6,45 @@ import (
 )
 
 func TestPrepareRequest(t *testing.T) {
-	t.Run("prepare request", func(t *testing.T) {
-		httpMethod := "POST"
-		url := "http://test.com/test?test=test"
-		body := "{\"test\":\"test\"}"
+	tests := []struct {
+		name       string
+		httpMethod string
+		url        string
+		body       string
+	}{
+		{
+			name:       "prepare POST request with body",
+			httpMethod: "POST",
+			url:        "http://test.com/test?test=test",
+			body:       "{\"test\":\"test\"}",
+		},
+		{
+			name:       "prepare GET request without body",
+			httpMethod: "GET",
+			url:        "http://test.com/test?test=test",
+			body:       "",
+		},
+	}
 
-		request, _ := PrepareRequest(httpMethod, url, body)
-		requestBody, _ := io.ReadAll(request.Body)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			request, _ := PrepareRequest(tt.httpMethod, tt.url, tt.body)
 
-		if request.Method != httpMethod {
-			t.Errorf("got http method %v, want http method %v", httpMethod, request.Method)
-		}
+			if request.Method != tt.httpMethod {
+				t.Errorf("got http method %v, want http method %v", request.Method, tt.httpMethod)
+			}
 
-		if request.URL.String() != url {
-			t.Errorf("got url %v, want url %v", url, request.URL)
-		}
+			if request.URL.String() != tt.url {
+				t.Errorf("got url %v, want url %v", request.URL, tt.url)
+			}
 
-		if string(requestBody) != body {
-			t.Errorf("got body %v, want body %v", body, string(requestBody))
-		}
-	})
+			if tt.httpMethod != "GET" {
+				requestBody, _ := io.ReadAll(request.Body)
+				if string(requestBody) != tt.body {
+					t.Errorf("got body %v, want body %v", string(requestBody), tt.body)
+				}
+			}
+
+		})
+	}
 }
