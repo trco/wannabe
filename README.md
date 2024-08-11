@@ -503,8 +503,9 @@ Stores received records in the configured storage provider.
 [
     {
         "request": {
-            "httpMethod": string,
-            "host": string,
+            "scheme": string, // required; "http", "https"
+            "httpMethod": string, // required; "GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "CONNECT", "OPTIONS", "TRACE"
+            "host": string, // required
             "path": string,
             "query": {
                 "key": string
@@ -512,14 +513,14 @@ Stores received records in the configured storage provider.
             "headers": {
                 "key": string[]
             },
-            "body": object
+            "body": object // required if httpMethod equals "POST, "PUT" or "PATCH"
         },
         "response": {
-            "statusCode": integer,
+            "statusCode": integer, // required
             "headers": {
                 "key": string[]
             },
-            "body": object
+            "body": object // required
         },
     }
 ]
@@ -581,9 +582,13 @@ Regenerates records for a specific host using the provided [wannabe](#wannabes) 
 
 ## Frequently Asked Questions
 
-**Why are my requests not proxied through Wannabe although I have setup HTTP_PROXY and HTTPS_PROXY environment variables to the Wannabe address in the container making outbound HTTP requests?**
+**Why are requests not being proxied through Wannabe even though the HTTP_PROXY and HTTPS_PROXY environment variables have been set to the Wannabe address in the container making outbound HTTP requests?**
 
 The package or logic used for making HTTP requests must support proxying. Otherwise, setting HTTP_PROXY and HTTPS_PROXY environment variables in containers won't result in HTTP requests being properly routed through the proxy. For example, Node.js's [node-fetch](https://github.com/node-fetch/node-fetch) does not support proxying until Node.js version 20, and another package for making HTTP requests, [got](https://github.com/sindresorhus/got), also lacks proxy support, while [axios](https://github.com/axios/axios) does support proxying.
+
+**Why does the request with an HTTPS scheme time out for the record added through the Wannabe API?**
+
+To use records created through the Wannabe API with an HTTPS scheme in the request, the host must be reachable at https://{host}. This allows Wannabe to establish a secure HTTP proxy tunnel to the host.
 
 **Which request and response body content types are currently supported?**
 
