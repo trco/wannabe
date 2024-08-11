@@ -34,6 +34,7 @@ func GenerateRecord(config types.Records, payload types.RecordPayload) ([]byte, 
 		Request: types.Request{
 			Hash:       payload.Hash,
 			Curl:       payload.Curl,
+			Scheme:     payload.Scheme,
 			HttpMethod: payload.HttpMethod,
 			Host:       payload.Host,
 			Path:       payload.Path,

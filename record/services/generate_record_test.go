@@ -36,6 +36,7 @@ var testConfig = types.Records{
 var payload = types.RecordPayload{
 	Hash:       "testHash",
 	Curl:       "testCurl",
+	Scheme:     "https",
 	HttpMethod: "POST",
 	Host:       "test.com",
 	Path:       "/test",

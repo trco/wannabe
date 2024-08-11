@@ -40,6 +40,7 @@ var validRecord = types.Record{
 	Request: types.Request{
 		Hash:       "testHash",
 		Curl:       "testCurl",
+		Scheme:     "https",
 		HttpMethod: "POST",
 		Host:       "test.com",
 		Path:       "/test",
@@ -80,6 +81,7 @@ var invalidRecord = types.Record{
 	Request: types.Request{
 		Hash:       "testHash",
 		Curl:       "testCurl",
+		Scheme:     "https",
 		HttpMethod: "INVALID",
 		Host:       "test.com",
 		Path:       "/test",

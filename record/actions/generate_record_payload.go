@@ -31,6 +31,7 @@ func GenerateRecordPayload(session types.Session, hash string, curl string) (typ
 	recordPayload := types.RecordPayload{
 		Hash:            hash,
 		Curl:            curl,
+		Scheme:          request.URL.Scheme,
 		HttpMethod:      request.Method,
 		Host:            request.URL.Host,
 		Path:            request.URL.Path,

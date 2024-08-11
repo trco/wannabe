@@ -25,6 +25,7 @@ func GenerateRequest(recordRequest types.Request) (*http.Request, error) {
 		return nil, err
 	}
 
+	request.URL.Scheme = recordRequest.Scheme
 	request.URL.Host = recordRequest.Host
 
 	query := request.URL.Query()

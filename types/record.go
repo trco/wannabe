@@ -5,14 +5,15 @@ import "time"
 type RecordPayload struct {
 	Hash            string
 	Curl            string
+	Scheme          string
 	HttpMethod      string
 	Host            string
 	Path            string
 	Query           map[string][]string
 	RequestHeaders  map[string][]string
-	ResponseHeaders map[string][]string
 	RequestBody     []byte
 	StatusCode      int
+	ResponseHeaders map[string][]string
 	ResponseBody    []byte
 }
 
@@ -25,6 +26,7 @@ type Record struct {
 type Request struct {
 	Hash       string              `json:"hash"`
 	Curl       string              `json:"curl"`
+	Scheme     string              `json:"scheme" validate:"required,oneof=http https"`
 	HttpMethod string              `json:"httpMethod" validate:"required,oneof=GET POST PUT DELETE PATCH HEAD CONNECT OPTIONS TRACE"`
 	Host       string              `json:"host" validate:"required"`
 	Path       string              `json:"path"`

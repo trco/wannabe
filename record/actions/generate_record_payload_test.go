@@ -15,8 +15,9 @@ func TestGenerateRecordPayload(t *testing.T) {
 		request := &http.Request{
 			Method: "GET",
 			URL: &url.URL{
-				Host: "test.com",
-				Path: "/test",
+				Scheme: "https",
+				Host:   "test.com",
+				Path:   "/test",
 			},
 			Header: http.Header{
 				"Content-Type": []string{"application/json"},
@@ -47,6 +48,7 @@ func TestGenerateRecordPayload(t *testing.T) {
 		want := types.RecordPayload{
 			Hash:            hash,
 			Curl:            curl,
+			Scheme:          request.URL.Scheme,
 			HttpMethod:      request.Method,
 			Host:            request.URL.Host,
 			Path:            request.URL.Path,
