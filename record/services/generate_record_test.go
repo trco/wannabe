@@ -63,6 +63,7 @@ var wantRecordThree = types.Record{
 	Request: types.Request{
 		Hash:       "testHash",
 		Curl:       "testCurl",
+		Scheme:     "https",
 		HttpMethod: "POST",
 		Host:       "test.com",
 		Path:       "/test",

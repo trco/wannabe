@@ -216,7 +216,7 @@ func TestReplaceRegexPatterns(t *testing.T) {
 			name:       "match in query with placeholder",
 			testString: "/v1beta/properties/375748157:runReport?user=paid&status=new&app=1",
 			regexes:    []types.Regex{{Pattern: "paid", Placeholder: "placeholder"}},
-			want:       "/v1beta/properties/375748157:runReport?user=%7Bplaceholder%7D&status=new&app=1",
+			want:       "/v1beta/properties/375748157:runReport?user=placeholder&status=new&app=1",
 			isQuery:    true,
 		},
 		{

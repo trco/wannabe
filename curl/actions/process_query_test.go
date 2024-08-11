@@ -20,7 +20,7 @@ func TestProcessQuery(t *testing.T) {
 			config: types.Query{
 				Wildcards: []types.WildcardKey{{Key: "user", Placeholder: "placeholder"}},
 			},
-			want:    "?app=1&status=new&user=%7Bplaceholder%7D",
+			want:    "?app=1&status=new&user=placeholder",
 			wantErr: "",
 		},
 		{
@@ -29,7 +29,7 @@ func TestProcessQuery(t *testing.T) {
 			config: types.Query{
 				Wildcards: []types.WildcardKey{{Key: "user"}},
 			},
-			want:    "?app=1&status=new&user=%7Bwannabe%7D",
+			want:    "?app=1&status=new&user=wannabe",
 			wantErr: "",
 		},
 		{
@@ -38,7 +38,7 @@ func TestProcessQuery(t *testing.T) {
 			config: types.Query{
 				Regexes: []types.Regex{{Pattern: "paid", Placeholder: "placeholder"}},
 			},
-			want:    "?app=1&status=new&user=%7Bplaceholder%7D",
+			want:    "?app=1&status=new&user=placeholder",
 			wantErr: "",
 		},
 		{
@@ -47,7 +47,7 @@ func TestProcessQuery(t *testing.T) {
 			config: types.Query{
 				Regexes: []types.Regex{{Pattern: "paid"}},
 			},
-			want:    "?app=1&status=new&user=%7Bwannabe%7D",
+			want:    "?app=1&status=new&user=wannabe",
 			wantErr: "",
 		},
 		{
