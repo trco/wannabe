@@ -43,7 +43,7 @@ func GetRegenerate(config types.Config, storageProvider providers.StorageProvide
 		return
 	}
 
-	// REVIEW mem issue in case of too many records ?
+	// REVIEW could we hit mem issue in case of too many records
 	encodedRecords, err := storageProvider.ReadRecords(host, hashes)
 	if err != nil {
 		utils.InternalErrorApi(w, err, http.StatusInternalServerError)

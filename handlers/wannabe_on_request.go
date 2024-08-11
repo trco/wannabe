@@ -84,8 +84,7 @@ func processRecords(session *gomitmproxy.Session, request *http.Request, record 
 
 	session.SetProp("responseSetFromRecord", true)
 
-	// TODO remove log
-	fmt.Println("GetResponse >>> READ and return")
+	fmt.Println("Response successfully read from configured StorageProvider.")
 
 	return nil, responseSetFromRecord
 }
