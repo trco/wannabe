@@ -2,6 +2,8 @@
 
 A versatile Go tool for effortlessly generating mock HTTP APIs for all your needs.
 
+Official docker images are available at [Docker Hub](https://hub.docker.com/r/trco/.wannabe).
+
 ## Getting started
 
 For a successful startup, Wannabe requires the `config.json`, `wannabe.crt`, and `wannabe.key` files.
@@ -12,12 +14,12 @@ For information on configuring `config.json`, see the [Configuration](#configura
 
 ```
 // generate 2048-bit private key
-$ openssl genrsa -out wannabe.key 2048
+openssl genrsa -out wannabe.key 2048
 ```
 
 ```
 // generate self-signed certificate valid for 10 years
-$ openssl req -new -x509 -key wannabe.key -out wannabe.crt -days 3650
+openssl req -new -x509 -key wannabe.key -out wannabe.crt -days 3650
 ```
 
 ### Running as a standalone server
@@ -26,19 +28,25 @@ Like any Go program, Wannabe can be launched by simply cloning the repository, a
 
 ### Running in Docker
 
-Wannabe provides an official Docker image for running the application within a container.
+Wannabe provides official [Docker images](https://hub.docker.com/r/trco/.wannabe) for running the application within a container.
 
 To guarantee a successful launch of the application, `config.json`, `wannabe.crt` and `wannabe.key` should be mounted from the host operating system to the root directory of the Wannabe container. Inside the container, the Wannabe server operates on port 6789, and the API is accessible through port 6790.
 
 ```
-$ docker run -d \
+// pull the latest Wannabe image from Docker Hub
+docker pull trco/wannabe
+```
+
+```
+// run Wannabe container
+docker run -d \
 -p 6789:6789 \
 -p 6790:6790 \
--v $(pwd)/config.json:/config.json \
--v $(pwd)/wannabe.crt:/wannabe.crt \
--v $(pwd)/wannabe.key:/wannabe.key \
+-v $(pwd)/config.json:/usr/src/app/config.json \
+-v $(pwd)/wannabe.crt:/usr/src/app/wannabe.crt \
+-v $(pwd)/wannabe.key:/usr/src/app/wannabe.key \
 --name wannabe \
-wannabe // add official image
+trco/wannabe
 ```
 
 To proxy requests from containers through Wannabe, the HTTP_PROXY and HTTPS_PROXY environment variables of the container should be set to the Wannabe address. In a container network where a single container communicates through the HTTP layer with multiple other containers, the NO_PROXY environment variable should be set to the addresses of containers that should be excluded from proxying requests through Wannabe. See [Example](#example) for a detailed setup.
