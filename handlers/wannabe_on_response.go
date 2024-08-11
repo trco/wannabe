@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"io"
 	"net/http"
 	"wannabe/handlers/utils"
 	"wannabe/providers"
@@ -19,6 +20,10 @@ func WannabeOnResponse(config types.Config, storageProvider providers.StoragePro
 
 func processSessionOnResponse(config types.Config, storageProvider providers.StorageProvider, session *gomitmproxy.Session) *http.Response {
 	request := session.Request()
+
+	if requestBody, ok := session.GetProp("requestBody"); ok {
+		request.Body = requestBody.(io.ReadCloser)
+	}
 
 	isConnect := request.Method == "CONNECT"
 	if isConnect {

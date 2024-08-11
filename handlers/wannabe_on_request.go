@@ -7,6 +7,7 @@ import (
 	"wannabe/handlers/utils"
 	"wannabe/hash/actions"
 	"wannabe/providers"
+	requestActions "wannabe/request/actions"
 	requestServices "wannabe/request/services"
 	"wannabe/response/services"
 	"wannabe/types"
@@ -61,6 +62,15 @@ func processSessionOnRequest(config types.Config, storageProvider providers.Stor
 		if isServerMode {
 			return utils.InternalErrorOnRequest(session, request, fmt.Errorf("no record found for the request"))
 		}
+	}
+
+	hasBody := request.Body != nil
+	if hasBody {
+		requestBody, err := requestActions.CopyBody(request)
+		if err != nil {
+			return utils.InternalErrorOnRequest(session, request, err)
+		}
+		session.SetProp("requestBody", requestBody)
 	}
 
 	return nil, nil
