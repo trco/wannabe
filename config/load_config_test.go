@@ -172,12 +172,12 @@ var wantConfig = types.Config{
 			RequestMatching: types.RequestMatching{
 				Host: types.Host{
 					Wildcards: []types.WildcardIndex{
-						{Index: &zero, Placeholder: "{placeholder}"},
+						{Index: &zero, Placeholder: "placeholder"},
 					},
 				},
 				Query: types.Query{
 					Wildcards: []types.WildcardKey{
-						{Key: "status", Placeholder: "{placeholder}"},
+						{Key: "status", Placeholder: "placeholder"},
 					},
 					Regexes: []types.Regex{
 						{Pattern: "app=1", Placeholder: "app=123"},

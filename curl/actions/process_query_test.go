@@ -18,7 +18,7 @@ func TestProcessQuery(t *testing.T) {
 			name:     "with placeholder",
 			queryMap: queryMap,
 			config: types.Query{
-				Wildcards: []types.WildcardKey{{Key: "user", Placeholder: "{placeholder}"}},
+				Wildcards: []types.WildcardKey{{Key: "user", Placeholder: "placeholder"}},
 			},
 			want:    "?app=1&status=new&user=%7Bplaceholder%7D",
 			wantErr: "",
@@ -36,7 +36,7 @@ func TestProcessQuery(t *testing.T) {
 			name:     "with regex with placeholder",
 			queryMap: queryMap,
 			config: types.Query{
-				Regexes: []types.Regex{{Pattern: "paid", Placeholder: "{placeholder}"}},
+				Regexes: []types.Regex{{Pattern: "paid", Placeholder: "placeholder"}},
 			},
 			want:    "?app=1&status=new&user=%7Bplaceholder%7D",
 			wantErr: "",

@@ -211,7 +211,7 @@ For a better understanding of how this works, refer to the [Usage of index wildc
                 {
                     // required
                     "index": integer,
-                    // optional; defaults to "{wannabe}"
+                    // optional; defaults to "wannabe"
                     "placeholder": string
                 }
             ],
@@ -219,7 +219,7 @@ For a better understanding of how this works, refer to the [Usage of index wildc
                 {
                     // required
                     "pattern": string,
-                    // optional; defaults to "{wannabe}"
+                    // optional; defaults to "wannabe"
                     "placeholder": string
                 }
             ]
@@ -229,7 +229,7 @@ For a better understanding of how this works, refer to the [Usage of index wildc
                 {
                     // required
                     "index": integer,
-                    // optional; defaults to "{wannabe}"
+                    // optional; defaults to "wannabe"
                     "placeholder": string
                 }
             ],
@@ -237,7 +237,7 @@ For a better understanding of how this works, refer to the [Usage of index wildc
                 {
                     // required
                     "pattern": string,
-                    // optional; defaults to "{wannabe}"
+                    // optional; defaults to "wannabe"
                     "placeholder": string
                 }
             ]
@@ -247,7 +247,7 @@ For a better understanding of how this works, refer to the [Usage of index wildc
                 {
                     // required
                     "key": string,
-                    // optional; defaults to "{wannabe}"
+                    // optional; defaults to "wannabe"
                     "placeholder": string
                 }
             ],
@@ -255,7 +255,7 @@ For a better understanding of how this works, refer to the [Usage of index wildc
                 {
                     // required
                     "pattern": string,
-                    // optional; defaults to "{wannabe}"
+                    // optional; defaults to "wannabe"
                     "placeholder": string
             ]
         },
@@ -264,7 +264,7 @@ For a better understanding of how this works, refer to the [Usage of index wildc
                 {
                     // required
                     "pattern": string,
-                    // optional; defaults to "{wannabe}"
+                    // optional; defaults to "wannabe"
                     "placeholder": string
                 }
             ]
@@ -276,7 +276,7 @@ For a better understanding of how this works, refer to the [Usage of index wildc
                 {
                     // required
                     "key": string,
-                    // optional; defaults to "{wannabe}"
+                    // optional; defaults to "wannabe"
                     "placeholder": string
                 }
             ]
@@ -300,9 +300,9 @@ For a better understanding of how this works, refer to the [Usage of index wildc
 }
 ```
 
-When generating cURL commands to be hashed as unique identifiers of requests, the host `https://analyticsdata.googleapis.com` and the given wildcard will result in the `https://{placeholder}.googleapis.com` host being included in the cURL command.
+When generating cURL commands to be hashed as unique identifiers of requests, the host `https://analyticsdata.googleapis.com` and the given wildcard will result in the `https://placeholder.googleapis.com` host being included in the cURL command.
 
-**Behind the scenes, how it operates:** After trimming the protocol prefix, the host is split using "." as a separator, and the value at the defined index is replaced with a defined placeholder, or `{wannabe}` placeholder by default.
+**Behind the scenes, how it operates:** After trimming the protocol prefix, the host is split using "." as a separator, and the value at the defined index is replaced with a defined placeholder, or `wannabe` placeholder by default.
 
 Requests that differ only in the value at the first index of the host will result in the same cURL command and hash. Therefore, they will be stored as a single record with the underlying response in storage.
 
@@ -314,16 +314,16 @@ Requests that differ only in the value at the first index of the host will resul
         "wildcards": [
             {
                 "key": "userId",
-                "placeholder": "{placeholder}"
+                "placeholder": "placeholder"
             }
         ]
     }
 }
 ```
 
-When generating cURL commands to be hashed as unique identifiers of requests, the query `?status=completed&userId=123456` and the given wildcard will result in the `?status=completed&userId={placeholder}` query being included in the cURL command.
+When generating cURL commands to be hashed as unique identifiers of requests, the query `?status=completed&userId=123456` and the given wildcard will result in the `?status=completed&userId=placeholder` query being included in the cURL command.
 
-**Behind the scenes, how it operates:** After splitting the query string into an object of key-value pairs, the value of the key defined in the wildcard is replaced with a defined placeholder, or `{wannabe}` placeholder by default.
+**Behind the scenes, how it operates:** After splitting the query string into an object of key-value pairs, the value of the key defined in the wildcard is replaced with a defined placeholder, or `wannabe` placeholder by default.
 
 Requests that differ only in the value of the defined key in the query will result in the same cURL command and hash. Therefore, they will be stored as a single record with the underlying response in storage.
 
@@ -342,9 +342,9 @@ Requests that differ only in the value of the defined key in the query will resu
 }
 ```
 
-When generating cURL commands to be hashed as unique identifiers of requests, the path `/v1beta/properties/123456789:runReport` and the given regex will result in the `/v1beta/properties/{placeholder}:runReport` path being included in the cURL command.
+When generating cURL commands to be hashed as unique identifiers of requests, the path `/v1beta/properties/123456789:runReport` and the given regex will result in the `/v1beta/properties/placeholder:runReport` path being included in the cURL command.
 
-**Behind the scenes, how it operates:** The regex pattern is replaced with the defined placeholder, or the `{wannabe}` placeholder by default.
+**Behind the scenes, how it operates:** The regex pattern is replaced with the defined placeholder, or the `wannabe` placeholder by default.
 
 Requests that differ only in the regex-defined pattern of the path will result in the same cURL command and hash. Therefore, they will be stored as a single record with the underlying response in storage.
 

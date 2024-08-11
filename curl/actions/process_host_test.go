@@ -20,18 +20,18 @@ func TestProcessHost(t *testing.T) {
 			name: "with http",
 			host: "http://test1.test2.com",
 			config: types.Host{
-				Wildcards: []types.WildcardIndex{{Index: &zero, Placeholder: "{placeholder}"}},
+				Wildcards: []types.WildcardIndex{{Index: &zero, Placeholder: "placeholder"}},
 			},
-			want:    "{placeholder}.test2.com",
+			want:    "placeholder.test2.com",
 			wantErr: "",
 		},
 		{
 			name: "with https",
 			host: "https://test1.test2.com",
 			config: types.Host{
-				Wildcards: []types.WildcardIndex{{Index: &zero, Placeholder: "{placeholder}"}},
+				Wildcards: []types.WildcardIndex{{Index: &zero, Placeholder: "placeholder"}},
 			},
-			want:    "{placeholder}.test2.com",
+			want:    "placeholder.test2.com",
 			wantErr: "",
 		},
 		{
@@ -40,17 +40,17 @@ func TestProcessHost(t *testing.T) {
 			config: types.Host{
 				Wildcards: []types.WildcardIndex{{Index: &zero}},
 			},
-			want:    "{wannabe}.test2.com",
+			want:    "wannabe.test2.com",
 			wantErr: "",
 		},
 		{
 			name: "with regex",
 			host: "https://test1.test2.com",
 			config: types.Host{
-				Wildcards: []types.WildcardIndex{{Index: &zero, Placeholder: "{placeholder}"}},
+				Wildcards: []types.WildcardIndex{{Index: &zero, Placeholder: "placeholder"}},
 				Regexes:   []types.Regex{{Pattern: "test2", Placeholder: "regexPlaceholder"}},
 			},
-			want:    "{placeholder}.regexPlaceholder.com",
+			want:    "placeholder.regexPlaceholder.com",
 			wantErr: "",
 		},
 		{

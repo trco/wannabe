@@ -32,10 +32,10 @@ func TestProcessHeaders(t *testing.T) {
 			headersMap: headersMap,
 			config: types.Headers{
 				Include:   []string{"Content-Type", "Authorization"},
-				Wildcards: []types.WildcardKey{{Key: "Authorization", Placeholder: "{placeholder}"}},
+				Wildcards: []types.WildcardKey{{Key: "Authorization", Placeholder: "placeholder"}},
 			},
 			want: []types.Header{
-				{Key: "Authorization", Value: "{placeholder}"},
+				{Key: "Authorization", Value: "placeholder"},
 				{Key: "Content-Type", Value: "application/json"},
 			},
 		},
@@ -47,7 +47,7 @@ func TestProcessHeaders(t *testing.T) {
 				Wildcards: []types.WildcardKey{{Key: "Authorization"}},
 			},
 			want: []types.Header{
-				{Key: "Authorization", Value: "{wannabe}"},
+				{Key: "Authorization", Value: "wannabe"},
 				{Key: "Content-Type", Value: "application/json"},
 			},
 		},

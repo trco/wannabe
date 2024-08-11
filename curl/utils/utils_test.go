@@ -24,20 +24,20 @@ func TestSetWildcardsByIndex(t *testing.T) {
 		{
 			name:      "with placeholder",
 			slice:     testSlice(),
-			wildcards: []types.WildcardIndex{{Index: &zero, Placeholder: "{placeholder}"}},
-			want:      []string{"{placeholder}", "googleapis", "com"},
+			wildcards: []types.WildcardIndex{{Index: &zero, Placeholder: "placeholder"}},
+			want:      []string{"placeholder", "googleapis", "com"},
 		},
 		{
 			name:      "without placeholder",
 			slice:     testSlice(),
 			wildcards: []types.WildcardIndex{{Index: &zero}},
-			want:      []string{"{wannabe}", "googleapis", "com"},
+			want:      []string{"wannabe", "googleapis", "com"},
 		},
 		{
 			name:      "with and without placeholder",
 			slice:     testSlice(),
-			wildcards: []types.WildcardIndex{{Index: &zero, Placeholder: "{placeholder}"}, {Index: &one}},
-			want:      []string{"{placeholder}", "{wannabe}", "com"},
+			wildcards: []types.WildcardIndex{{Index: &zero, Placeholder: "placeholder"}, {Index: &one}},
+			want:      []string{"placeholder", "wannabe", "com"},
 		},
 		{
 			name:      "index out of bounds",
@@ -75,9 +75,9 @@ func TestSetWildcardsByKey(t *testing.T) {
 		{
 			name:      "with placeholder",
 			testMap:   testMap(),
-			wildcards: []types.WildcardKey{{Key: "status", Placeholder: "{placeholder}"}},
+			wildcards: []types.WildcardKey{{Key: "status", Placeholder: "placeholder"}},
 			want: map[string]string{
-				"status": "{placeholder}",
+				"status": "placeholder",
 				"appId":  "test",
 			},
 		},
@@ -86,17 +86,17 @@ func TestSetWildcardsByKey(t *testing.T) {
 			testMap:   testMap(),
 			wildcards: []types.WildcardKey{{Key: "status"}},
 			want: map[string]string{
-				"status": "{wannabe}",
+				"status": "wannabe",
 				"appId":  "test",
 			},
 		},
 		{
 			name:      "with and without placeholder",
 			testMap:   testMap(),
-			wildcards: []types.WildcardKey{{Key: "status", Placeholder: "{placeholder}"}, {Key: "appId"}},
+			wildcards: []types.WildcardKey{{Key: "status", Placeholder: "placeholder"}, {Key: "appId"}},
 			want: map[string]string{
-				"status": "{placeholder}",
-				"appId":  "{wannabe}",
+				"status": "placeholder",
+				"appId":  "wannabe",
 			},
 		},
 		{
@@ -130,14 +130,14 @@ func TestSetPlaceholderByIndex(t *testing.T) {
 		{
 			name:      "with placeholder",
 			slice:     testSlice(),
-			wildcards: types.WildcardIndex{Index: &zero, Placeholder: "{placeholder}"},
-			want:      []string{"{placeholder}", "googleapis", "com"},
+			wildcards: types.WildcardIndex{Index: &zero, Placeholder: "placeholder"},
+			want:      []string{"placeholder", "googleapis", "com"},
 		},
 		{
 			name:      "without placeholder",
 			slice:     testSlice(),
 			wildcards: types.WildcardIndex{Index: &zero},
-			want:      []string{"{wannabe}", "googleapis", "com"},
+			want:      []string{"wannabe", "googleapis", "com"},
 		},
 	}
 
@@ -162,9 +162,9 @@ func TestSetPlaceholderByKey(t *testing.T) {
 		{
 			name:     "with placeholder",
 			testMap:  testMap(),
-			wildcard: types.WildcardKey{Key: "status", Placeholder: "{placeholder}"},
+			wildcard: types.WildcardKey{Key: "status", Placeholder: "placeholder"},
 			want: map[string]string{
-				"status": "{placeholder}",
+				"status": "placeholder",
 				"appId":  "test",
 			},
 		},
@@ -173,7 +173,7 @@ func TestSetPlaceholderByKey(t *testing.T) {
 			testMap:  testMap(),
 			wildcard: types.WildcardKey{Key: "status"},
 			want: map[string]string{
-				"status": "{wannabe}",
+				"status": "wannabe",
 				"appId":  "test",
 			},
 		},
@@ -209,13 +209,13 @@ func TestReplaceRegexPatterns(t *testing.T) {
 			name:       "match without placeholder",
 			testString: "/v1beta/properties/375748157:runReport?user=paid&status=new&app=1",
 			regexes:    []types.Regex{{Pattern: "(\\d+):runReport"}},
-			want:       "/v1beta/properties/{wannabe}?user=paid&status=new&app=1",
+			want:       "/v1beta/properties/wannabe?user=paid&status=new&app=1",
 			isQuery:    false,
 		},
 		{
 			name:       "match in query with placeholder",
 			testString: "/v1beta/properties/375748157:runReport?user=paid&status=new&app=1",
-			regexes:    []types.Regex{{Pattern: "paid", Placeholder: "{placeholder}"}},
+			regexes:    []types.Regex{{Pattern: "paid", Placeholder: "placeholder"}},
 			want:       "/v1beta/properties/375748157:runReport?user=%7Bplaceholder%7D&status=new&app=1",
 			isQuery:    true,
 		},

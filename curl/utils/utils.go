@@ -34,7 +34,7 @@ func SetPlaceholderByIndex(parts []string, wildcard types.WildcardIndex) {
 	if wildcard.Placeholder != "" {
 		parts[*wildcard.Index] = wildcard.Placeholder
 	} else {
-		parts[*wildcard.Index] = "{wannabe}"
+		parts[*wildcard.Index] = "wannabe"
 	}
 }
 
@@ -42,7 +42,7 @@ func SetPlaceholderByKey(inputMap map[string]string, wildcard types.WildcardKey)
 	if wildcard.Placeholder != "" {
 		inputMap[wildcard.Key] = wildcard.Placeholder
 	} else {
-		inputMap[wildcard.Key] = "{wannabe}"
+		inputMap[wildcard.Key] = "wannabe"
 	}
 }
 
@@ -60,7 +60,7 @@ func ReplaceRegexPatterns(processedString string, regexes []types.Regex, isQuery
 		}
 
 		if regex.Placeholder == "" {
-			regex.Placeholder = "{wannabe}"
+			regex.Placeholder = "wannabe"
 		}
 
 		if isQuery {

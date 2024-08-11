@@ -26,9 +26,9 @@ func TestProcessPath(t *testing.T) {
 			name: "with placeholder",
 			path: "/test1/test2/123456:test",
 			config: types.Path{
-				Wildcards: []types.WildcardIndex{{Index: &zero, Placeholder: "{placeholder}"}},
+				Wildcards: []types.WildcardIndex{{Index: &zero, Placeholder: "placeholder"}},
 			},
-			want:    "/{placeholder}/test2/123456:test",
+			want:    "/placeholder/test2/123456:test",
 			wantErr: "",
 		},
 		{
@@ -37,7 +37,7 @@ func TestProcessPath(t *testing.T) {
 			config: types.Path{
 				Wildcards: []types.WildcardIndex{{Index: &zero}},
 			},
-			want:    "/{wannabe}/test2/123456:test",
+			want:    "/wannabe/test2/123456:test",
 			wantErr: "",
 		},
 		{

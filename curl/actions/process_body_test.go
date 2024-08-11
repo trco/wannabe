@@ -25,11 +25,11 @@ func TestProcessBody(t *testing.T) {
 			body: testBody,
 			config: types.Body{
 				Regexes: []types.Regex{
-					{Pattern: "\"dimensions\":\\s*\\[(.*?)\\][,}]", Placeholder: "\"dimensions\":\"{placeholder}\","},
-					{Pattern: "\"startDate\":\\s*\"(.*?)\"[,}]", Placeholder: "\"startDate\":\"{placeholder}\""},
+					{Pattern: "\"dimensions\":\\s*\\[(.*?)\\][,}]", Placeholder: "\"dimensions\":\"placeholder\","},
+					{Pattern: "\"startDate\":\\s*\"(.*?)\"[,}]", Placeholder: "\"startDate\":\"placeholder\""},
 				},
 			},
-			want:    "{\"dateRanges\":[{\"endDate\":\"2023-12-31\",\"startDate\":\"{placeholder}\"],\"dimensions\":\"{placeholder}\",\"limit\":10000,\"metrics\":[{\"name\":\"sessions\"}],\"returnPropertyQuota\":true}",
+			want:    "{\"dateRanges\":[{\"endDate\":\"2023-12-31\",\"startDate\":\"placeholder\"],\"dimensions\":\"placeholder\",\"limit\":10000,\"metrics\":[{\"name\":\"sessions\"}],\"returnPropertyQuota\":true}",
 			wantErr: "",
 		},
 		{
@@ -40,7 +40,7 @@ func TestProcessBody(t *testing.T) {
 					{Pattern: "\"startDate\":\\s*\"(.*?)\"[,}\"]"},
 				},
 			},
-			want:    "{\"dateRanges\":[{\"endDate\":\"2023-12-31\",{wannabe}],\"dimensions\":[{\"name\":\"date\"},{\"name\":\"source\"}],\"limit\":10000,\"metrics\":[{\"name\":\"sessions\"}],\"returnPropertyQuota\":true}",
+			want:    "{\"dateRanges\":[{\"endDate\":\"2023-12-31\",wannabe],\"dimensions\":[{\"name\":\"date\"},{\"name\":\"source\"}],\"limit\":10000,\"metrics\":[{\"name\":\"sessions\"}],\"returnPropertyQuota\":true}",
 			wantErr: "",
 		},
 		{
