@@ -7,7 +7,8 @@ import (
 	"net/url"
 	"reflect"
 	"testing"
-	"wannabe/types"
+
+	"github.com/trco/wannabe/types"
 )
 
 func TestGenerateRecordPayload(t *testing.T) {

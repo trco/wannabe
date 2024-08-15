@@ -7,12 +7,13 @@ import (
 	"io"
 	"net/http"
 	"time"
-	curl "wannabe/curl/services"
-	"wannabe/handlers/utils"
-	hash "wannabe/hash/actions"
-	"wannabe/providers"
-	recordActions "wannabe/record/actions"
-	"wannabe/types"
+
+	curl "github.com/trco/wannabe/curl/services"
+	"github.com/trco/wannabe/handlers/utils"
+	hash "github.com/trco/wannabe/hash/actions"
+	"github.com/trco/wannabe/providers"
+	recordActions "github.com/trco/wannabe/record/actions"
+	"github.com/trco/wannabe/types"
 )
 
 func Records(config types.Config, storageProvider providers.StorageProvider) http.HandlerFunc {

@@ -3,7 +3,8 @@ package actions
 import (
 	"reflect"
 	"testing"
-	"wannabe/utils"
+
+	"github.com/trco/wannabe/utils"
 
 	"github.com/clbanning/mxj"
 )

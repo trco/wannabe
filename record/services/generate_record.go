@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"time"
-	"wannabe/record/actions"
-	"wannabe/types"
+
+	"github.com/trco/wannabe/record/actions"
+	"github.com/trco/wannabe/types"
 )
 
 var contentType = "Content-Type"

@@ -6,7 +6,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"wannabe/types"
+
+	"github.com/trco/wannabe/types"
 
 	"github.com/AdguardTeam/gomitmproxy/proxyutil"
 )

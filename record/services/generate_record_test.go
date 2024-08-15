@@ -4,7 +4,8 @@ import (
 	"encoding/json"
 	"reflect"
 	"testing"
-	"wannabe/types"
+
+	"github.com/trco/wannabe/types"
 )
 
 func TestGenerateRecord(t *testing.T) {

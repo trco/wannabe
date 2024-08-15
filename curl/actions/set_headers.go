@@ -2,7 +2,8 @@ package actions
 
 import (
 	"net/http"
-	"wannabe/types"
+
+	"github.com/trco/wannabe/types"
 )
 
 func SetHeaders(request *http.Request, headers []types.Header) {

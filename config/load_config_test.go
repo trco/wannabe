@@ -6,7 +6,8 @@ import (
 	"os"
 	"reflect"
 	"testing"
-	"wannabe/types"
+
+	"github.com/trco/wannabe/types"
 )
 
 func TestLoadConfig(t *testing.T) {

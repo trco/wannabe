@@ -2,8 +2,9 @@ package actions
 
 import (
 	"fmt"
-	"wannabe/curl/utils"
-	"wannabe/types"
+
+	"github.com/trco/wannabe/curl/utils"
+	"github.com/trco/wannabe/types"
 )
 
 func ProcessQuery(queryMap map[string][]string, config types.Query) (string, error) {

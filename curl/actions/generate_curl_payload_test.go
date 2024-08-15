@@ -5,7 +5,8 @@ import (
 	"net/http"
 	"reflect"
 	"testing"
-	"wannabe/types"
+
+	"github.com/trco/wannabe/types"
 )
 
 func TestGenerateCurlPayload(t *testing.T) {

@@ -8,10 +8,12 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	cfg "wannabe/config"
-	"wannabe/handlers"
-	"wannabe/providers"
-	"wannabe/types"
+
+	"github.com/trco/wannabe/handlers"
+	"github.com/trco/wannabe/providers"
+	"github.com/trco/wannabe/types"
+
+	cfg "github.com/trco/wannabe/config"
 
 	"github.com/AdguardTeam/gomitmproxy"
 	"github.com/AdguardTeam/gomitmproxy/mitm"

@@ -3,7 +3,8 @@ package actions
 import (
 	"bytes"
 	"io"
-	"wannabe/types"
+
+	"github.com/trco/wannabe/types"
 )
 
 func GenerateRecordPayload(session types.Session, hash string, curl string) (types.RecordPayload, error) {

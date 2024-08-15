@@ -6,7 +6,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"wannabe/types"
+
+	"github.com/trco/wannabe/types"
 )
 
 func TestInternalErrorOnRequest(t *testing.T) {

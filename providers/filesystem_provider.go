@@ -5,7 +5,8 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"wannabe/types"
+
+	"github.com/trco/wannabe/types"
 )
 
 type FilesystemProvider struct {
