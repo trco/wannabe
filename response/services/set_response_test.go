@@ -8,7 +8,8 @@ import (
 	"net/url"
 	"reflect"
 	"testing"
-	"wannabe/types"
+
+	"github.com/trco/wannabe/types"
 )
 
 func TestSetResponse(t *testing.T) {

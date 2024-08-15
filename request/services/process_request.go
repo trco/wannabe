@@ -2,7 +2,8 @@ package services
 
 import (
 	"net/http"
-	"wannabe/request/actions"
+
+	"github.com/trco/wannabe/request/actions"
 )
 
 func ProcessRequest(request *http.Request) *http.Request {

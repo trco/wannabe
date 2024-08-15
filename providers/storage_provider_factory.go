@@ -2,7 +2,8 @@ package providers
 
 import (
 	"fmt"
-	"wannabe/types"
+
+	"github.com/trco/wannabe/types"
 )
 
 type StorageProviderGenerationError struct {

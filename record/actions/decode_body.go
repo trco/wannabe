@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"wannabe/utils"
+	"github.com/trco/wannabe/utils"
 
 	"github.com/clbanning/mxj"
 )

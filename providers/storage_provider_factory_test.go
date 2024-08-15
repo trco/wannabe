@@ -3,7 +3,8 @@ package providers
 import (
 	"reflect"
 	"testing"
-	"wannabe/types"
+
+	"github.com/trco/wannabe/types"
 )
 
 func TestStorageProviderFactory(t *testing.T) {

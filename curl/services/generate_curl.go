@@ -2,8 +2,9 @@ package services
 
 import (
 	"net/http"
-	"wannabe/curl/actions"
-	"wannabe/types"
+
+	"github.com/trco/wannabe/curl/actions"
+	"github.com/trco/wannabe/types"
 )
 
 func GenerateCurl(request *http.Request, wannabe types.Wannabe) (string, error) {

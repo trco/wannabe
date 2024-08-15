@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"wannabe/types"
+
+	"github.com/trco/wannabe/types"
 )
 
 func GenerateCurlPayload(request *http.Request) (types.CurlPayload, error) {

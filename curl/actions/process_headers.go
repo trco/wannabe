@@ -1,8 +1,8 @@
 package actions
 
 import (
-	"wannabe/curl/utils"
-	"wannabe/types"
+	"github.com/trco/wannabe/curl/utils"
+	"github.com/trco/wannabe/types"
 )
 
 func ProcessHeaders(headersMap map[string][]string, config types.Headers) []types.Header {

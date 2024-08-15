@@ -5,8 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"wannabe/response/actions"
-	"wannabe/types"
+
+	"github.com/trco/wannabe/response/actions"
+	"github.com/trco/wannabe/types"
 
 	"github.com/AdguardTeam/gomitmproxy/proxyutil"
 )

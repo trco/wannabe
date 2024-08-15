@@ -3,7 +3,8 @@ package actions
 import (
 	"net/http"
 	"testing"
-	"wannabe/types"
+
+	"github.com/trco/wannabe/types"
 )
 
 func TestSetHeaders(t *testing.T) {

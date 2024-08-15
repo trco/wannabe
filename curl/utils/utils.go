@@ -5,7 +5,8 @@ import (
 	"regexp"
 	"sort"
 	"strings"
-	"wannabe/types"
+
+	"github.com/trco/wannabe/types"
 )
 
 func SetWildcardsByIndex(slice []string, wildcards []types.WildcardIndex) {

@@ -4,7 +4,8 @@ import (
 	"reflect"
 	"testing"
 	"time"
-	"wannabe/types"
+
+	"github.com/trco/wannabe/types"
 )
 
 func TestExtractRecords(t *testing.T) {

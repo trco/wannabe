@@ -1,7 +1,7 @@
 package actions
 
 import (
-	"wannabe/types"
+	"github.com/trco/wannabe/types"
 
 	"github.com/go-playground/validator/v10"
 )

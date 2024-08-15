@@ -4,7 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http"
-	"wannabe/types"
+
+	"github.com/trco/wannabe/types"
 )
 
 func GenerateRequest(recordRequest types.Request) (*http.Request, error) {

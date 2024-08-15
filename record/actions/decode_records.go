@@ -3,7 +3,8 @@ package actions
 import (
 	"encoding/json"
 	"fmt"
-	"wannabe/types"
+
+	"github.com/trco/wannabe/types"
 )
 
 func DecodeRecords(encodedRecords [][]byte) ([]types.Record, error) {

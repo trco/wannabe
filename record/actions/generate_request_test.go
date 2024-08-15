@@ -3,7 +3,8 @@ package actions
 import (
 	"io"
 	"testing"
-	"wannabe/types"
+
+	"github.com/trco/wannabe/types"
 )
 
 func TestGenerateRequest(t *testing.T) {

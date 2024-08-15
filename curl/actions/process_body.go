@@ -3,8 +3,9 @@ package actions
 import (
 	"encoding/json"
 	"fmt"
-	"wannabe/curl/utils"
-	"wannabe/types"
+
+	"github.com/trco/wannabe/curl/utils"
+	"github.com/trco/wannabe/types"
 )
 
 func ProcessBody(requestBody []byte, config types.Body) (string, error) {

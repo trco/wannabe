@@ -3,11 +3,12 @@ package handlers
 import (
 	"io"
 	"net/http"
-	"wannabe/handlers/utils"
-	"wannabe/providers"
-	"wannabe/record/actions"
-	"wannabe/record/services"
-	"wannabe/types"
+
+	"github.com/trco/wannabe/handlers/utils"
+	"github.com/trco/wannabe/providers"
+	"github.com/trco/wannabe/record/actions"
+	"github.com/trco/wannabe/record/services"
+	"github.com/trco/wannabe/types"
 
 	"github.com/AdguardTeam/gomitmproxy"
 )

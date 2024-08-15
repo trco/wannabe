@@ -3,7 +3,8 @@ package actions
 import (
 	"reflect"
 	"testing"
-	"wannabe/types"
+
+	"github.com/trco/wannabe/types"
 )
 
 func TestDecodeRecords(t *testing.T) {

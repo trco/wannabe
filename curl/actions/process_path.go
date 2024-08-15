@@ -3,8 +3,9 @@ package actions
 import (
 	"fmt"
 	"strings"
-	"wannabe/curl/utils"
-	"wannabe/types"
+
+	"github.com/trco/wannabe/curl/utils"
+	"github.com/trco/wannabe/types"
 )
 
 func ProcessPath(path string, config types.Path) (string, error) {

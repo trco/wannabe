@@ -2,7 +2,8 @@ package config
 
 import (
 	"fmt"
-	"wannabe/types"
+
+	"github.com/trco/wannabe/types"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/knadh/koanf"

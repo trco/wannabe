@@ -5,7 +5,8 @@ import (
 	"os"
 	"reflect"
 	"testing"
-	"wannabe/types"
+
+	"github.com/trco/wannabe/types"
 )
 
 var testConfig = types.Config{

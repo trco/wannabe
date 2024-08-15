@@ -3,14 +3,15 @@ package handlers
 import (
 	"fmt"
 	"net/http"
-	curl "wannabe/curl/services"
-	"wannabe/handlers/utils"
-	"wannabe/hash/actions"
-	"wannabe/providers"
-	requestActions "wannabe/request/actions"
-	requestServices "wannabe/request/services"
-	"wannabe/response/services"
-	"wannabe/types"
+
+	curl "github.com/trco/wannabe/curl/services"
+	"github.com/trco/wannabe/handlers/utils"
+	"github.com/trco/wannabe/hash/actions"
+	"github.com/trco/wannabe/providers"
+	requestActions "github.com/trco/wannabe/request/actions"
+	requestServices "github.com/trco/wannabe/request/services"
+	"github.com/trco/wannabe/response/services"
+	"github.com/trco/wannabe/types"
 
 	"github.com/AdguardTeam/gomitmproxy"
 )
