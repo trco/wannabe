@@ -28,7 +28,7 @@ func TestPrepareRequest(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			request, _ := PrepareRequest(tt.httpMethod, tt.url, tt.body)
+			request, _ := prepareRequest(tt.httpMethod, tt.url, tt.body)
 
 			if request.Method != tt.httpMethod {
 				t.Errorf("got http method %v, want http method %v", request.Method, tt.httpMethod)

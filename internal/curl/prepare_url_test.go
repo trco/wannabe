@@ -26,10 +26,10 @@ func TestPrepareUrl(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := PrepareUrl(scheme, host, tt.path, query)
+			got := prepareUrl(scheme, host, tt.path, query)
 
 			if got != tt.want {
-				t.Errorf("PrepareUrl() = %v, want %v", got, tt.want)
+				t.Errorf("prepareUrl() = %v, want %v", got, tt.want)
 			}
 		})
 	}

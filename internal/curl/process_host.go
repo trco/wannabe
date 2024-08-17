@@ -9,36 +9,36 @@ import (
 	"github.com/trco/wannabe/internal/config"
 )
 
-func ProcessHost(host string, config config.Host) (string, error) {
+func processHost(host string, config config.Host) (string, error) {
 	hostParts := strings.Split(host, ".")
 
-	SetWildcardsByIndex(hostParts, config.Wildcards)
+	setWildcardsByIndex(hostParts, config.Wildcards)
 	rebuiltHost := strings.Join(hostParts, ".")
 
-	processedHost, err := ReplaceRegexPatterns(rebuiltHost, config.Regexes, false)
+	processedHost, err := replaceRegexPatterns(rebuiltHost, config.Regexes, false)
 	if err != nil {
-		return "", fmt.Errorf("ProcessHost: failed compiling regex: %v", err)
+		return "", fmt.Errorf("processHost: failed compiling regex: %v", err)
 	}
 
 	return processedHost, nil
 }
 
-func SetWildcardsByIndex(slice []string, wildcards []config.WildcardIndex) {
+func setWildcardsByIndex(slice []string, wildcards []config.WildcardIndex) {
 	for _, wildcard := range wildcards {
-		if IsIndexOutOfBounds(slice, *wildcard.Index) {
+		if isIndexOutOfBounds(slice, *wildcard.Index) {
 			// TODO log warning
 			continue
 		}
 
-		SetPlaceholderByIndex(slice, wildcard)
+		setPlaceholderByIndex(slice, wildcard)
 	}
 }
 
-func IsIndexOutOfBounds[T interface{}](slice []T, index int) bool {
+func isIndexOutOfBounds[T interface{}](slice []T, index int) bool {
 	return index < 0 || index >= len(slice)
 }
 
-func SetPlaceholderByIndex(parts []string, wildcard config.WildcardIndex) {
+func setPlaceholderByIndex(parts []string, wildcard config.WildcardIndex) {
 	if wildcard.Placeholder != "" {
 		parts[*wildcard.Index] = wildcard.Placeholder
 	} else {
@@ -46,7 +46,7 @@ func SetPlaceholderByIndex(parts []string, wildcard config.WildcardIndex) {
 	}
 }
 
-func ReplaceRegexPatterns(processedString string, regexes []config.Regex, isQuery bool) (string, error) {
+func replaceRegexPatterns(processedString string, regexes []config.Regex, isQuery bool) (string, error) {
 	for _, regex := range regexes {
 		compiledPattern, err := regexp.Compile(regex.Pattern)
 		if err != nil {

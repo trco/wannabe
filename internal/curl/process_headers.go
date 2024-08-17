@@ -7,31 +7,31 @@ import (
 	"github.com/trco/wannabe/internal/config"
 )
 
-type Header struct {
-	Key   string
-	Value string
+type header struct {
+	key   string
+	value string
 }
 
-func ProcessHeaders(headersMap map[string][]string, config config.Headers) []Header {
-	headers := FilterHeadersToInclude(headersMap, config.Include)
+func processHeaders(headersMap map[string][]string, config config.Headers) []header {
+	headers := filterHeadersToInclude(headersMap, config.Include)
 
 	wildcards := config.Wildcards
 	for _, wildcard := range wildcards {
-		if !KeyExists(headers, wildcard.Key) {
+		if !keyExists(headers, wildcard.Key) {
 			// TODO log warning
 			continue
 		}
 
-		SetPlaceholderByKey(headers, wildcard)
+		setPlaceholderByKey(headers, wildcard)
 	}
 
-	headerSlice := HeadersMapToSlice(headers)
-	sortedHeaders := SortHeaderSlice(headerSlice)
+	headerSlice := headersMapToSlice(headers)
+	sortedHeaders := sortHeaderSlice(headerSlice)
 
 	return sortedHeaders
 }
 
-func FilterHeadersToInclude(headersMap map[string][]string, headersToInclude []string) map[string]string {
+func filterHeadersToInclude(headersMap map[string][]string, headersToInclude []string) map[string]string {
 	headers := make(map[string]string)
 
 	if len(headersToInclude) == 0 {
@@ -39,7 +39,7 @@ func FilterHeadersToInclude(headersMap map[string][]string, headersToInclude []s
 	}
 
 	for _, key := range headersToInclude {
-		if !KeyExists(headersMap, key) {
+		if !keyExists(headersMap, key) {
 			// TODO log warning
 			continue
 		}
@@ -51,7 +51,7 @@ func FilterHeadersToInclude(headersMap map[string][]string, headersToInclude []s
 	return headers
 }
 
-func SetPlaceholderByKey(inputMap map[string]string, wildcard config.WildcardKey) {
+func setPlaceholderByKey(inputMap map[string]string, wildcard config.WildcardKey) {
 	if wildcard.Placeholder != "" {
 		inputMap[wildcard.Key] = wildcard.Placeholder
 	} else {
@@ -59,18 +59,18 @@ func SetPlaceholderByKey(inputMap map[string]string, wildcard config.WildcardKey
 	}
 }
 
-func HeadersMapToSlice(headersMap map[string]string) []Header {
-	var headerSlice []Header
+func headersMapToSlice(headersMap map[string]string) []header {
+	var headerSlice []header
 	for key, value := range headersMap {
-		headerSlice = append(headerSlice, Header{Key: key, Value: value})
+		headerSlice = append(headerSlice, header{key: key, value: value})
 	}
 
 	return headerSlice
 }
 
-func SortHeaderSlice(headerSlice []Header) []Header {
+func sortHeaderSlice(headerSlice []header) []header {
 	sort.Slice(headerSlice, func(i, j int) bool {
-		return headerSlice[i].Key < headerSlice[j].Key
+		return headerSlice[i].key < headerSlice[j].key
 	})
 
 	return headerSlice

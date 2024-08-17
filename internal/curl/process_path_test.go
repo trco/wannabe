@@ -7,12 +7,6 @@ import (
 	"github.com/trco/wannabe/internal/config"
 )
 
-type TestCaseProcessPath struct {
-	Path     string
-	Config   config.Path
-	Expected string
-}
-
 func TestProcessPath(t *testing.T) {
 	zero := 0
 
@@ -66,21 +60,21 @@ func TestProcessPath(t *testing.T) {
 				Regexes: []config.Regex{{Pattern: "(?P<foo"}},
 			},
 			want:    "",
-			wantErr: "ProcessPath: failed compiling regex: error parsing regexp: invalid named capture: `(?P<foo`",
+			wantErr: "processPath: failed compiling regex: error parsing regexp: invalid named capture: `(?P<foo`",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := ProcessPath(tt.path, tt.config)
+			got, err := processPath(tt.path, tt.config)
 
 			if (err != nil) && err.Error() != tt.wantErr {
-				t.Errorf("ProcessPath() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("processPath() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ProcessPath() = %v, want %v", got, tt.want)
+				t.Errorf("processPath() = %v, want %v", got, tt.want)
 			}
 		})
 	}

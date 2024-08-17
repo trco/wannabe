@@ -11,23 +11,23 @@ func TestGenerateCurlPayload(t *testing.T) {
 	t.Run("generate curl payload", func(t *testing.T) {
 		request := generateTestRequest()
 
-		want := CurlPayload{
-			Scheme:     "https",
-			HttpMethod: "POST",
-			Host:       "test.com",
-			Path:       "/test",
-			Query: map[string][]string{
+		want := curlPayload{
+			scheme:     "https",
+			httpMethod: "POST",
+			host:       "test.com",
+			path:       "/test",
+			query: map[string][]string{
 				"test": {"test"},
 			},
-			RequestHeaders: map[string][]string{
+			requestHeaders: map[string][]string{
 				"Content-Type": {"application/json"},
 				"Accept":       {"test"},
 			},
 			// {"test":"test"}
-			RequestBody: []byte{123, 34, 116, 101, 115, 116, 34, 58, 34, 116, 101, 115, 116, 34, 125},
+			requestBody: []byte{123, 34, 116, 101, 115, 116, 34, 58, 34, 116, 101, 115, 116, 34, 125},
 		}
 
-		got, _ := GenerateCurlPayload(request)
+		got, _ := generateCurlPayload(request)
 
 		if !reflect.DeepEqual(got, want) {
 			t.Errorf("GenerateCurlPayload() = %v, want %v", got, want)

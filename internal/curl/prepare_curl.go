@@ -7,10 +7,10 @@ import (
 	"moul.io/http2curl"
 )
 
-func PrepareCurl(request *http.Request) (string, error) {
+func prepareCurl(request *http.Request) (string, error) {
 	curl, err := http2curl.GetCurlCommand(request)
 	if err != nil {
-		return "", fmt.Errorf("PrepareCurl: failed preparing curl: %v", err)
+		return "", fmt.Errorf("prepareCurl: failed preparing curl: %v", err)
 	}
 
 	return curl.String(), nil

@@ -73,21 +73,21 @@ func TestProcessQuery(t *testing.T) {
 				Regexes: []config.Regex{{Pattern: "(?P<foo"}},
 			},
 			want:    "",
-			wantErr: "ProcessQuery: failed compiling regex: error parsing regexp: invalid named capture: `(?P<foo`",
+			wantErr: "processQuery: failed compiling regex: error parsing regexp: invalid named capture: `(?P<foo`",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := ProcessQuery(tt.queryMap, tt.config)
+			got, err := processQuery(tt.queryMap, tt.config)
 
 			if (err != nil) && err.Error() != tt.wantErr {
-				t.Errorf("ProcessQuery() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("processQuery() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ProcessQuery() = %v, want %v", got, tt.want)
+				t.Errorf("processQuery() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -125,10 +125,10 @@ func TestMapValuesToSingleString(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := MapValuesToSingleString(tt.queryMap)
+			got := mapValuesToSingleString(tt.queryMap)
 
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("MapValuesToSingleString() = %v, want %v", got, tt.want)
+				t.Errorf("mapValuesToSingleString() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -185,10 +185,10 @@ func TestSetWildcardsByKey(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			SetWildcardsByKey(tt.testMap, tt.wildcards)
+			setWildcardsByKey(tt.testMap, tt.wildcards)
 
 			if !reflect.DeepEqual(tt.testMap, tt.want) {
-				t.Errorf("SetWildcardsByKey() = %v, want %v", tt.testMap, tt.want)
+				t.Errorf("setWildcardsByKey() = %v, want %v", tt.testMap, tt.want)
 			}
 		})
 	}
@@ -217,10 +217,10 @@ func TestKeyExists(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := KeyExists(tt.testMap, tt.key)
+			got := keyExists(tt.testMap, tt.key)
 
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("KeyExists() = %v, want %v", got, tt.want)
+				t.Errorf("keyExists() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -232,10 +232,10 @@ func TestBuildQuery(t *testing.T) {
 
 		want := "?appId=test&status=test"
 
-		got := BuildQuery(query)
+		got := buildQuery(query)
 
 		if got != want {
-			t.Errorf("BuildQuery() = %v, want %v", got, want)
+			t.Errorf("buildQuery() = %v, want %v", got, want)
 		}
 	})
 }

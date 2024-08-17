@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func PrepareRequest(httpMethod string, url string, body string) (*http.Request, error) {
+func prepareRequest(httpMethod string, url string, body string) (*http.Request, error) {
 	var request *http.Request
 	var err error
 
@@ -18,7 +18,7 @@ func PrepareRequest(httpMethod string, url string, body string) (*http.Request, 
 	}
 
 	if err != nil {
-		return nil, fmt.Errorf("PrepareRequest: failed generating request: %v", err)
+		return nil, fmt.Errorf("prepareRequest: failed generating request: %v", err)
 	}
 
 	return request, nil

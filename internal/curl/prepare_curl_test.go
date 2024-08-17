@@ -10,10 +10,10 @@ func TestPrepareCurl(t *testing.T) {
 
 		want := "curl -X 'POST' -d '{\"test\":\"test\"}' -H 'Accept: test' -H 'Content-Type: application/json' 'https://test.com/test?test=test'"
 
-		got, _ := PrepareCurl(request)
+		got, _ := prepareCurl(request)
 
 		if got != want {
-			t.Errorf("PrepareCurl() = %v, want %v", got, want)
+			t.Errorf("prepareCurl() = %v, want %v", got, want)
 		}
 	})
 }

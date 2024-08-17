@@ -8,10 +8,10 @@ func TestProcessHttpMethod(t *testing.T) {
 
 		want := "GET"
 
-		got := ProcessHttpMethod(httpMethod)
+		got := processHttpMethod(httpMethod)
 
 		if got != want {
-			t.Errorf("ProcessHttpMethod() = %v, want %v", got, want)
+			t.Errorf("processHttpMethod() = %v, want %v", got, want)
 		}
 	})
 }

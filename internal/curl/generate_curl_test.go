@@ -21,7 +21,7 @@ func TestGenerateCurl(t *testing.T) {
 
 		want := "curl -X 'POST' -d '{\"test\":\"test\"}' -H 'Accept: test' -H 'Content-Type: application/json' 'https://test.com/test?test=test'"
 
-		got, _ := GenerateCurl(request, wannabe)
+		got, _ := generateCurl(request, wannabe)
 
 		if !reflect.DeepEqual(got, want) {
 			t.Errorf("GenerateCurl() = %v, want %v", got, want)

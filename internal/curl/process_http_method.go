@@ -1,5 +1,5 @@
 package curl
 
-func ProcessHttpMethod(httpMethod string) string {
+func processHttpMethod(httpMethod string) string {
 	return httpMethod
 }

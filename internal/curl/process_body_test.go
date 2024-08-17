@@ -7,12 +7,6 @@ import (
 	"github.com/trco/wannabe/internal/config"
 )
 
-type TestCaseProcessBody struct {
-	Body     []byte
-	Config   config.Body
-	Expected string
-}
-
 func TestProcessBody(t *testing.T) {
 	tests := []struct {
 		name    string
@@ -62,21 +56,21 @@ func TestProcessBody(t *testing.T) {
 				},
 			},
 			want:    "",
-			wantErr: "ProcessBody: failed compiling regex: error parsing regexp: invalid named capture: `(?P<foo`",
+			wantErr: "processBody: failed compiling regex: error parsing regexp: invalid named capture: `(?P<foo`",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := ProcessBody(tt.body, tt.config)
+			got, err := processBody(tt.body, tt.config)
 
 			if (err != nil) && err.Error() != tt.wantErr {
-				t.Errorf("ProcessBody() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("processBody() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ProcessBody() = %v, want %v", got, tt.want)
+				t.Errorf("processBody() = %v, want %v", got, tt.want)
 			}
 		})
 	}

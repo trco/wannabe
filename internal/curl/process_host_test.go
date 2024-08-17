@@ -61,21 +61,21 @@ func TestProcessHost(t *testing.T) {
 				Regexes: []config.Regex{{Pattern: "(?P<foo", Placeholder: "regexPlaceholder"}},
 			},
 			want:    "",
-			wantErr: "ProcessHost: failed compiling regex: error parsing regexp: invalid named capture: `(?P<foo`",
+			wantErr: "processHost: failed compiling regex: error parsing regexp: invalid named capture: `(?P<foo`",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := ProcessHost(tt.host, tt.config)
+			got, err := processHost(tt.host, tt.config)
 
 			if (err != nil) && err.Error() != tt.wantErr {
-				t.Errorf("ProcessHost() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("processHost() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ProcessHost() = %v, want %v", got, tt.want)
+				t.Errorf("processHost() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -124,10 +124,10 @@ func TestSetWildcardsByIndex(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			SetWildcardsByIndex(tt.slice, tt.wildcards)
+			setWildcardsByIndex(tt.slice, tt.wildcards)
 
 			if !reflect.DeepEqual(tt.slice, tt.want) {
-				t.Errorf("SetWildcardsByIndex() = %v, want %v", tt.slice, tt.want)
+				t.Errorf("setWildcardsByIndex() = %v, want %v", tt.slice, tt.want)
 			}
 		})
 	}
@@ -156,10 +156,10 @@ func TestIsIndexOutOfBounds(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := IsIndexOutOfBounds(tt.slice, tt.index)
+			got := isIndexOutOfBounds(tt.slice, tt.index)
 
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("IsIndexOutOfBounds() = %v, want %v", got, tt.want)
+				t.Errorf("isIndexOutOfBounds() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -190,10 +190,10 @@ func TestSetPlaceholderByIndex(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			SetPlaceholderByIndex(tt.slice, tt.wildcards)
+			setPlaceholderByIndex(tt.slice, tt.wildcards)
 
 			if !reflect.DeepEqual(tt.slice, tt.want) {
-				t.Errorf("SetPlaceholderByIndex() = %v, want %v", tt.slice, tt.want)
+				t.Errorf("setPlaceholderByIndex() = %v, want %v", tt.slice, tt.want)
 			}
 		})
 	}
@@ -239,10 +239,10 @@ func TestReplaceRegexPatterns(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, _ := ReplaceRegexPatterns(tt.testString, tt.regexes, tt.isQuery)
+			got, _ := replaceRegexPatterns(tt.testString, tt.regexes, tt.isQuery)
 
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ReplaceRegexPatterns() = %v, want %v", got, tt.want)
+				t.Errorf("replaceRegexPatterns() = %v, want %v", got, tt.want)
 			}
 		})
 	}

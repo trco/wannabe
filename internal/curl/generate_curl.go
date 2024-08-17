@@ -6,46 +6,46 @@ import (
 	"github.com/trco/wannabe/internal/config"
 )
 
-func GenerateCurl(request *http.Request, wannabe config.Wannabe) (string, error) {
-	payload, err := GenerateCurlPayload(request)
+func generateCurl(request *http.Request, wannabe config.Wannabe) (string, error) {
+	payload, err := generateCurlPayload(request)
 	if err != nil {
 		return "", err
 	}
 
-	httpMethod := ProcessHttpMethod(payload.HttpMethod)
+	httpMethod := processHttpMethod(payload.httpMethod)
 
-	processedHost, err := ProcessHost(payload.Host, wannabe.RequestMatching.Host)
+	processedHost, err := processHost(payload.host, wannabe.RequestMatching.Host)
 	if err != nil {
 		return "", err
 	}
 
-	processedPath, err := ProcessPath(payload.Path, wannabe.RequestMatching.Path)
+	processedPath, err := processPath(payload.path, wannabe.RequestMatching.Path)
 	if err != nil {
 		return "", err
 	}
 
-	processedQuery, err := ProcessQuery(payload.Query, wannabe.RequestMatching.Query)
+	processedQuery, err := processQuery(payload.query, wannabe.RequestMatching.Query)
 	if err != nil {
 		return "", err
 	}
 
-	processedHeaders := ProcessHeaders(payload.RequestHeaders, wannabe.RequestMatching.Headers)
+	processedHeaders := processHeaders(payload.requestHeaders, wannabe.RequestMatching.Headers)
 
-	processedBody, err := ProcessBody(payload.RequestBody, wannabe.RequestMatching.Body)
+	processedBody, err := processBody(payload.requestBody, wannabe.RequestMatching.Body)
 	if err != nil {
 		return "", err
 	}
 
-	url := PrepareUrl(payload.Scheme, processedHost, processedPath, processedQuery)
+	url := prepareUrl(payload.scheme, processedHost, processedPath, processedQuery)
 
-	processedRequest, err := PrepareRequest(httpMethod, url, processedBody)
+	processedRequest, err := prepareRequest(httpMethod, url, processedBody)
 	if err != nil {
 		return "", err
 	}
 
-	SetHeaders(processedRequest, processedHeaders)
+	setHeaders(processedRequest, processedHeaders)
 
-	curl, err := PrepareCurl(processedRequest)
+	curl, err := prepareCurl(processedRequest)
 	if err != nil {
 		return "", err
 	}
