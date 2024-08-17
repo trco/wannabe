@@ -1,14 +1,13 @@
-package actions
+package curl
 
 import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/trco/wannabe/curl/utils"
-	"github.com/trco/wannabe/types"
+	"github.com/trco/wannabe/internal/config"
 )
 
-func ProcessBody(requestBody []byte, config types.Body) (string, error) {
+func ProcessBody(requestBody []byte, config config.Body) (string, error) {
 	if len(requestBody) == 0 || string(requestBody) == "null" {
 		return "", nil
 	}
@@ -25,7 +24,7 @@ func ProcessBody(requestBody []byte, config types.Body) (string, error) {
 
 	bodyString := string(requestBody)
 
-	processedBodyString, err := utils.ReplaceRegexPatterns(bodyString, config.Regexes, false)
+	processedBodyString, err := ReplaceRegexPatterns(bodyString, config.Regexes, false)
 	if err != nil {
 		return "", fmt.Errorf("ProcessBody: failed compiling regex: %v", err)
 	}

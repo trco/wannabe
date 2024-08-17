@@ -1,19 +1,17 @@
-package actions
+package curl
 
 import (
 	"bytes"
 	"net/http"
 	"reflect"
 	"testing"
-
-	"github.com/trco/wannabe/types"
 )
 
 func TestGenerateCurlPayload(t *testing.T) {
 	t.Run("generate curl payload", func(t *testing.T) {
 		request := generateTestRequest()
 
-		want := types.CurlPayload{
+		want := CurlPayload{
 			Scheme:     "https",
 			HttpMethod: "POST",
 			Host:       "test.com",

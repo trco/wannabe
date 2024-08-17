@@ -1,17 +1,15 @@
-package actions
+package curl
 
 import (
 	"net/http"
 	"testing"
-
-	"github.com/trco/wannabe/types"
 )
 
 func TestSetHeaders(t *testing.T) {
 	t.Run("set headers", func(t *testing.T) {
 		request := generateTestRequest()
 
-		headers := []types.Header{
+		headers := []Header{
 			{Key: "Authorization", Value: "test access token"},
 			{Key: "X-test-header", Value: "test value"},
 		}

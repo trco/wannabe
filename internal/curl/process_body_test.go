@@ -1,15 +1,15 @@
-package actions
+package curl
 
 import (
 	"reflect"
 	"testing"
 
-	"github.com/trco/wannabe/types"
+	"github.com/trco/wannabe/internal/config"
 )
 
 type TestCaseProcessBody struct {
 	Body     []byte
-	Config   types.Body
+	Config   config.Body
 	Expected string
 }
 
@@ -17,15 +17,15 @@ func TestProcessBody(t *testing.T) {
 	tests := []struct {
 		name    string
 		body    []byte
-		config  types.Body
+		config  config.Body
 		want    string
 		wantErr string
 	}{
 		{
 			name: "with placeholder",
 			body: testBody,
-			config: types.Body{
-				Regexes: []types.Regex{
+			config: config.Body{
+				Regexes: []config.Regex{
 					{Pattern: "\"dimensions\":\\s*\\[(.*?)\\][,}]", Placeholder: "\"dimensions\":\"placeholder\","},
 					{Pattern: "\"startDate\":\\s*\"(.*?)\"[,}]", Placeholder: "\"startDate\":\"placeholder\""},
 				},
@@ -36,8 +36,8 @@ func TestProcessBody(t *testing.T) {
 		{
 			name: "without placeholder",
 			body: testBody,
-			config: types.Body{
-				Regexes: []types.Regex{
+			config: config.Body{
+				Regexes: []config.Regex{
 					{Pattern: "\"startDate\":\\s*\"(.*?)\"[,}\"]"},
 				},
 			},
@@ -47,8 +47,8 @@ func TestProcessBody(t *testing.T) {
 		{
 			name: "empty body",
 			body: []byte{},
-			config: types.Body{
-				Regexes: []types.Regex{},
+			config: config.Body{
+				Regexes: []config.Regex{},
 			},
 			want:    "",
 			wantErr: "",
@@ -56,8 +56,8 @@ func TestProcessBody(t *testing.T) {
 		{
 			name: "invalid regex",
 			body: testBody,
-			config: types.Body{
-				Regexes: []types.Regex{
+			config: config.Body{
+				Regexes: []config.Regex{
 					{Pattern: "(?P<foo"},
 				},
 			},

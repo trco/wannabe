@@ -1,14 +1,13 @@
-package actions
+package curl
 
 import (
 	"fmt"
 	"strings"
 
-	"github.com/trco/wannabe/curl/utils"
-	"github.com/trco/wannabe/types"
+	"github.com/trco/wannabe/internal/config"
 )
 
-func ProcessPath(path string, config types.Path) (string, error) {
+func ProcessPath(path string, config config.Path) (string, error) {
 	strippedPath := strings.TrimPrefix(path, "/")
 	if path == "" {
 		return "", nil
@@ -16,10 +15,10 @@ func ProcessPath(path string, config types.Path) (string, error) {
 
 	pathParts := strings.Split(strippedPath, "/")
 
-	utils.SetWildcardsByIndex(pathParts, config.Wildcards)
+	SetWildcardsByIndex(pathParts, config.Wildcards)
 	rebuiltPath := "/" + strings.Join(pathParts, "/")
 
-	processedPath, err := utils.ReplaceRegexPatterns(rebuiltPath, config.Regexes, false)
+	processedPath, err := ReplaceRegexPatterns(rebuiltPath, config.Regexes, false)
 	if err != nil {
 		return "", fmt.Errorf("ProcessPath: failed compiling regex: %v", err)
 	}
