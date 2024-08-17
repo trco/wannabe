@@ -9,11 +9,11 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/trco/wannabe/handlers"
-	"github.com/trco/wannabe/providers"
-	"github.com/trco/wannabe/types"
+	"github.com/trco/wannabe/internal/handlers"
+	"github.com/trco/wannabe/internal/providers"
+	"github.com/trco/wannabe/internal/types"
 
-	cfg "github.com/trco/wannabe/config"
+	cfg "github.com/trco/wannabe/internal/config"
 
 	"github.com/AdguardTeam/gomitmproxy"
 	"github.com/AdguardTeam/gomitmproxy/mitm"
