@@ -1,50 +1,44 @@
-package providers
+package storage
 
 import (
 	"reflect"
 	"testing"
 
-	"github.com/trco/wannabe/types"
+	"github.com/trco/wannabe/internal/config"
 )
 
 func TestStorageProviderFactory(t *testing.T) {
 	tests := []struct {
 		name   string
-		config types.Config
+		config config.StorageProvider
 		want   interface{}
 		err    bool
 	}{
 		{
 			name: "invalid filesystem config",
-			config: types.Config{
-				StorageProvider: types.StorageProvider{
-					Type: "test",
-				},
+			config: config.StorageProvider{
+				Type: "test",
 			},
 			want: nil,
 			err:  true,
 		},
 		{
 			name: "valid filesystem config",
-			config: types.Config{
-				StorageProvider: types.StorageProvider{
-					Type: "filesystem",
-					FilesystemConfig: types.FilesystemConfig{
-						Folder:           "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T",
-						RegenerateFolder: "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T/regenerate",
-						Format:           "json",
-					},
+			config: config.StorageProvider{
+				Type: "filesystem",
+				FilesystemProvider: config.FilesystemProvider{
+					Folder:           "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T",
+					RegenerateFolder: "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T/regenerate",
+					Format:           "json",
 				},
 			},
 			want: FilesystemProvider{
-				Config: types.Config{
-					StorageProvider: types.StorageProvider{
-						Type: "filesystem",
-						FilesystemConfig: types.FilesystemConfig{
-							Folder:           "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T",
-							RegenerateFolder: "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T/regenerate",
-							Format:           "json",
-						},
+				Config: config.StorageProvider{
+					Type: "filesystem",
+					FilesystemProvider: config.FilesystemProvider{
+						Folder:           "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T",
+						RegenerateFolder: "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T/regenerate",
+						Format:           "json",
 					},
 				},
 			},

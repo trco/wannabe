@@ -30,7 +30,7 @@ func setConfigDefaults() Config {
 		Mode: "mixed",
 		StorageProvider: StorageProvider{
 			Type: "filesystem",
-			FilesystemConfig: FilesystemConfig{
+			FilesystemProvider: FilesystemProvider{
 				Folder:           "records",
 				RegenerateFolder: "records/regenerated",
 				Format:           "json",
@@ -110,7 +110,7 @@ func contains(slice []string, value string) bool {
 
 type Config struct {
 	Mode            string             `koanf:"mode" validate:"required,oneof=proxy server mixed"`
-	StorageProvider StorageProvider    `koanf:"storageProvider" validate:"required"`
+	StorageProvider StorageProvider    `koanf:"storage" validate:"required"`
 	Wannabes        map[string]Wannabe `koanf:"wannabes" validate:"headers_included_excluded,dive"`
 }
 
@@ -121,11 +121,11 @@ const (
 )
 
 type StorageProvider struct {
-	Type             string           `koanf:"type" validate:"required,oneof=filesystem"`
-	FilesystemConfig FilesystemConfig `koanf:"filesystemConfig" validate:"required_if=Type filesystem,omitempty"`
+	Type               string             `koanf:"type" validate:"required,oneof=filesystem"`
+	FilesystemProvider FilesystemProvider `koanf:"filesystemConfig" validate:"required_if=Type filesystem,omitempty"`
 }
 
-type FilesystemConfig struct {
+type FilesystemProvider struct {
 	Folder           string `koanf:"folder" validate:"required"`
 	RegenerateFolder string `koanf:"regenerateFolder"`
 	Format           string `koanf:"format" validate:"required,oneof=json"`

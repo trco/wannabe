@@ -1,4 +1,10 @@
-package providers
+package storage
+
+import (
+	"fmt"
+
+	"github.com/trco/wannabe/internal/config"
+)
 
 type StorageProvider interface {
 	ReadRecords(subfolder string, hashes []string) ([][]byte, error)
@@ -12,4 +18,16 @@ type HostAndHashes struct {
 	Host      string   `json:"host"`
 	HashCount int      `json:"hash_count"`
 	Hashes    []string `json:"hashes"`
+}
+
+func StorageProviderFactory(config config.StorageProvider) (StorageProvider, error) {
+	if config.Type == "filesystem" {
+		storage := FilesystemProvider{
+			Config: config,
+		}
+
+		return storage, nil
+	}
+
+	return nil, fmt.Errorf("generation of '%s' storage provider failed", config.Type)
 }

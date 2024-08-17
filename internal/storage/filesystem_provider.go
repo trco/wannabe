@@ -1,4 +1,4 @@
-package providers
+package storage
 
 import (
 	"fmt"
@@ -6,11 +6,11 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/trco/wannabe/types"
+	"github.com/trco/wannabe/internal/config"
 )
 
 type FilesystemProvider struct {
-	Config types.Config
+	Config config.StorageProvider
 }
 
 func (fsp FilesystemProvider) ReadRecords(subfolder string, hashes []string) ([][]byte, error) {
@@ -82,11 +82,11 @@ func (fsp FilesystemProvider) DeleteRecords(subfolder string, hashes []string) e
 }
 
 func (fsp FilesystemProvider) GetHashes(subfolder string) ([]string, error) {
-	folder := fsp.Config.StorageProvider.FilesystemConfig.Folder + "/" + subfolder
+	folder := fsp.Config.FilesystemProvider.Folder + "/" + subfolder
 
 	files, err := os.ReadDir(folder)
 	if err != nil {
-		return nil, filesystemProviderErr("failed reading folder "+fsp.Config.StorageProvider.FilesystemConfig.Folder, err)
+		return nil, filesystemProviderErr("failed reading folder "+fsp.Config.FilesystemProvider.Folder, err)
 	}
 
 	hashes := fsp.getHashesFromFiles(files)
@@ -97,7 +97,7 @@ func (fsp FilesystemProvider) GetHashes(subfolder string) ([]string, error) {
 func (fsp FilesystemProvider) GetHostsAndHashes() ([]HostAndHashes, error) {
 	var hostHashes []HostAndHashes
 
-	folder := fsp.Config.StorageProvider.FilesystemConfig.Folder
+	folder := fsp.Config.FilesystemProvider.Folder
 
 	subfolders, err := os.ReadDir(folder)
 	if err != nil {
@@ -126,12 +126,12 @@ func (fsp FilesystemProvider) GetHostsAndHashes() ([]HostAndHashes, error) {
 func (fsp FilesystemProvider) generateFilepath(subfolder string, hash string, isRegenerate bool) string {
 	var folder string
 	if isRegenerate {
-		folder = fsp.Config.StorageProvider.FilesystemConfig.RegenerateFolder
+		folder = fsp.Config.FilesystemProvider.RegenerateFolder
 	} else {
-		folder = fsp.Config.StorageProvider.FilesystemConfig.Folder
+		folder = fsp.Config.FilesystemProvider.Folder
 	}
 
-	format := fsp.Config.StorageProvider.FilesystemConfig.Format
+	format := fsp.Config.FilesystemProvider.Format
 
 	return filepath.Join(folder, subfolder, hash+"."+format)
 }
@@ -139,9 +139,9 @@ func (fsp FilesystemProvider) generateFilepath(subfolder string, hash string, is
 func (fsp FilesystemProvider) createFolder(subfolder string, isRegenerate bool) error {
 	var folder string
 	if isRegenerate {
-		folder = filepath.Join(fsp.Config.StorageProvider.FilesystemConfig.RegenerateFolder, subfolder)
+		folder = filepath.Join(fsp.Config.FilesystemProvider.RegenerateFolder, subfolder)
 	} else {
-		folder = filepath.Join(fsp.Config.StorageProvider.FilesystemConfig.Folder, subfolder)
+		folder = filepath.Join(fsp.Config.FilesystemProvider.Folder, subfolder)
 	}
 
 	_, err := os.Stat(folder)
@@ -175,5 +175,5 @@ func (fsp FilesystemProvider) getHashesFromFiles(files []os.DirEntry) []string {
 }
 
 func filesystemProviderErr(message string, err error) error {
-	return fmt.Errorf("FileSystemProvider: %s: %v", message, err)
+	return fmt.Errorf("FilesystemProvider: %s: %v", message, err)
 }

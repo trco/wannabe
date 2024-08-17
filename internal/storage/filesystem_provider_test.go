@@ -1,4 +1,4 @@
-package providers
+package storage
 
 import (
 	"fmt"
@@ -6,24 +6,19 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/trco/wannabe/types"
+	"github.com/trco/wannabe/internal/config"
 )
 
-var testConfig = types.Config{
-	StorageProvider: types.StorageProvider{
-		Type: "filesystem",
-		FilesystemConfig: types.FilesystemConfig{
-			Folder:           "/tmp/wannabe",
-			RegenerateFolder: "/tmp/wannabe/regenerate",
-			Format:           "json",
-		},
-	},
-	Wannabes: map[string]types.Wannabe{
-		"test.api.com": {},
+var testConfig = config.StorageProvider{
+	Type: "filesystem",
+	FilesystemProvider: config.FilesystemProvider{
+		Folder:           "/tmp/wannabe",
+		RegenerateFolder: "/tmp/wannabe/regenerate",
+		Format:           "json",
 	},
 }
 
-var filesystemProvider = FilesystemProvider{
+var testFilesystemProvider = FilesystemProvider{
 	Config: testConfig,
 }
 
@@ -33,9 +28,9 @@ func TestInsertAndReadRecord(t *testing.T) {
 	t.Run("insert and read record", func(t *testing.T) {
 		t.Cleanup(teardown)
 
-		_ = filesystemProvider.InsertRecords("test.api.com", []string{"testHash3"}, [][]byte{testRecord}, false)
+		_ = testFilesystemProvider.InsertRecords("test.api.com", []string{"testHash3"}, [][]byte{testRecord}, false)
 
-		records, _ := filesystemProvider.ReadRecords("test.api.com", []string{"testHash3"})
+		records, _ := testFilesystemProvider.ReadRecords("test.api.com", []string{"testHash3"})
 
 		want := 1
 		got := len(records)
@@ -50,9 +45,9 @@ func TestDeleteRecord(t *testing.T) {
 	t.Run("delete record", func(t *testing.T) {
 		t.Cleanup(teardown)
 
-		filesystemProvider.InsertRecords("test.api.com", []string{"testHash4"}, [][]byte{testRecord}, false)
-		filesystemProvider.DeleteRecords("test.api.com", []string{"testHash4"})
-		fileContents, _ := filesystemProvider.ReadRecords("test.api.com", []string{"testHash4"})
+		testFilesystemProvider.InsertRecords("test.api.com", []string{"testHash4"}, [][]byte{testRecord}, false)
+		testFilesystemProvider.DeleteRecords("test.api.com", []string{"testHash4"})
+		fileContents, _ := testFilesystemProvider.ReadRecords("test.api.com", []string{"testHash4"})
 
 		want := 0
 		got := len(fileContents)
@@ -67,12 +62,12 @@ func TestGetHashes(t *testing.T) {
 	t.Run("get hashes", func(t *testing.T) {
 		t.Cleanup(teardown)
 
-		_ = filesystemProvider.InsertRecords("test.api.com", []string{"testHash5"}, [][]byte{testRecord}, false)
-		_ = filesystemProvider.InsertRecords("test.api.com", []string{"testHash6"}, [][]byte{testRecord}, false)
-		_ = filesystemProvider.InsertRecords("test.api.com", []string{"testHash7"}, [][]byte{testRecord}, false)
+		_ = testFilesystemProvider.InsertRecords("test.api.com", []string{"testHash5"}, [][]byte{testRecord}, false)
+		_ = testFilesystemProvider.InsertRecords("test.api.com", []string{"testHash6"}, [][]byte{testRecord}, false)
+		_ = testFilesystemProvider.InsertRecords("test.api.com", []string{"testHash7"}, [][]byte{testRecord}, false)
 
 		want := []string{"testHash5", "testHash6", "testHash7"}
-		got, _ := filesystemProvider.GetHashes("test.api.com")
+		got, _ := testFilesystemProvider.GetHashes("test.api.com")
 
 		if !reflect.DeepEqual(got, want) {
 			t.Errorf("GetHashes() = %v, want %v", got, want)
@@ -84,11 +79,11 @@ func TestGetHostsAndHashes(t *testing.T) {
 	t.Run("get hosts and hashes", func(t *testing.T) {
 		t.Cleanup(teardown)
 
-		_ = filesystemProvider.InsertRecords("test2.api.com", []string{"testHash8"}, [][]byte{testRecord}, false)
-		_ = filesystemProvider.InsertRecords("test2.api.com", []string{"testHash9"}, [][]byte{testRecord}, false)
-		_ = filesystemProvider.InsertRecords("test3.api.com", []string{"testHash10"}, [][]byte{testRecord}, false)
+		_ = testFilesystemProvider.InsertRecords("test2.api.com", []string{"testHash8"}, [][]byte{testRecord}, false)
+		_ = testFilesystemProvider.InsertRecords("test2.api.com", []string{"testHash9"}, [][]byte{testRecord}, false)
+		_ = testFilesystemProvider.InsertRecords("test3.api.com", []string{"testHash10"}, [][]byte{testRecord}, false)
 
-		hostsAndHashes, _ := filesystemProvider.GetHostsAndHashes()
+		hostsAndHashes, _ := testFilesystemProvider.GetHostsAndHashes()
 
 		fmt.Println(hostsAndHashes)
 
@@ -104,13 +99,13 @@ func TestGetHostsAndHashes(t *testing.T) {
 func TestGenerateFilepath(t *testing.T) {
 	t.Run("generate filepath", func(t *testing.T) {
 		isRegenerate := false
-		folder := testConfig.StorageProvider.FilesystemConfig.Folder
+		folder := testConfig.FilesystemProvider.Folder
 		subfolder := "test.api.com"
 		hash := "testHash1"
 
 		want := folder + "/" + subfolder + "/" + hash + ".json"
 
-		got := filesystemProvider.generateFilepath(subfolder, hash, isRegenerate)
+		got := testFilesystemProvider.generateFilepath(subfolder, hash, isRegenerate)
 
 		if got != want {
 			t.Errorf("generateFilepath() = %v, want %v", got, want)
@@ -121,13 +116,13 @@ func TestGenerateFilepath(t *testing.T) {
 func TestGenerateFilepathRegenerate(t *testing.T) {
 	t.Run("generate filepath regenerate", func(t *testing.T) {
 		isRegenerate := true
-		regenerateFolder := testConfig.StorageProvider.FilesystemConfig.RegenerateFolder
+		regenerateFolder := testConfig.FilesystemProvider.RegenerateFolder
 		subfolder := "test.api.com"
 		hash := "testHash2"
 
 		want := regenerateFolder + "/" + subfolder + "/" + hash + ".json"
 
-		got := filesystemProvider.generateFilepath(subfolder, hash, isRegenerate)
+		got := testFilesystemProvider.generateFilepath(subfolder, hash, isRegenerate)
 
 		if got != want {
 			t.Errorf("generateFilepath() = %v, want %v", got, want)
@@ -141,11 +136,11 @@ func TestCreateFolder(t *testing.T) {
 	t.Run("create folder", func(t *testing.T) {
 		t.Cleanup(teardown)
 
-		folder := testConfig.StorageProvider.FilesystemConfig.Folder
+		folder := testConfig.FilesystemProvider.Folder
 		subfolder := "test.subfolder.com"
 		isRegenerate := false
 
-		_ = filesystemProvider.createFolder(subfolder, isRegenerate)
+		_ = testFilesystemProvider.createFolder(subfolder, isRegenerate)
 
 		fileInfo, _ := os.Stat(folder + "/" + subfolder)
 
@@ -154,9 +149,9 @@ func TestCreateFolder(t *testing.T) {
 		}
 
 		isRegenerate = true
-		rengenerateFolder := testConfig.StorageProvider.FilesystemConfig.RegenerateFolder
+		rengenerateFolder := testConfig.FilesystemProvider.RegenerateFolder
 
-		_ = filesystemProvider.createFolder(subfolder, isRegenerate)
+		_ = testFilesystemProvider.createFolder(subfolder, isRegenerate)
 
 		fileInfo, _ = os.Stat(rengenerateFolder + "/" + subfolder)
 
@@ -180,13 +175,13 @@ func contains(slice []string, value string) bool {
 }
 
 func createFolders() {
-	_ = os.Mkdir(testConfig.StorageProvider.FilesystemConfig.Folder, 0755)
-	_ = os.Mkdir(testConfig.StorageProvider.FilesystemConfig.RegenerateFolder, 0755)
+	_ = os.Mkdir(testConfig.FilesystemProvider.Folder, 0755)
+	_ = os.Mkdir(testConfig.FilesystemProvider.RegenerateFolder, 0755)
 }
 
 func deleteFolders() {
-	_ = os.RemoveAll(testConfig.StorageProvider.FilesystemConfig.Folder)
-	_ = os.RemoveAll(testConfig.StorageProvider.FilesystemConfig.RegenerateFolder)
+	_ = os.RemoveAll(testConfig.FilesystemProvider.Folder)
+	_ = os.RemoveAll(testConfig.FilesystemProvider.RegenerateFolder)
 }
 
 func TestMain(m *testing.M) {
