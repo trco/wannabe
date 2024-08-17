@@ -6,8 +6,6 @@ import (
 	"os"
 	"reflect"
 	"testing"
-
-	"github.com/trco/wannabe/types"
 )
 
 func TestLoadConfig(t *testing.T) {
@@ -38,15 +36,15 @@ func TestLoadConfigFromFile(t *testing.T) {
 	tests := []struct {
 		name          string
 		filename      string
-		defaultConfig types.Config
-		wantConfig    types.Config
+		defaultConfig Config
+		wantConfig    Config
 		wantErr       bool
 	}{
 		{
 			name:          "non-existing config file",
 			filename:      "non_existing_config.json",
 			defaultConfig: defaultConfig,
-			wantConfig:    types.Config{},
+			wantConfig:    Config{},
 			wantErr:       true,
 		},
 		{
@@ -73,11 +71,11 @@ func TestLoadConfigFromFile(t *testing.T) {
 }
 
 func TestValidateConfig(t *testing.T) {
-	invalidConfig := types.Config{
+	invalidConfig := Config{
 		Mode: "mixed",
-		StorageProvider: types.StorageProvider{
+		StorageProvider: StorageProvider{
 			Type: "filesystem",
-			FilesystemConfig: types.FilesystemConfig{
+			FilesystemConfig: FilesystemConfig{
 				Folder:           "records",
 				RegenerateFolder: "",
 				Format:           "json",
@@ -87,8 +85,8 @@ func TestValidateConfig(t *testing.T) {
 
 	invalidConfigCustomValidation := *deepCopyConfig(wantConfig)
 	wannabe := invalidConfigCustomValidation.Wannabes["testApi"]
-	wannabe.RequestMatching = types.RequestMatching{
-		Headers: types.Headers{
+	wannabe.RequestMatching = RequestMatching{
+		Headers: Headers{
 			Include: []string{"Authorization"},
 		},
 	}
@@ -96,7 +94,7 @@ func TestValidateConfig(t *testing.T) {
 
 	tests := []struct {
 		name        string
-		config      types.Config
+		config      Config
 		expectedErr string
 	}{
 		{
@@ -158,35 +156,35 @@ func TestContains(t *testing.T) {
 }
 
 var zero = 0
-var wantConfig = types.Config{
+var wantConfig = Config{
 	Mode: "mixed",
-	StorageProvider: types.StorageProvider{
+	StorageProvider: StorageProvider{
 		Type: "filesystem",
-		FilesystemConfig: types.FilesystemConfig{
+		FilesystemConfig: FilesystemConfig{
 			Folder:           "records",
 			RegenerateFolder: "records/regenerated",
 			Format:           "json",
 		},
 	},
-	Wannabes: map[string]types.Wannabe{
+	Wannabes: map[string]Wannabe{
 		"testApi": {
-			RequestMatching: types.RequestMatching{
-				Host: types.Host{
-					Wildcards: []types.WildcardIndex{
+			RequestMatching: RequestMatching{
+				Host: Host{
+					Wildcards: []WildcardIndex{
 						{Index: &zero, Placeholder: "placeholder"},
 					},
 				},
-				Query: types.Query{
-					Wildcards: []types.WildcardKey{
+				Query: Query{
+					Wildcards: []WildcardKey{
 						{Key: "status", Placeholder: "placeholder"},
 					},
-					Regexes: []types.Regex{
+					Regexes: []Regex{
 						{Pattern: "app=1", Placeholder: "app=123"},
 					},
 				},
 			},
-			Records: types.Records{
-				Headers: types.HeadersToRecord{
+			Records: Records{
+				Headers: HeadersToRecord{
 					Exclude: []string{"Authorization"},
 				},
 			},
@@ -194,11 +192,11 @@ var wantConfig = types.Config{
 	},
 }
 
-var defaultConfig = types.Config{
+var defaultConfig = Config{
 	Mode: "mixed",
-	StorageProvider: types.StorageProvider{
+	StorageProvider: StorageProvider{
 		Type: "filesystem",
-		FilesystemConfig: types.FilesystemConfig{
+		FilesystemConfig: FilesystemConfig{
 			Folder:           "records",
 			RegenerateFolder: "records/regenerated",
 			Format:           "json",
@@ -231,9 +229,9 @@ func createTestConfigFile(filename string) (string, error) {
 	return path, nil
 }
 
-func deepCopyConfig(c types.Config) *types.Config {
+func deepCopyConfig(c Config) *Config {
 	copied := c
-	copied.Wannabes = make(map[string]types.Wannabe, len(c.Wannabes))
+	copied.Wannabes = make(map[string]Wannabe, len(c.Wannabes))
 	for k, v := range c.Wannabes {
 		copied.Wannabes[k] = v
 	}

@@ -3,36 +3,34 @@ package config
 import (
 	"fmt"
 
-	"github.com/trco/wannabe/types"
-
 	"github.com/go-playground/validator/v10"
 	"github.com/knadh/koanf"
 	"github.com/knadh/koanf/parsers/json"
 	"github.com/knadh/koanf/providers/file"
 )
 
-func LoadConfig(configFilename string) (types.Config, error) {
+func LoadConfig(configFilename string) (Config, error) {
 	config := setConfigDefaults()
 
 	config, err := loadConfigFromFile(configFilename, config)
 	if err != nil {
-		return types.Config{}, fmt.Errorf("failed loading config from file: %v", err)
+		return Config{}, fmt.Errorf("failed loading config from file: %v", err)
 	}
 
 	err = validateConfig(config)
 	if err != nil {
-		return types.Config{}, fmt.Errorf("failed validating config: %v", err)
+		return Config{}, fmt.Errorf("failed validating config: %v", err)
 	}
 
 	return config, nil
 }
 
-func setConfigDefaults() types.Config {
-	return types.Config{
+func setConfigDefaults() Config {
+	return Config{
 		Mode: "mixed",
-		StorageProvider: types.StorageProvider{
+		StorageProvider: StorageProvider{
 			Type: "filesystem",
-			FilesystemConfig: types.FilesystemConfig{
+			FilesystemConfig: FilesystemConfig{
 				Folder:           "records",
 				RegenerateFolder: "records/regenerated",
 				Format:           "json",
@@ -41,7 +39,7 @@ func setConfigDefaults() types.Config {
 	}
 }
 
-func loadConfigFromFile(configFilename string, config types.Config) (types.Config, error) {
+func loadConfigFromFile(configFilename string, config Config) (Config, error) {
 	f := file.Provider(configFilename)
 	var k = koanf.New(".")
 
@@ -62,7 +60,7 @@ func loadConfigFromFile(configFilename string, config types.Config) (types.Confi
 
 	err := loadConfig()
 	if err != nil {
-		return types.Config{}, err
+		return Config{}, err
 	}
 
 	return config, nil
@@ -70,7 +68,7 @@ func loadConfigFromFile(configFilename string, config types.Config) (types.Confi
 
 var validate *validator.Validate
 
-func validateConfig(config types.Config) error {
+func validateConfig(config Config) error {
 	validate = validator.New()
 
 	validate.RegisterValidation("headers_included_excluded", validateWannabeHeadersConfig)
@@ -84,7 +82,7 @@ func validateConfig(config types.Config) error {
 }
 
 func validateWannabeHeadersConfig(fl validator.FieldLevel) bool {
-	wannabes := fl.Field().Interface().(map[string]types.Wannabe)
+	wannabes := fl.Field().Interface().(map[string]Wannabe)
 
 	for _, wannabe := range wannabes {
 		headersInclude := wannabe.RequestMatching.Headers.Include
@@ -108,4 +106,93 @@ func contains(slice []string, value string) bool {
 		}
 	}
 	return false
+}
+
+type Config struct {
+	Mode            string             `koanf:"mode" validate:"required,oneof=proxy server mixed"`
+	StorageProvider StorageProvider    `koanf:"storageProvider" validate:"required"`
+	Wannabes        map[string]Wannabe `koanf:"wannabes" validate:"headers_included_excluded,dive"`
+}
+
+const (
+	ServerMode = "server"
+	MixedMode  = "mixed"
+	ProxyMode  = "proxy"
+)
+
+type StorageProvider struct {
+	Type             string           `koanf:"type" validate:"required,oneof=filesystem"`
+	FilesystemConfig FilesystemConfig `koanf:"filesystemConfig" validate:"required_if=Type filesystem,omitempty"`
+}
+
+type FilesystemConfig struct {
+	Folder           string `koanf:"folder" validate:"required"`
+	RegenerateFolder string `koanf:"regenerateFolder"`
+	Format           string `koanf:"format" validate:"required,oneof=json"`
+}
+
+type Wannabe struct {
+	RequestMatching RequestMatching `koanf:"requestMatching"`
+	Records         Records         `koanf:"records"`
+}
+
+type RequestMatching struct {
+	Host    Host    `koanf:"host"`
+	Path    Path    `koanf:"path"`
+	Query   Query   `koanf:"query"`
+	Body    Body    `koanf:"body"`
+	Headers Headers `koanf:"headers"`
+}
+
+type Host struct {
+	Wildcards []WildcardIndex `koanf:"wildcards" validate:"gte=0,dive"`
+	Regexes   []Regex         `koanf:"regexes" validate:"gte=0,dive"`
+}
+
+type Path struct {
+	Wildcards []WildcardIndex `koanf:"wildcards" validate:"gte=0,dive"`
+	Regexes   []Regex         `koanf:"regexes" validate:"gte=0,dive"`
+}
+
+type Query struct {
+	Wildcards []WildcardKey `koanf:"wildcards" validate:"gte=0,dive"`
+	Regexes   []Regex       `koanf:"regexes" validate:"gte=0,dive"`
+}
+
+type Body struct {
+	Regexes []Regex `koanf:"regexes" validate:"gte=0,dive"`
+}
+
+type Headers struct {
+	Include   []string      `koanf:"include" validate:"gte=0,dive"`
+	Wildcards []WildcardKey `koanf:"wildcards" validate:"gte=0,dive"`
+}
+
+type WildcardIndex struct {
+	// pointer is used to pass "required" validation with "0" value
+	Index       *int   `koanf:"index" validate:"required,numeric,min=0"`
+	Placeholder string `koanf:"placeholder" validate:"ascii"`
+}
+
+type WildcardKey struct {
+	Key         string `koanf:"key" validate:"required,alphanum"`
+	Placeholder string `koanf:"placeholder" validate:"ascii"`
+}
+
+type WildcardPath struct {
+	Path        string `koanf:"path" validate:"required,uri"`
+	Placeholder string `koanf:"placeholder" validate:"ascii"`
+}
+
+type Regex struct {
+	Pattern     string `koanf:"pattern" validate:"required,ascii"`
+	Placeholder string `koanf:"placeholder" validate:"ascii"`
+}
+
+type Records struct {
+	Headers HeadersToRecord `koanf:"headers"`
+}
+
+type HeadersToRecord struct {
+	Exclude []string `koanf:"exclude"`
 }
