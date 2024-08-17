@@ -1,4 +1,4 @@
-package actions
+package hash
 
 import (
 	"crypto/sha256"
@@ -6,7 +6,7 @@ import (
 	"fmt"
 )
 
-func GenerateHash(curl string) (string, error) {
+func Generate(curl string) (string, error) {
 	hash := sha256.New()
 	_, err := hash.Write([]byte(curl))
 	if err != nil {

@@ -1,4 +1,4 @@
-package curl
+package hash
 
 import (
 	"net/http"
@@ -6,7 +6,7 @@ import (
 	"github.com/trco/wannabe/internal/config"
 )
 
-func generateCurl(request *http.Request, wannabe config.Wannabe) (string, error) {
+func GenerateCurl(request *http.Request, wannabe config.Wannabe) (string, error) {
 	payload, err := generateCurlPayload(request)
 	if err != nil {
 		return "", err

@@ -1,4 +1,4 @@
-package curl
+package hash
 
 func prepareUrl(scheme string, host string, path string, query string) string {
 	if path == "/" {
