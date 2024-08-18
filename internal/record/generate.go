@@ -45,7 +45,7 @@ type Timestamp struct {
 	UTC  time.Time `json:"utc"`
 }
 
-func GenerateRecord(config config.Records, payload RecordPayload) ([]byte, error) {
+func Generate(config config.Records, payload RecordPayload) ([]byte, error) {
 	requestHeaders := FilterHeaders(payload.RequestHeaders, config.Headers.Exclude)
 
 	requestContentEncoding := payload.RequestHeaders[contentEncoding]
@@ -91,7 +91,7 @@ func GenerateRecord(config config.Records, payload RecordPayload) ([]byte, error
 
 	encodedRecord, err := json.Marshal(record)
 	if err != nil {
-		return nil, fmt.Errorf("GenerateRecord: failed marshaling record: %v", err)
+		return nil, fmt.Errorf("Generate: failed marshaling record: %v", err)
 	}
 
 	return encodedRecord, nil

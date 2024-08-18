@@ -156,7 +156,7 @@ func encodeBody(decodedBody interface{}, contentTypeHeader []string, contentEnco
 		mapValue := mxj.Map(decodedBody.(map[string]interface{}))
 		body, err = mapValue.Xml()
 		if err != nil {
-			return body, fmt.Errorf("GenerateRecord: failed unmarshaling XML body: %v", err)
+			return body, fmt.Errorf("Generate: failed unmarshaling XML body: %v", err)
 		}
 	case contentType == "text/plain", contentType == "text/html":
 		body = []byte(decodedBody.(string))

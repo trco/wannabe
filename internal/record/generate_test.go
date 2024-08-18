@@ -8,9 +8,9 @@ import (
 	"github.com/trco/wannabe/internal/config"
 )
 
-func TestGenerateRecord(t *testing.T) {
+func TestGenerate(t *testing.T) {
 	t.Run("generate record", func(t *testing.T) {
-		encodedRecord, _ := GenerateRecord(testConfig, payload)
+		encodedRecord, _ := Generate(testConfig, payload)
 
 		var record Record
 

@@ -50,7 +50,7 @@ func processResponse(cfg config.Config, storageProvider storage.Provider, sessio
 	host := request.URL.Host
 	wannabe := cfg.Wannabes[host]
 
-	record, err := record.GenerateRecord(wannabe.Records, recordPayload)
+	record, err := record.Generate(wannabe.Records, recordPayload)
 	if err != nil {
 		return internalErrorOnResponse(request, err)
 	}
