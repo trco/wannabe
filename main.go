@@ -22,7 +22,7 @@ func main() {
 		log.Fatalf("fatal error starting app: %v", err)
 	}
 
-	storageProvider, err := storage.StorageProviderFactory(cfg.StorageProvider)
+	storageProvider, err := storage.ProviderFactory(cfg.StorageProvider)
 	if err != nil {
 		log.Fatalf("fatal error starting app: %v", err)
 	}
@@ -36,7 +36,7 @@ func main() {
 	startWannabeProxyServer(cfg, mitmConfig, storageProvider)
 }
 
-func startWannabeApiServer(cfg config.Config, storageProvider storage.StorageProvider) {
+func startWannabeApiServer(cfg config.Config, storageProvider storage.Provider) {
 	http.HandleFunc("/wannabe/api/records/{hash}", handlers.Records(cfg, storageProvider))
 	http.HandleFunc("/wannabe/api/records", handlers.Records(cfg, storageProvider))
 	http.HandleFunc("/wannabe/api/regenerate", handlers.Regenerate(cfg, storageProvider))
@@ -48,7 +48,7 @@ func startWannabeApiServer(cfg config.Config, storageProvider storage.StoragePro
 	}
 }
 
-func startWannabeProxyServer(cfg config.Config, mitmConfig *mitm.Config, storageProvider storage.StorageProvider) {
+func startWannabeProxyServer(cfg config.Config, mitmConfig *mitm.Config, storageProvider storage.Provider) {
 	wannabeProxy := initWannabeProxy(cfg, mitmConfig, storageProvider)
 
 	err := wannabeProxy.Start()
@@ -63,15 +63,15 @@ func startWannabeProxyServer(cfg config.Config, mitmConfig *mitm.Config, storage
 	wannabeProxy.Close()
 }
 
-func initWannabeProxy(cfg config.Config, mitmConfig *mitm.Config, storageProvider storage.StorageProvider) *gomitmproxy.Proxy {
+func initWannabeProxy(cfg config.Config, mitmConfig *mitm.Config, storageProvider storage.Provider) *gomitmproxy.Proxy {
 	wannabeProxy := gomitmproxy.NewProxy(gomitmproxy.Config{
 		ListenAddr: &net.TCPAddr{
 			IP:   net.IPv4(0, 0, 0, 0),
 			Port: 6789,
 		},
 		MITMConfig: mitmConfig,
-		OnRequest:  handlers.WannabeOnRequest(cfg, storageProvider),
-		OnResponse: handlers.WannabeOnResponse(cfg, storageProvider),
+		OnRequest:  handlers.Request(cfg, storageProvider),
+		OnResponse: handlers.Response(cfg, storageProvider),
 	})
 
 	return wannabeProxy
