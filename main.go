@@ -12,7 +12,7 @@ import (
 	"github.com/AdguardTeam/gomitmproxy"
 	"github.com/AdguardTeam/gomitmproxy/mitm"
 	"github.com/trco/wannabe/internal/config"
-	"github.com/trco/wannabe/internal/handlers"
+	"github.com/trco/wannabe/internal/handler"
 	"github.com/trco/wannabe/internal/storage"
 )
 
@@ -37,9 +37,9 @@ func main() {
 }
 
 func startWannabeApiServer(cfg config.Config, storageProvider storage.Provider) {
-	http.HandleFunc("/wannabe/api/records/{hash}", handlers.Records(cfg, storageProvider))
-	http.HandleFunc("/wannabe/api/records", handlers.Records(cfg, storageProvider))
-	http.HandleFunc("/wannabe/api/regenerate", handlers.Regenerate(cfg, storageProvider))
+	http.HandleFunc("/wannabe/api/records/{hash}", handler.Records(cfg, storageProvider))
+	http.HandleFunc("/wannabe/api/records", handler.Records(cfg, storageProvider))
+	http.HandleFunc("/wannabe/api/regenerate", handler.Regenerate(cfg, storageProvider))
 
 	fmt.Println("API server start listening to [::]:6790")
 	err := http.ListenAndServe(":6790", nil)
@@ -70,8 +70,8 @@ func initWannabeProxy(cfg config.Config, mitmConfig *mitm.Config, storageProvide
 			Port: 6789,
 		},
 		MITMConfig: mitmConfig,
-		OnRequest:  handlers.Request(cfg, storageProvider),
-		OnResponse: handlers.Response(cfg, storageProvider),
+		OnRequest:  handler.Request(cfg, storageProvider),
+		OnResponse: handler.Response(cfg, storageProvider),
 	})
 
 	return wannabeProxy
