@@ -7,7 +7,7 @@ import (
 	"github.com/trco/wannabe/internal/config"
 )
 
-func TestStorageProviderFactory(t *testing.T) {
+func TestProviderFactory(t *testing.T) {
 	tests := []struct {
 		name   string
 		config config.StorageProvider
@@ -47,7 +47,7 @@ func TestStorageProviderFactory(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := StorageProviderFactory(tt.config)
+			got, err := ProviderFactory(tt.config)
 
 			if (err != nil) != tt.err {
 				t.Errorf("StorageProviderFactory() error = %v, wantErr %v", err, tt.err)

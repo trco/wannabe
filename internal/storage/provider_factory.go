@@ -6,7 +6,7 @@ import (
 	"github.com/trco/wannabe/internal/config"
 )
 
-type StorageProvider interface {
+type Provider interface {
 	ReadRecords(subfolder string, hashes []string) ([][]byte, error)
 	InsertRecords(subfolder string, hashes []string, records [][]byte, isRegenerate bool) error
 	DeleteRecords(subfolder string, hashes []string) error
@@ -20,7 +20,7 @@ type HostAndHashes struct {
 	Hashes    []string `json:"hashes"`
 }
 
-func StorageProviderFactory(config config.StorageProvider) (StorageProvider, error) {
+func ProviderFactory(config config.StorageProvider) (Provider, error) {
 	if config.Type == "filesystem" {
 		storage := FilesystemProvider{
 			Config: config,
