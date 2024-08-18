@@ -149,7 +149,7 @@ func TestSetResponse(t *testing.T) {
 			wantStatusCode:      0,
 			wantResponseHeaders: nil,
 			wantResponseBody:    nil,
-			wantErr:             "SetResponse: failed unmarshaling record: json: cannot unmarshal number into Go value of type Record",
+			wantErr:             "SetResponse: failed unmarshaling record: json: cannot unmarshal number into Go value of type record.Record",
 		},
 		{
 			name:           "valid record",

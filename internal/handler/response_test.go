@@ -23,8 +23,8 @@ func TestShouldSkipResponseProcessing(t *testing.T) {
 			want:    true,
 		},
 		{
-			name:    "'response' set to 'true' on session",
-			session: &MockSession{props: map[string]interface{}{"response": true}},
+			name:    "'responseSet' set to 'true' on session",
+			session: &MockSession{props: map[string]interface{}{"responseSet": true}},
 			want:    true,
 		},
 	}
