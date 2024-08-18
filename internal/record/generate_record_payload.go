@@ -3,8 +3,7 @@ package record
 import (
 	"bytes"
 	"io"
-
-	"github.com/trco/wannabe/internal/handlers/utils"
+	"net/http"
 )
 
 type RecordPayload struct {
@@ -22,7 +21,14 @@ type RecordPayload struct {
 	ResponseBody    []byte
 }
 
-func GenerateRecordPayload(session utils.Session, hash string, curl string) (RecordPayload, error) {
+type Session interface {
+	SetProp(key string, value interface{})
+	GetProp(key string) (interface{}, bool)
+	Request() *http.Request
+	Response() *http.Response
+}
+
+func GenerateRecordPayload(session Session, hash string, curl string) (RecordPayload, error) {
 	request := session.Request()
 	response := session.Response()
 

@@ -9,40 +9,37 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/trco/wannabe/internal/handlers"
-	"github.com/trco/wannabe/internal/providers"
-	"github.com/trco/wannabe/internal/types"
-
-	cfg "github.com/trco/wannabe/internal/config"
-
 	"github.com/AdguardTeam/gomitmproxy"
 	"github.com/AdguardTeam/gomitmproxy/mitm"
+	"github.com/trco/wannabe/internal/config"
+	"github.com/trco/wannabe/internal/handlers"
+	"github.com/trco/wannabe/internal/storage"
 )
 
 func main() {
-	config, err := cfg.LoadConfig("config.json")
+	cfg, err := config.LoadConfig("config.json")
 	if err != nil {
 		log.Fatalf("fatal error starting app: %v", err)
 	}
 
-	storageProvider, err := providers.StorageProviderFactory(config)
+	storageProvider, err := storage.StorageProviderFactory(cfg.StorageProvider)
 	if err != nil {
 		log.Fatalf("fatal error starting app: %v", err)
 	}
 
-	mitmConfig, err := cfg.LoadMitmConfig("wannabe.crt", "wannabe.key")
+	mitmConfig, err := config.LoadMitmConfig("wannabe.crt", "wannabe.key")
 	if err != nil {
 		log.Fatalf("fatal error starting app: %v", err)
 	}
 
-	go startWannabeApiServer(config, storageProvider)
-	startWannabeProxyServer(config, mitmConfig, storageProvider)
+	go startWannabeApiServer(cfg, storageProvider)
+	startWannabeProxyServer(cfg, mitmConfig, storageProvider)
 }
 
-func startWannabeApiServer(config types.Config, storageProvider providers.StorageProvider) {
-	http.HandleFunc("/wannabe/api/records/{hash}", handlers.Records(config, storageProvider))
-	http.HandleFunc("/wannabe/api/records", handlers.Records(config, storageProvider))
-	http.HandleFunc("/wannabe/api/regenerate", handlers.Regenerate(config, storageProvider))
+func startWannabeApiServer(cfg config.Config, storageProvider storage.StorageProvider) {
+	http.HandleFunc("/wannabe/api/records/{hash}", handlers.Records(cfg, storageProvider))
+	http.HandleFunc("/wannabe/api/records", handlers.Records(cfg, storageProvider))
+	http.HandleFunc("/wannabe/api/regenerate", handlers.Regenerate(cfg, storageProvider))
 
 	fmt.Println("API server start listening to [::]:6790")
 	err := http.ListenAndServe(":6790", nil)
@@ -51,8 +48,8 @@ func startWannabeApiServer(config types.Config, storageProvider providers.Storag
 	}
 }
 
-func startWannabeProxyServer(config types.Config, mitmConfig *mitm.Config, storageProvider providers.StorageProvider) {
-	wannabeProxy := initWannabeProxy(config, mitmConfig, storageProvider)
+func startWannabeProxyServer(cfg config.Config, mitmConfig *mitm.Config, storageProvider storage.StorageProvider) {
+	wannabeProxy := initWannabeProxy(cfg, mitmConfig, storageProvider)
 
 	err := wannabeProxy.Start()
 	if err != nil {
@@ -66,15 +63,15 @@ func startWannabeProxyServer(config types.Config, mitmConfig *mitm.Config, stora
 	wannabeProxy.Close()
 }
 
-func initWannabeProxy(config types.Config, mitmConfig *mitm.Config, storageProvider providers.StorageProvider) *gomitmproxy.Proxy {
+func initWannabeProxy(cfg config.Config, mitmConfig *mitm.Config, storageProvider storage.StorageProvider) *gomitmproxy.Proxy {
 	wannabeProxy := gomitmproxy.NewProxy(gomitmproxy.Config{
 		ListenAddr: &net.TCPAddr{
 			IP:   net.IPv4(0, 0, 0, 0),
 			Port: 6789,
 		},
 		MITMConfig: mitmConfig,
-		OnRequest:  handlers.WannabeOnRequest(config, storageProvider),
-		OnResponse: handlers.WannabeOnResponse(config, storageProvider),
+		OnRequest:  handlers.WannabeOnRequest(cfg, storageProvider),
+		OnResponse: handlers.WannabeOnResponse(cfg, storageProvider),
 	})
 
 	return wannabeProxy

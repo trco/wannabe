@@ -7,29 +7,27 @@ import (
 	"net/http"
 	"time"
 
-	curl "github.com/trco/wannabe/curl/services"
-	"github.com/trco/wannabe/handlers/utils"
-	hash "github.com/trco/wannabe/hash/actions"
-	"github.com/trco/wannabe/providers"
-	recordActions "github.com/trco/wannabe/record/actions"
-	"github.com/trco/wannabe/types"
+	"github.com/trco/wannabe/internal/config"
+	"github.com/trco/wannabe/internal/hash"
+	"github.com/trco/wannabe/internal/record"
+	"github.com/trco/wannabe/internal/storage"
 )
 
-func Regenerate(config types.Config, storageProvider providers.StorageProvider) http.HandlerFunc {
+func Regenerate(cfg config.Config, storageProvider storage.StorageProvider) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
-			GetRegenerate(config, storageProvider, w, r)
+			GetRegenerate(cfg, storageProvider, w, r)
 		default:
-			utils.InternalErrorApi(w, errors.New("invalid method"), http.StatusMethodNotAllowed)
+			InternalErrorApi(w, errors.New("invalid method"), http.StatusMethodNotAllowed)
 		}
 	}
 }
 
-func GetRegenerate(config types.Config, storageProvider providers.StorageProvider, w http.ResponseWriter, r *http.Request) {
+func GetRegenerate(cfg config.Config, storageProvider storage.StorageProvider, w http.ResponseWriter, r *http.Request) {
 	host := r.URL.Query().Get("host")
 	if host == "" {
-		utils.InternalErrorApi(w, errors.New("required query parameter missing: 'host'"), http.StatusBadRequest)
+		InternalErrorApi(w, errors.New("required query parameter missing: 'host'"), http.StatusBadRequest)
 		return
 	}
 
@@ -40,27 +38,27 @@ func GetRegenerate(config types.Config, storageProvider providers.StorageProvide
 
 	hashes, err := storageProvider.GetHashes(host)
 	if err != nil {
-		utils.InternalErrorApi(w, err, http.StatusInternalServerError)
+		InternalErrorApi(w, err, http.StatusInternalServerError)
 		return
 	}
 
 	// REVIEW could we hit mem issue in case of too many records
 	encodedRecords, err := storageProvider.ReadRecords(host, hashes)
 	if err != nil {
-		utils.InternalErrorApi(w, err, http.StatusInternalServerError)
+		InternalErrorApi(w, err, http.StatusInternalServerError)
 		return
 	}
 
-	records, err := recordActions.DecodeRecords(encodedRecords)
+	records, err := record.DecodeRecords(encodedRecords)
 	if err != nil {
-		utils.InternalErrorApi(w, err, http.StatusInternalServerError)
+		InternalErrorApi(w, err, http.StatusInternalServerError)
 		return
 	}
 
-	for _, record := range records {
-		oldHash := record.Request.Hash
+	for _, r := range records {
+		oldHash := r.Request.Hash
 
-		request, err := recordActions.GenerateRequest(record.Request)
+		request, err := record.GenerateRequest(r.Request)
 		if err != nil {
 			failedCount++
 			failedHashes = append(failedHashes, oldHash)
@@ -68,9 +66,9 @@ func GetRegenerate(config types.Config, storageProvider providers.StorageProvide
 			continue
 		}
 
-		wannabe := config.Wannabes[host]
+		wannabe := cfg.Wannabes[host]
 
-		curl, err := curl.GenerateCurl(request, wannabe)
+		curl, err := hash.GenerateCurl(request, wannabe)
 		if err != nil {
 			failedCount++
 			failedHashes = append(failedHashes, oldHash)
@@ -78,7 +76,7 @@ func GetRegenerate(config types.Config, storageProvider providers.StorageProvide
 			continue
 		}
 
-		hash, err := hash.GenerateHash(curl)
+		hash, err := hash.Generate(curl)
 		if err != nil {
 			failedCount++
 			failedHashes = append(failedHashes, oldHash)
@@ -86,14 +84,14 @@ func GetRegenerate(config types.Config, storageProvider providers.StorageProvide
 			continue
 		}
 
-		record.Request.Hash = hash
-		record.Request.Curl = curl
-		record.Metadata.RegeneratedAt = types.Timestamp{
+		r.Request.Hash = hash
+		r.Request.Curl = curl
+		r.Metadata.RegeneratedAt = record.Timestamp{
 			Unix: time.Now().Unix(),
 			UTC:  time.Now().UTC(),
 		}
 
-		encodedRegeneratedRecord, err := json.Marshal(record)
+		encodedRegeneratedRecord, err := json.Marshal(r)
 		if err != nil {
 			failedCount++
 			failedHashes = append(failedHashes, oldHash)
@@ -113,9 +111,15 @@ func GetRegenerate(config types.Config, storageProvider providers.StorageProvide
 		regeneratedHashes = append(regeneratedHashes, hash)
 	}
 
-	utils.ApiResponse(w, types.RegenerateResponse{
+	ApiResponse(w, RegenerateResponse{
 		Message:           fmt.Sprintf("%v records succeeded in regenerating, %v records failed in regenerating", regeneratedCount, failedCount),
 		RegeneratedHashes: regeneratedHashes,
 		FailedHashes:      failedHashes,
 	})
+}
+
+type RegenerateResponse struct {
+	Message           string   `json:"message"`
+	RegeneratedHashes []string `json:"regeneratedHashes"`
+	FailedHashes      []string `json:"failedHashes"`
 }
