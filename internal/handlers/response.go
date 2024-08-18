@@ -13,15 +13,15 @@ import (
 	"github.com/AdguardTeam/gomitmproxy/proxyutil"
 )
 
-type WannabeOnResponseHandler func(*gomitmproxy.Session) *http.Response
+type ResponseHandler func(*gomitmproxy.Session) *http.Response
 
-func WannabeOnResponse(cfg config.Config, storageProvider storage.StorageProvider) WannabeOnResponseHandler {
+func Response(cfg config.Config, storageProvider storage.Provider) ResponseHandler {
 	return func(session *gomitmproxy.Session) *http.Response {
-		return processSessionOnResponse(cfg, storageProvider, session)
+		return processResponse(cfg, storageProvider, session)
 	}
 }
 
-func processSessionOnResponse(cfg config.Config, storageProvider storage.StorageProvider, session *gomitmproxy.Session) *http.Response {
+func processResponse(cfg config.Config, storageProvider storage.Provider, session *gomitmproxy.Session) *http.Response {
 	request := session.Request()
 
 	if requestBody, ok := session.GetProp("requestBody"); ok {
@@ -39,12 +39,12 @@ func processSessionOnResponse(cfg config.Config, storageProvider storage.Storage
 
 	hash, curl, err := getHashAndCurlFromSession(session)
 	if err != nil {
-		return InternalErrorOnResponse(request, err)
+		return internalErrorOnResponse(request, err)
 	}
 
 	recordPayload, err := record.GenerateRecordPayload(session, hash, curl)
 	if err != nil {
-		return InternalErrorOnResponse(request, err)
+		return internalErrorOnResponse(request, err)
 	}
 
 	host := request.URL.Host
@@ -52,12 +52,12 @@ func processSessionOnResponse(cfg config.Config, storageProvider storage.Storage
 
 	record, err := record.GenerateRecord(wannabe.Records, recordPayload)
 	if err != nil {
-		return InternalErrorOnResponse(request, err)
+		return internalErrorOnResponse(request, err)
 	}
 
 	err = storageProvider.InsertRecords(host, []string{hash}, [][]byte{record}, false)
 	if err != nil {
-		return InternalErrorOnResponse(request, err)
+		return internalErrorOnResponse(request, err)
 	}
 
 	return nil
@@ -67,7 +67,7 @@ func shouldSkipResponseProcessing(session Session) bool {
 	if _, blocked := session.GetProp("blocked"); blocked {
 		return true
 	}
-	if _, responseSetFromRecord := session.GetProp("responseSetFromRecord"); responseSetFromRecord {
+	if _, response := session.GetProp("responseSet"); response {
 		return true
 	}
 	return false
@@ -95,7 +95,7 @@ func getHashAndCurlFromSession(session Session) (string, string, error) {
 	return hash, curl, nil
 }
 
-func InternalErrorOnResponse(request *http.Request, err error) *http.Response {
+func internalErrorOnResponse(request *http.Request, err error) *http.Response {
 	body := PrepareResponseBody(err)
 	response := proxyutil.NewResponse(http.StatusInternalServerError, body, request)
 	response.Header.Set("Content-Type", "application/json")

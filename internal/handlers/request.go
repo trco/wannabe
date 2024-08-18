@@ -19,15 +19,15 @@ import (
 	"github.com/AdguardTeam/gomitmproxy/proxyutil"
 )
 
-type WannabeOnRequestHandler func(*gomitmproxy.Session) (*http.Request, *http.Response)
+type RequestHandler func(*gomitmproxy.Session) (*http.Request, *http.Response)
 
-func WannabeOnRequest(cfg config.Config, storageProvider storage.StorageProvider) WannabeOnRequestHandler {
+func Request(cfg config.Config, storageProvider storage.Provider) RequestHandler {
 	return func(session *gomitmproxy.Session) (*http.Request, *http.Response) {
-		return processSessionOnRequest(cfg, storageProvider, session)
+		return processRequest(cfg, storageProvider, session)
 	}
 }
 
-func processSessionOnRequest(cfg config.Config, storageProvider storage.StorageProvider, session *gomitmproxy.Session) (*http.Request, *http.Response) {
+func processRequest(cfg config.Config, storageProvider storage.Provider, session *gomitmproxy.Session) (*http.Request, *http.Response) {
 	request := session.Request()
 
 	isConnect := request.Method == "CONNECT"
@@ -35,20 +35,21 @@ func processSessionOnRequest(cfg config.Config, storageProvider storage.StorageP
 		return nil, nil
 	}
 
-	request = processRequest(request)
+	removeBody(request)
+	setScheme(request)
 
 	host := request.URL.Host
 	wannabe := cfg.Wannabes[host]
 
 	curl, err := hash.GenerateCurl(request, wannabe)
 	if err != nil {
-		return InternalErrorOnRequest(session, request, err)
+		return internalErrorOnRequest(session, request, err)
 	}
 	session.SetProp("curl", curl)
 
 	hash, err := hash.Generate(curl)
 	if err != nil {
-		return InternalErrorOnRequest(session, request, err)
+		return internalErrorOnRequest(session, request, err)
 	}
 	session.SetProp("hash", hash)
 
@@ -56,17 +57,17 @@ func processSessionOnRequest(cfg config.Config, storageProvider storage.StorageP
 	if isNotProxyMode {
 		records, err := storageProvider.ReadRecords(host, []string{hash})
 		if err != nil {
-			return InternalErrorOnRequest(session, request, err)
+			return internalErrorOnRequest(session, request, err)
 		}
 
 		isSingleRecord := len(records) == 1
 		if isSingleRecord {
-			return processRecords(session, request, records[0])
+			return setResponseFromRecord(session, request, records[0])
 		}
 
 		isServerMode := cfg.Mode == config.ServerMode
 		if isServerMode {
-			return InternalErrorOnRequest(session, request, fmt.Errorf("no record found for the request"))
+			return internalErrorOnRequest(session, request, fmt.Errorf("no record found for the request"))
 		}
 	}
 
@@ -74,7 +75,7 @@ func processSessionOnRequest(cfg config.Config, storageProvider storage.StorageP
 	if hasBody {
 		requestBody, err := copyBody(request)
 		if err != nil {
-			return InternalErrorOnRequest(session, request, err)
+			return internalErrorOnRequest(session, request, err)
 		}
 		session.SetProp("requestBody", requestBody)
 	}
@@ -82,15 +83,8 @@ func processSessionOnRequest(cfg config.Config, storageProvider storage.StorageP
 	return nil, nil
 }
 
-func processRequest(request *http.Request) *http.Request {
-	processedRequest := removeBody(request)
-	processedRequest = processScheme(processedRequest)
-
-	return processedRequest
-}
-
 // prevents sending body and related headers in GET requests
-func removeBody(request *http.Request) *http.Request {
+func removeBody(request *http.Request) {
 	isGet := request.Method == "GET"
 	if isGet {
 		request.Body = http.NoBody
@@ -98,30 +92,26 @@ func removeBody(request *http.Request) *http.Request {
 		request.Header.Del("Content-Length")
 		request.Header.Del("Content-Type")
 	}
-
-	return request
 }
 
-// sets scheme to https if request uri contains it but the scheme set on url is http
-func processScheme(request *http.Request) *http.Request {
+// sets scheme to "https" if request uri contains it but the scheme set on url is "http"
+func setScheme(request *http.Request) {
 	if strings.Contains(request.RequestURI, "https://") {
 		request.URL.Scheme = "https"
 	}
-
-	return request
 }
 
-func processRecords(session *gomitmproxy.Session, request *http.Request, record []byte) (*http.Request, *http.Response) {
-	responseSetFromRecord, err := setResponse(record, request)
+func setResponseFromRecord(session *gomitmproxy.Session, request *http.Request, record []byte) (*http.Request, *http.Response) {
+	response, err := setResponse(record, request)
 	if err != nil {
-		return InternalErrorOnRequest(session, request, err)
+		return internalErrorOnRequest(session, request, err)
 	}
 
-	session.SetProp("responseSetFromRecord", true)
+	session.SetProp("responseSet", true)
 
 	fmt.Println("Response successfully read from configured StorageProvider.")
 
-	return nil, responseSetFromRecord
+	return nil, response
 }
 
 func setResponse(encodedRecord []byte, request *http.Request) (*http.Response, error) {
@@ -148,14 +138,6 @@ func setResponse(encodedRecord []byte, request *http.Request) (*http.Response, e
 	setHeaders(response, headers)
 
 	return response, nil
-}
-
-func setHeaders(response *http.Response, headers map[string][]string) {
-	for key, value := range headers {
-		for _, v := range value {
-			response.Header.Set(key, v)
-		}
-	}
 }
 
 func encodeBody(decodedBody interface{}, contentTypeHeader []string, contentEncodingHeader []string) ([]byte, error) {
@@ -196,6 +178,14 @@ func encodeBody(decodedBody interface{}, contentTypeHeader []string, contentEnco
 	return body, nil
 }
 
+func setHeaders(response *http.Response, headers map[string][]string) {
+	for key, value := range headers {
+		for _, v := range value {
+			response.Header.Set(key, v)
+		}
+	}
+}
+
 func copyBody(request *http.Request) (io.ReadCloser, error) {
 	var requestBody io.ReadCloser
 
@@ -219,7 +209,7 @@ type Session interface {
 	Response() *http.Response
 }
 
-func InternalErrorOnRequest(session Session, request *http.Request, err error) (*http.Request, *http.Response) {
+func internalErrorOnRequest(session Session, request *http.Request, err error) (*http.Request, *http.Response) {
 	session.SetProp("blocked", true)
 
 	body := PrepareResponseBody(err)

@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
-	"net/http/httptest"
 	"net/url"
 	"reflect"
 	"testing"
@@ -13,33 +12,6 @@ import (
 	"github.com/clbanning/mxj"
 	"github.com/trco/wannabe/internal/record"
 )
-
-func TestProcessRequest(t *testing.T) {
-	t.Run("process request", func(t *testing.T) {
-		httpMethod := "GET"
-		url := "http://test.com"
-
-		request, _ := http.NewRequest(httpMethod, url, nil)
-		request.Header.Set("Content-Length", "4")
-		request.Header.Set("Content-Type", "application/json")
-		request.RequestURI = "https://test.com"
-
-		got := processRequest(request)
-		want := "https"
-
-		if got.Body != http.NoBody {
-			t.Errorf("ProcessRequest() = body %v, body %v", got.Body, http.NoBody)
-		}
-
-		if len(got.Header) != 0 {
-			t.Errorf("ProcessRequest() = headers count %v, want %v", len(got.Header), 0)
-		}
-
-		if got.URL.Scheme != want {
-			t.Errorf("ProcessRequest() = scheme %v, want %v", got, want)
-		}
-	})
-}
 
 func TestRemoveBody(t *testing.T) {
 	t.Run("remove body", func(t *testing.T) {
@@ -50,7 +22,9 @@ func TestRemoveBody(t *testing.T) {
 		request.Header.Set("Content-Length", "4")
 		request.Header.Set("Content-Type", "application/json")
 
-		got := removeBody(request)
+		removeBody(request)
+
+		got := request
 
 		if got.Body != http.NoBody {
 			t.Errorf("RemoveBody() = body %v, body %v", got.Body, http.NoBody)
@@ -62,7 +36,7 @@ func TestRemoveBody(t *testing.T) {
 	})
 }
 
-func TestProcessScheme(t *testing.T) {
+func TestSetScheme(t *testing.T) {
 	t.Run("process scheme", func(t *testing.T) {
 		httpMethod := "GET"
 		url := "http://test.com"
@@ -70,9 +44,9 @@ func TestProcessScheme(t *testing.T) {
 		request, _ := http.NewRequest(httpMethod, url, nil)
 		request.RequestURI = "https://test.com"
 
-		processedRequest := processScheme(request)
+		setScheme(request)
 
-		got := processedRequest.URL.Scheme
+		got := request.URL.Scheme
 		want := "https"
 
 		if got != want {
@@ -81,46 +55,82 @@ func TestProcessScheme(t *testing.T) {
 	})
 }
 
-func TestCopyBody(t *testing.T) {
-	tests := []struct {
-		name          string
-		httpMethod    string
-		url           string
-		body          string
-		expectedError bool
-	}{
-		{
-			name:          "Non-empty body",
-			httpMethod:    "POST",
-			url:           "http://test.com",
-			body:          "{\"test\":\"test\"}",
-			expectedError: false,
-		},
-	}
+func TestInternalErrorOnRequest(t *testing.T) {
+	t.Run("internal error on request", func(t *testing.T) {
+		session := &MockSession{
+			props: make(map[string]interface{}),
+		}
+		request, _ := http.NewRequest("GET", "test.com", nil)
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			req, err := http.NewRequest(tt.httpMethod, tt.url, bytes.NewBufferString(tt.body))
-			if err != nil {
-				t.Fatalf("Failed to create request: %v", err)
-			}
+		_, response := internalErrorOnRequest(session, request, &TestError{"test error"})
+		body, _ := io.ReadAll(response.Body)
+		responseBody := string(body)
 
-			copiedBody, err := copyBody(req)
-			if (err != nil) != tt.expectedError {
-				t.Fatalf("CopyBody() error = %v, expectedError %v", err, tt.expectedError)
-			}
+		wantContentType := "application/json"
+		wantResponseBody := "{\"error\":\"test error\"}"
+		wantStatusCode := http.StatusInternalServerError
 
-			copiedBodyBytes, err := io.ReadAll(copiedBody)
-			if err != nil {
-				t.Fatalf("Failed to read copied body: %v", err)
-			}
+		if response.StatusCode != wantStatusCode {
+			t.Errorf("got status code %v, want status code %v", response.StatusCode, wantStatusCode)
+		}
 
-			if string(copiedBodyBytes) != tt.body {
-				t.Errorf("CopyBody() = %s, want %s", string(copiedBodyBytes), tt.body)
-			}
-		})
-	}
+		if response.Header.Get("Content-Type") != wantContentType {
+			t.Errorf("got content type %v, want content type %v", response.Header.Get("Content-Type"), wantContentType)
+		}
+
+		if responseBody != wantResponseBody {
+			t.Errorf("got response body %v, want response body %v", responseBody, wantResponseBody)
+		}
+	})
 }
+
+type MockSession struct {
+	req   *http.Request
+	res   *http.Response
+	props map[string]interface{}
+}
+
+func (m *MockSession) SetProp(key string, value interface{}) {
+	m.props[key] = value
+}
+
+func (m *MockSession) GetProp(key string) (interface{}, bool) {
+	v, ok := m.props[key]
+	return v, ok
+}
+
+// Request returns the HTTP request of this session
+func (m *MockSession) Request() *http.Request {
+	return m.req
+}
+
+// Response returns the HTTP response of this session
+func (m *MockSession) Response() *http.Response {
+	return m.res
+}
+
+type TestError struct {
+	message string
+}
+
+func (e *TestError) Error() string {
+	return e.message
+}
+
+func TestPrepareResponseBody(t *testing.T) {
+	t.Run("prepare response body", func(t *testing.T) {
+		reader := PrepareResponseBody(&TestError{"test error"})
+		want := "{\"error\":\"test error\"}"
+
+		got, _ := io.ReadAll(reader)
+
+		if !bytes.Equal([]byte(want), got) {
+			t.Errorf("PrepareResponseBody() = %v, want %v", string(got), want)
+		}
+	})
+}
+
+// TODO add TestSetResponseFromRecord
 
 func TestSetResponse(t *testing.T) {
 	tests := []struct {
@@ -135,7 +145,7 @@ func TestSetResponse(t *testing.T) {
 		{
 			name:                "invalid record",
 			record:              []byte{53},
-			request:             request,
+			request:             testRequest,
 			wantStatusCode:      0,
 			wantResponseHeaders: nil,
 			wantResponseBody:    nil,
@@ -144,7 +154,7 @@ func TestSetResponse(t *testing.T) {
 		{
 			name:           "valid record",
 			record:         testRecord,
-			request:        request,
+			request:        testRequest,
 			wantStatusCode: 200,
 			wantResponseHeaders: map[string][]string{
 				"Content-Type": {"application/json"},
@@ -189,7 +199,7 @@ func TestSetResponse(t *testing.T) {
 	}
 }
 
-var request = &http.Request{
+var testRequest = &http.Request{
 	Method: "POST",
 	Host:   "test.com",
 	URL: &url.URL{
@@ -317,130 +327,45 @@ func getCompressedEncodedBody(data []byte) []byte {
 	return compressedEncodedBody
 }
 
-func TestInternalErrorOnRequest(t *testing.T) {
-	t.Run("internal error on request", func(t *testing.T) {
-		session := &MockSession{
-			props: make(map[string]interface{}),
-		}
-		request, _ := http.NewRequest("GET", "test.com", nil)
+// TODO add TestSetHeaders
 
-		_, response := InternalErrorOnRequest(session, request, &TestError{"test error"})
-		body, _ := io.ReadAll(response.Body)
-		responseBody := string(body)
+func TestCopyBody(t *testing.T) {
+	tests := []struct {
+		name          string
+		httpMethod    string
+		url           string
+		body          string
+		expectedError bool
+	}{
+		{
+			name:          "Non-empty body",
+			httpMethod:    "POST",
+			url:           "http://test.com",
+			body:          "{\"test\":\"test\"}",
+			expectedError: false,
+		},
+	}
 
-		wantContentType := "application/json"
-		wantResponseBody := "{\"error\":\"test error\"}"
-		wantStatusCode := http.StatusInternalServerError
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			req, err := http.NewRequest(tt.httpMethod, tt.url, bytes.NewBufferString(tt.body))
+			if err != nil {
+				t.Fatalf("Failed to create request: %v", err)
+			}
 
-		if response.StatusCode != wantStatusCode {
-			t.Errorf("got status code %v, want status code %v", response.StatusCode, wantStatusCode)
-		}
+			copiedBody, err := copyBody(req)
+			if (err != nil) != tt.expectedError {
+				t.Fatalf("CopyBody() error = %v, expectedError %v", err, tt.expectedError)
+			}
 
-		if response.Header.Get("Content-Type") != wantContentType {
-			t.Errorf("got content type %v, want content type %v", response.Header.Get("Content-Type"), wantContentType)
-		}
+			copiedBodyBytes, err := io.ReadAll(copiedBody)
+			if err != nil {
+				t.Fatalf("Failed to read copied body: %v", err)
+			}
 
-		if responseBody != wantResponseBody {
-			t.Errorf("got response body %v, want response body %v", responseBody, wantResponseBody)
-		}
-	})
-}
-
-type MockSession struct {
-	req   *http.Request
-	res   *http.Response
-	props map[string]interface{}
-}
-
-func (m *MockSession) SetProp(key string, value interface{}) {
-	m.props[key] = value
-}
-
-func (m *MockSession) GetProp(key string) (interface{}, bool) {
-	v, ok := m.props[key]
-	return v, ok
-}
-
-// Request returns the HTTP request of this session
-func (m *MockSession) Request() *http.Request {
-	return m.req
-}
-
-// Response returns the HTTP response of this session
-func (m *MockSession) Response() *http.Response {
-	return m.res
-}
-
-type TestError struct {
-	message string
-}
-
-func (e *TestError) Error() string {
-	return e.message
-}
-
-func TestPrepareResponseBody(t *testing.T) {
-	t.Run("prepare response body", func(t *testing.T) {
-		reader := PrepareResponseBody(&TestError{"test error"})
-		want := "{\"error\":\"test error\"}"
-
-		got, _ := io.ReadAll(reader)
-
-		if !bytes.Equal([]byte(want), got) {
-			t.Errorf("PrepareResponseBody() = %v, want %v", string(got), want)
-		}
-	})
-}
-
-func TestApiResponse(t *testing.T) {
-	t.Run("api response", func(t *testing.T) {
-		w := httptest.NewRecorder()
-		response := map[string]string{"key": "value"}
-
-		ApiResponse(w, response)
-		responseBody := w.Body.String()
-
-		wantStatusCode := http.StatusOK
-		wantContentType := "application/json"
-		wantResponseBody := "{\"key\":\"value\"}\n"
-
-		if w.Code != wantStatusCode {
-			t.Errorf("got status code %v, want status code %v", w.Code, wantStatusCode)
-		}
-
-		if w.Header().Get("Content-Type") != wantContentType {
-			t.Errorf("got content type %v, want content type %v", w.Header().Get("Content-Type"), wantContentType)
-		}
-
-		if responseBody != wantResponseBody {
-			t.Errorf("got response body %v, want response body %v", responseBody, wantResponseBody)
-		}
-	})
-}
-
-func TestInternalErrorApi(t *testing.T) {
-	t.Run("internal error api", func(t *testing.T) {
-		w := httptest.NewRecorder()
-		err := &TestError{"test error"}
-		status := 500
-
-		InternalErrorApi(w, err, status)
-		responseBody := w.Body.String()
-
-		wantStatusCode := http.StatusInternalServerError
-		wantContentType := "application/json"
-		wantResponseBody := "{\"error\":\"test error\"}\n"
-
-		if w.Code != wantStatusCode {
-			t.Errorf("got status code %v, want status code %v", w.Code, wantStatusCode)
-		}
-
-		if w.Header().Get("Content-Type") != wantContentType {
-			t.Errorf("got content type %v, want content type %v", w.Header().Get("Content-Type"), wantContentType)
-		}
-
-		if responseBody != wantResponseBody {
-			t.Errorf("got response body %v, want response body %v", responseBody, wantResponseBody)
-		}
-	})
+			if string(copiedBodyBytes) != tt.body {
+				t.Errorf("CopyBody() = %s, want %s", string(copiedBodyBytes), tt.body)
+			}
+		})
+	}
 }

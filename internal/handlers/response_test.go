@@ -6,32 +6,6 @@ import (
 	"testing"
 )
 
-func TestInternalErrorOnResponse(t *testing.T) {
-	t.Run("internal error on request", func(t *testing.T) {
-		request, _ := http.NewRequest("GET", "http://test.com", nil)
-
-		response := InternalErrorOnResponse(request, &TestError{"test error"})
-		body, _ := io.ReadAll(response.Body)
-		responseBody := string(body)
-
-		wantContentType := "application/json"
-		wantResponseBody := "{\"error\":\"test error\"}"
-		wantStatusCode := http.StatusInternalServerError
-
-		if response.StatusCode != wantStatusCode {
-			t.Errorf("got status code %v, want status code %v", response.StatusCode, wantStatusCode)
-		}
-
-		if response.Header.Get("Content-Type") != wantContentType {
-			t.Errorf("got content type %v, want content type %v", response.Header.Get("Content-Type"), wantContentType)
-		}
-
-		if responseBody != wantResponseBody {
-			t.Errorf("got response body %v, want response body %v", responseBody, wantResponseBody)
-		}
-	})
-}
-
 func TestShouldSkipResponseProcessing(t *testing.T) {
 	tests := []struct {
 		name    string
@@ -39,7 +13,7 @@ func TestShouldSkipResponseProcessing(t *testing.T) {
 		want    bool
 	}{
 		{
-			name:    "'blocked' and 'responseSetFromRecord' not set on session",
+			name:    "'blocked' and 'response' not set on session",
 			session: &MockSession{props: make(map[string]interface{})},
 			want:    false,
 		},
@@ -49,8 +23,8 @@ func TestShouldSkipResponseProcessing(t *testing.T) {
 			want:    true,
 		},
 		{
-			name:    "'responseSetFromRecord' set to 'true' on session",
-			session: &MockSession{props: map[string]interface{}{"responseSetFromRecord": true}},
+			name:    "'response' set to 'true' on session",
+			session: &MockSession{props: map[string]interface{}{"response": true}},
 			want:    true,
 		},
 	}
@@ -146,4 +120,30 @@ func TestGetHashAndCurlFromSession(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestInternalErrorOnResponse(t *testing.T) {
+	t.Run("internal error on request", func(t *testing.T) {
+		request, _ := http.NewRequest("GET", "http://test.com", nil)
+
+		response := internalErrorOnResponse(request, &TestError{"test error"})
+		body, _ := io.ReadAll(response.Body)
+		responseBody := string(body)
+
+		wantContentType := "application/json"
+		wantResponseBody := "{\"error\":\"test error\"}"
+		wantStatusCode := http.StatusInternalServerError
+
+		if response.StatusCode != wantStatusCode {
+			t.Errorf("got status code %v, want status code %v", response.StatusCode, wantStatusCode)
+		}
+
+		if response.Header.Get("Content-Type") != wantContentType {
+			t.Errorf("got content type %v, want content type %v", response.Header.Get("Content-Type"), wantContentType)
+		}
+
+		if responseBody != wantResponseBody {
+			t.Errorf("got response body %v, want response body %v", responseBody, wantResponseBody)
+		}
+	})
 }
