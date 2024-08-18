@@ -1,15 +1,13 @@
-package actions
+package record
 
 import (
 	"io"
 	"testing"
-
-	"github.com/trco/wannabe/types"
 )
 
 func TestGenerateRequest(t *testing.T) {
 	t.Run("generate request", func(t *testing.T) {
-		recordRequest := types.Request{
+		recordRequest := Request{
 			Hash:       "testHash",
 			Curl:       "testCurl",
 			HttpMethod: "POST",

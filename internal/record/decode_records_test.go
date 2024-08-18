@@ -1,10 +1,8 @@
-package actions
+package record
 
 import (
 	"reflect"
 	"testing"
-
-	"github.com/trco/wannabe/types"
 )
 
 func TestDecodeRecords(t *testing.T) {
@@ -18,8 +16,8 @@ func TestDecodeRecords(t *testing.T) {
 	})
 }
 
-var wantRecord = types.Record{
-	Request: types.Request{
+var wantRecord = Record{
+	Request: Request{
 		Hash:       "testHash",
 		Curl:       "testCurl",
 		HttpMethod: "POST",
@@ -36,7 +34,7 @@ var wantRecord = types.Record{
 			"test": "test",
 		},
 	},
-	Response: types.Response{
+	Response: Response{
 		StatusCode: 200,
 		Headers: map[string][]string{
 			"Content-Type": {"application/json"},

@@ -1,19 +1,34 @@
-package actions
+package record
 
 import (
 	"bytes"
 	"io"
 
-	"github.com/trco/wannabe/types"
+	"github.com/trco/wannabe/internal/handlers/utils"
 )
 
-func GenerateRecordPayload(session types.Session, hash string, curl string) (types.RecordPayload, error) {
+type RecordPayload struct {
+	Hash            string
+	Curl            string
+	Scheme          string
+	HttpMethod      string
+	Host            string
+	Path            string
+	Query           map[string][]string
+	RequestHeaders  map[string][]string
+	RequestBody     []byte
+	StatusCode      int
+	ResponseHeaders map[string][]string
+	ResponseBody    []byte
+}
+
+func GenerateRecordPayload(session utils.Session, hash string, curl string) (RecordPayload, error) {
 	request := session.Request()
 	response := session.Response()
 
 	requestBody, err := io.ReadAll(request.Body)
 	if err != nil {
-		return types.RecordPayload{}, err
+		return RecordPayload{}, err
 	}
 	defer request.Body.Close()
 
@@ -22,14 +37,14 @@ func GenerateRecordPayload(session types.Session, hash string, curl string) (typ
 
 	responseBody, err := io.ReadAll(response.Body)
 	if err != nil {
-		return types.RecordPayload{}, err
+		return RecordPayload{}, err
 	}
 	defer response.Body.Close()
 
 	// set body back to response
 	response.Body = io.NopCloser(bytes.NewBuffer(responseBody))
 
-	recordPayload := types.RecordPayload{
+	recordPayload := RecordPayload{
 		Hash:            hash,
 		Curl:            curl,
 		Scheme:          request.URL.Scheme,

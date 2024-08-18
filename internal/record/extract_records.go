@@ -1,14 +1,12 @@
-package actions
+package record
 
 import (
 	"encoding/json"
 	"fmt"
-
-	"github.com/trco/wannabe/types"
 )
 
-func ExtractRecords(requestBody []byte) ([]types.Record, error) {
-	var records []types.Record
+func ExtractRecords(requestBody []byte) ([]Record, error) {
+	var records []Record
 
 	err := json.Unmarshal(requestBody, &records)
 	if err != nil {

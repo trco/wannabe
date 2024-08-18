@@ -1,4 +1,4 @@
-package actions
+package record
 
 import (
 	"bytes"
@@ -7,8 +7,6 @@ import (
 	"net/url"
 	"reflect"
 	"testing"
-
-	"github.com/trco/wannabe/types"
 )
 
 func TestGenerateRecordPayload(t *testing.T) {
@@ -46,7 +44,7 @@ func TestGenerateRecordPayload(t *testing.T) {
 			res: response,
 		}
 
-		want := types.RecordPayload{
+		want := RecordPayload{
 			Hash:            hash,
 			Curl:            curl,
 			Scheme:          request.URL.Scheme,

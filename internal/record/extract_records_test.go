@@ -1,11 +1,9 @@
-package actions
+package record
 
 import (
 	"reflect"
 	"testing"
 	"time"
-
-	"github.com/trco/wannabe/types"
 )
 
 func TestExtractRecords(t *testing.T) {
@@ -19,8 +17,8 @@ func TestExtractRecords(t *testing.T) {
 	})
 }
 
-var wantRecordTwo = types.Record{
-	Request: types.Request{
+var wantRecordTwo = Record{
+	Request: Request{
 		HttpMethod: "POST",
 		Host:       "https://analyticsdata.googleapis.com",
 		Path:       "test",
@@ -34,7 +32,7 @@ var wantRecordTwo = types.Record{
 			"test": "test",
 		},
 	},
-	Response: types.Response{
+	Response: Response{
 		StatusCode: 200,
 		Headers: map[string][]string{
 			"Content-Type": {"application/json; charset=UTF-8"},
@@ -43,12 +41,12 @@ var wantRecordTwo = types.Record{
 			"test": "test",
 		},
 	},
-	Metadata: types.Metadata{
-		GeneratedAt: types.Timestamp{
+	Metadata: Metadata{
+		GeneratedAt: Timestamp{
 			Unix: 0,
 			UTC:  time.Time{},
 		},
-		RegeneratedAt: types.Timestamp{
+		RegeneratedAt: Timestamp{
 			Unix: 0,
 			UTC:  time.Time{},
 		},

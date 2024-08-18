@@ -1,18 +1,18 @@
-package services
+package record
 
 import (
 	"encoding/json"
 	"reflect"
 	"testing"
 
-	"github.com/trco/wannabe/types"
+	"github.com/trco/wannabe/internal/config"
 )
 
 func TestGenerateRecord(t *testing.T) {
 	t.Run("generate record", func(t *testing.T) {
 		encodedRecord, _ := GenerateRecord(testConfig, payload)
 
-		var record types.Record
+		var record Record
 
 		_ = json.Unmarshal(encodedRecord, &record)
 
@@ -28,13 +28,13 @@ func TestGenerateRecord(t *testing.T) {
 
 }
 
-var testConfig = types.Records{
-	Headers: types.HeadersToRecord{
+var testConfig = config.Records{
+	Headers: config.HeadersToRecord{
 		Exclude: []string{"Header-To-Exclude"},
 	},
 }
 
-var payload = types.RecordPayload{
+var payload = RecordPayload{
 	Hash:       "testHash",
 	Curl:       "testCurl",
 	Scheme:     "https",
@@ -60,8 +60,8 @@ var payload = types.RecordPayload{
 	ResponseBody: []byte{123, 10, 32, 32, 32, 32, 34, 116, 101, 115, 116, 34, 58, 32, 34, 116, 101, 115, 116, 34, 10, 125},
 }
 
-var wantRecordThree = types.Record{
-	Request: types.Request{
+var wantRecordThree = Record{
+	Request: Request{
 		Hash:       "testHash",
 		Curl:       "testCurl",
 		Scheme:     "https",
@@ -79,7 +79,7 @@ var wantRecordThree = types.Record{
 			"test": "test",
 		},
 	},
-	Response: types.Response{
+	Response: Response{
 		StatusCode: 200,
 		Headers: map[string][]string{
 			"Content-Type": {"application/json"},

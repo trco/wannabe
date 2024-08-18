@@ -1,17 +1,15 @@
-package actions
+package record
 
 import (
 	"reflect"
 	"testing"
 	"time"
-
-	"github.com/trco/wannabe/types"
 )
 
 func TestValidateRecords(t *testing.T) {
 	tests := []struct {
 		name    string
-		record  types.Record
+		record  Record
 		wantErr []string
 	}{
 		{
@@ -28,7 +26,7 @@ func TestValidateRecords(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotErr, _ := ValidateRecords([]types.Record{tt.record})
+			gotErr, _ := ValidateRecords([]Record{tt.record})
 
 			if !reflect.DeepEqual(gotErr, tt.wantErr) {
 				t.Errorf("ValidateRecords() = %v, want %v", gotErr, tt.wantErr)
@@ -37,8 +35,8 @@ func TestValidateRecords(t *testing.T) {
 	}
 }
 
-var validRecord = types.Record{
-	Request: types.Request{
+var validRecord = Record{
+	Request: Request{
 		Hash:       "testHash",
 		Curl:       "testCurl",
 		Scheme:     "https",
@@ -56,7 +54,7 @@ var validRecord = types.Record{
 			"test": "test",
 		},
 	},
-	Response: types.Response{
+	Response: Response{
 		StatusCode: 200,
 		Headers: map[string][]string{
 			"Content-Type": {"application/json"},
@@ -66,20 +64,20 @@ var validRecord = types.Record{
 			"test": "test",
 		},
 	},
-	Metadata: types.Metadata{
-		GeneratedAt: types.Timestamp{
+	Metadata: Metadata{
+		GeneratedAt: Timestamp{
 			Unix: 0,
 			UTC:  time.Time{},
 		},
-		RegeneratedAt: types.Timestamp{
+		RegeneratedAt: Timestamp{
 			Unix: 0,
 			UTC:  time.Time{},
 		},
 	},
 }
 
-var invalidRecord = types.Record{
-	Request: types.Request{
+var invalidRecord = Record{
+	Request: Request{
 		Hash:       "testHash",
 		Curl:       "testCurl",
 		Scheme:     "https",
@@ -97,7 +95,7 @@ var invalidRecord = types.Record{
 			"test": "test",
 		},
 	},
-	Response: types.Response{
+	Response: Response{
 		StatusCode: 200,
 		Headers: map[string][]string{
 			"Content-Type": {"application/json"},
@@ -107,12 +105,12 @@ var invalidRecord = types.Record{
 			"test": "test",
 		},
 	},
-	Metadata: types.Metadata{
-		GeneratedAt: types.Timestamp{
+	Metadata: Metadata{
+		GeneratedAt: Timestamp{
 			Unix: 0,
 			UTC:  time.Time{},
 		},
-		RegeneratedAt: types.Timestamp{
+		RegeneratedAt: Timestamp{
 			Unix: 0,
 			UTC:  time.Time{},
 		},

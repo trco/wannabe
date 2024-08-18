@@ -1,12 +1,56 @@
-package utils
+package record
 
 import (
 	"bytes"
 	"compress/gzip"
+	"encoding/json"
 	"fmt"
 	"io"
 	"strings"
+
+	"github.com/clbanning/mxj"
 )
+
+func DecodeBody(encodedBody []byte, contentEncodingHeader []string, contentTypeHeader []string) (interface{}, error) {
+	var body interface{}
+
+	if len(encodedBody) == 0 {
+		return body, nil
+	}
+
+	contentEncoding := GetContentEncoding(contentEncodingHeader)
+
+	// gunzip the body before decoding it to the interface
+	if contentEncoding == "gzip" {
+		var err error
+		encodedBody, err = Gunzip(encodedBody)
+		if err != nil {
+			return nil, fmt.Errorf("DecodeBody: failed unzipping body: %v", err)
+		}
+	}
+
+	contentType := GetContentType(contentTypeHeader)
+
+	switch {
+	case contentType == "application/json":
+		err := json.Unmarshal(encodedBody, &body)
+		if err != nil {
+			return nil, fmt.Errorf("DecodeBody: failed unmarshaling JSON body: %v", err)
+		}
+	case contentType == "application/xml", contentType == "text/xml":
+		xmlMap, err := mxj.NewMapXml(encodedBody)
+		if err != nil {
+			return nil, fmt.Errorf("DecodeBody: failed unmarshaling XML body: %v", err)
+		}
+		body = xmlMap
+	case contentType == "text/plain", contentType == "text/html":
+		body = string(encodedBody)
+	default:
+		return nil, fmt.Errorf("DecodeBody: unsupported content type: %s", contentType)
+	}
+
+	return body, nil
+}
 
 func GetContentType(contentTypeHeader []string) string {
 	switch {
@@ -32,6 +76,15 @@ func GetContentEncoding(contentEncodingHeader []string) string {
 	default:
 		return ""
 	}
+}
+
+func sliceItemContains(slice []string, value string) bool {
+	for _, item := range slice {
+		if strings.Contains(item, value) {
+			return true
+		}
+	}
+	return false
 }
 
 // Gunzip decompresses a gzip-compressed byte slice.
@@ -65,13 +118,4 @@ func Gzip(data []byte) ([]byte, error) {
 	}
 
 	return buf.Bytes(), nil
-}
-
-func sliceItemContains(slice []string, value string) bool {
-	for _, item := range slice {
-		if strings.Contains(item, value) {
-			return true
-		}
-	}
-	return false
 }

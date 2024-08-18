@@ -1,14 +1,12 @@
-package actions
+package record
 
 import (
-	"github.com/trco/wannabe/types"
-
 	"github.com/go-playground/validator/v10"
 )
 
 var validate *validator.Validate
 
-func ValidateRecords(records []types.Record) ([]string, error) {
+func ValidateRecords(records []Record) ([]string, error) {
 	var validationErrors []string
 
 	validate = validator.New()

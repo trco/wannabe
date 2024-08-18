@@ -1,4 +1,4 @@
-package actions
+package record
 
 func FilterHeaders(headers map[string][]string, exclude []string) map[string][]string {
 	filteredHeaders := make(map[string][]string)

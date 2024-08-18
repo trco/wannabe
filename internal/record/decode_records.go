@@ -1,17 +1,15 @@
-package actions
+package record
 
 import (
 	"encoding/json"
 	"fmt"
-
-	"github.com/trco/wannabe/types"
 )
 
-func DecodeRecords(encodedRecords [][]byte) ([]types.Record, error) {
-	var records []types.Record
+func DecodeRecords(encodedRecords [][]byte) ([]Record, error) {
+	var records []Record
 
 	for _, encodedRecord := range encodedRecords {
-		var record types.Record
+		var record Record
 
 		err := json.Unmarshal(encodedRecord, &record)
 		if err != nil {

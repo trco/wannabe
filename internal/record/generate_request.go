@@ -1,14 +1,12 @@
-package actions
+package record
 
 import (
 	"bytes"
 	"encoding/json"
 	"net/http"
-
-	"github.com/trco/wannabe/types"
 )
 
-func GenerateRequest(recordRequest types.Request) (*http.Request, error) {
+func GenerateRequest(recordRequest Request) (*http.Request, error) {
 	if recordRequest.Path == "" {
 		recordRequest.Path = "/"
 	}
