@@ -110,7 +110,7 @@ func contains(slice []string, value string) bool {
 
 type Config struct {
 	Mode            string             `koanf:"mode" validate:"required,oneof=proxy server mixed"`
-	StorageProvider StorageProvider    `koanf:"storage" validate:"required"`
+	StorageProvider StorageProvider    `koanf:"storageProvider" validate:"required"`
 	Wannabes        map[string]Wannabe `koanf:"wannabes" validate:"headers_included_excluded,dive"`
 }
 
@@ -122,7 +122,7 @@ const (
 
 type StorageProvider struct {
 	Type               string             `koanf:"type" validate:"required,oneof=filesystem"`
-	FilesystemProvider FilesystemProvider `koanf:"filesystemConfig" validate:"required_if=Type filesystem,omitempty"`
+	FilesystemProvider FilesystemProvider `koanf:"filesystemProvider" validate:"required_if=Type filesystem,omitempty"`
 }
 
 type FilesystemProvider struct {
