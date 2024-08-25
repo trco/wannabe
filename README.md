@@ -6,11 +6,11 @@ Official docker images are available at [Docker Hub](https://hub.docker.com/r/tr
 
 ## Getting started
 
-For a successful startup, Wannabe requires the `config.json`, `wannabe.crt`, and `wannabe.key` files.
+For a successful startup, Wannabe requires the configuration and SSL certificate files.
 
-For information on configuring `config.json`, see the [Configuration](#configuration) section. You must generate and use the self-signed certificate `wannabe.crt` and key `wannabe.key` for Wannabe to securely proxy HTTPS requests to other servers. It's crucial to ensure that the client's operating system, whether on a local machine or within a containerized environment, trusts the `wannabe.crt` certificate for secure communication with Wannabe. For guidance on adding the certificate to your operating system and configuring trust settings, please refer to the relevant documentation.
+For information on configuring see the [Configuration](#configuration) section. You must generate and use the self-signed SSL certificate for Wannabe to securely proxy HTTPS requests to other servers. It's crucial to ensure that the client's operating system, whether on a local machine or within a containerized environment, trusts the SSL certificate for secure communication with Wannabe. For guidance on adding the SSL certificate to your operating system and configuring trust settings, please refer to the relevant documentation.
 
-### Generate self-signed certificate
+### Generate self-signed SSL certificate
 
 ```
 // generate 2048-bit private key
@@ -18,7 +18,7 @@ openssl genrsa -out wannabe.key 2048
 ```
 
 ```
-// generate self-signed certificate valid for 10 years
+// generate self-signed SSL certificate valid for 10 years
 openssl req -new -x509 -key wannabe.key -out wannabe.crt -days 3650
 ```
 
@@ -30,7 +30,7 @@ Like any Go program, Wannabe can be launched by simply cloning the repository, a
 
 Wannabe provides official [Docker images](https://hub.docker.com/r/trco/.wannabe) for running the application within a container.
 
-To guarantee a successful launch of the application, `config.json`, `wannabe.crt` and `wannabe.key` should be mounted from the host operating system to the root directory of the Wannabe container. Inside the container, the Wannabe server operates on port 6789, and the API is accessible through port 6790.
+To ensure a successful launch of the application, the configuration `.json` file and SSL certificate `.crt` and `.key` files should be mounted from the host operating system to the `/usr/src/app` directory of the Wannabe container. The environment variables `CONFIG_PATH`, `CERT_PATH`, and `CERT_KEY_PATH` should be set to the paths where the relevant files are mounted. Inside the container, the Wannabe server operates on port 6789, and the API is accessible through port 6790.
 
 ```
 // pull the latest Wannabe image from Docker Hub
@@ -38,13 +38,16 @@ docker pull trco/wannabe
 ```
 
 ```
-// run Wannabe container
+// run Wannabe container using config.json and SSL certificate siles wannabe.crt and wannabe.key
 docker run -d \
 -p 6789:6789 \
 -p 6790:6790 \
 -v $(pwd)/config.json:/usr/src/app/config.json \
 -v $(pwd)/wannabe.crt:/usr/src/app/wannabe.crt \
 -v $(pwd)/wannabe.key:/usr/src/app/wannabe.key \
+-e CONFIG_PATH=/usr/src/app/config.json \
+-e CERT_PATH=/usr/src/app/wannabe.crt \
+-e CERT_KEY_PATH=/usr/src/app/wannabe.key \
 --name wannabe \
 trco/wannabe
 ```
@@ -99,7 +102,7 @@ Wannabe can certainly support numerous other use cases. If you discover an innov
 
 ## Configuration
 
-Wannabe requires a `config.json` configuration file. Any changes made to the configuration file will only take effect after restarting the standalone Wannabe server or the one running in the container.
+Wannabe requires a configuration file in `.json` format. Any changes made to the configuration file will only take effect after restarting the standalone Wannabe server or the one running in the container.
 
 The configuration file consists of three root fields: [mode](#mode), [storageProvider](#storage-provider), and [wannabes](#wannabes). Refer to the following subsections for details on all the options that can be configured using these root fields.
 
@@ -384,7 +387,7 @@ For example, if the storage provider is the file system, and the default `"recor
 {
     "request": {
         "hash": "f9150cd75f617b8f6a751cab3fc2b2f19b47e2b67cb496c91e5a54a0cf923ff0",
-        "curl": "curl -X 'GET' -d '' 'test.com/api/v1/testId?fields=thumbnail_url'",
+        "curl": "curl -X 'GET' 'http://test.com/api/v1/testId?fields=thumbnail_url'",
         "httpMethod": "GET",
         "host": "test.com",
         "path": "/api/v1/testId",
