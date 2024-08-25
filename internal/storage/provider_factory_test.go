@@ -26,7 +26,7 @@ func TestProviderFactory(t *testing.T) {
 			name: "valid filesystem config",
 			config: config.StorageProvider{
 				Type: "filesystem",
-				FilesystemProvider: config.FilesystemProvider{
+				FilesystemConfig: config.FilesystemConfig{
 					Folder:           "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T",
 					RegenerateFolder: "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T/regenerate",
 					Format:           "json",
@@ -35,7 +35,7 @@ func TestProviderFactory(t *testing.T) {
 			want: FilesystemProvider{
 				Config: config.StorageProvider{
 					Type: "filesystem",
-					FilesystemProvider: config.FilesystemProvider{
+					FilesystemConfig: config.FilesystemConfig{
 						Folder:           "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T",
 						RegenerateFolder: "/var/folders/6z/9bvblj5j2s9bngjcnr18jls80000gn/T/regenerate",
 						Format:           "json",

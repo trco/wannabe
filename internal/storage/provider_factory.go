@@ -22,11 +22,11 @@ type HostAndHashes struct {
 
 func ProviderFactory(config config.StorageProvider) (Provider, error) {
 	if config.Type == "filesystem" {
-		storage := FilesystemProvider{
+		provider := FilesystemProvider{
 			Config: config,
 		}
 
-		return storage, nil
+		return provider, nil
 	}
 
 	return nil, fmt.Errorf("generation of '%s' storage provider failed", config.Type)

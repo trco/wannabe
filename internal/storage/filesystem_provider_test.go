@@ -11,7 +11,7 @@ import (
 
 var testConfig = config.StorageProvider{
 	Type: "filesystem",
-	FilesystemProvider: config.FilesystemProvider{
+	FilesystemConfig: config.FilesystemConfig{
 		Folder:           "/tmp/wannabe",
 		RegenerateFolder: "/tmp/wannabe/regenerate",
 		Format:           "json",
@@ -99,7 +99,7 @@ func TestGetHostsAndHashes(t *testing.T) {
 func TestGenerateFilepath(t *testing.T) {
 	t.Run("generate filepath", func(t *testing.T) {
 		isRegenerate := false
-		folder := testConfig.FilesystemProvider.Folder
+		folder := testConfig.FilesystemConfig.Folder
 		subfolder := "test.api.com"
 		hash := "testHash1"
 
@@ -116,7 +116,7 @@ func TestGenerateFilepath(t *testing.T) {
 func TestGenerateFilepathRegenerate(t *testing.T) {
 	t.Run("generate filepath regenerate", func(t *testing.T) {
 		isRegenerate := true
-		regenerateFolder := testConfig.FilesystemProvider.RegenerateFolder
+		regenerateFolder := testConfig.FilesystemConfig.RegenerateFolder
 		subfolder := "test.api.com"
 		hash := "testHash2"
 
@@ -136,7 +136,7 @@ func TestCreateFolder(t *testing.T) {
 	t.Run("create folder", func(t *testing.T) {
 		t.Cleanup(teardown)
 
-		folder := testConfig.FilesystemProvider.Folder
+		folder := testConfig.FilesystemConfig.Folder
 		subfolder := "test.subfolder.com"
 		isRegenerate := false
 
@@ -149,7 +149,7 @@ func TestCreateFolder(t *testing.T) {
 		}
 
 		isRegenerate = true
-		rengenerateFolder := testConfig.FilesystemProvider.RegenerateFolder
+		rengenerateFolder := testConfig.FilesystemConfig.RegenerateFolder
 
 		_ = testFilesystemProvider.createFolder(subfolder, isRegenerate)
 
@@ -166,13 +166,13 @@ func TestCreateFolder(t *testing.T) {
 }
 
 func createFolders() {
-	_ = os.Mkdir(testConfig.FilesystemProvider.Folder, 0755)
-	_ = os.Mkdir(testConfig.FilesystemProvider.RegenerateFolder, 0755)
+	_ = os.Mkdir(testConfig.FilesystemConfig.Folder, 0755)
+	_ = os.Mkdir(testConfig.FilesystemConfig.RegenerateFolder, 0755)
 }
 
 func deleteFolders() {
-	_ = os.RemoveAll(testConfig.FilesystemProvider.Folder)
-	_ = os.RemoveAll(testConfig.FilesystemProvider.RegenerateFolder)
+	_ = os.RemoveAll(testConfig.FilesystemConfig.Folder)
+	_ = os.RemoveAll(testConfig.FilesystemConfig.RegenerateFolder)
 }
 
 func TestMain(m *testing.M) {

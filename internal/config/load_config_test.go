@@ -75,7 +75,7 @@ func TestValidateConfig(t *testing.T) {
 		Mode: "mixed",
 		StorageProvider: StorageProvider{
 			Type: "filesystem",
-			FilesystemProvider: FilesystemProvider{
+			FilesystemConfig: FilesystemConfig{
 				Folder:           "records",
 				RegenerateFolder: "",
 				Format:           "json",
@@ -160,7 +160,7 @@ var wantConfig = Config{
 	Mode: "mixed",
 	StorageProvider: StorageProvider{
 		Type: "filesystem",
-		FilesystemProvider: FilesystemProvider{
+		FilesystemConfig: FilesystemConfig{
 			Folder:           "records",
 			RegenerateFolder: "records/regenerated",
 			Format:           "json",
@@ -196,7 +196,7 @@ var defaultConfig = Config{
 	Mode: "mixed",
 	StorageProvider: StorageProvider{
 		Type: "filesystem",
-		FilesystemProvider: FilesystemProvider{
+		FilesystemConfig: FilesystemConfig{
 			Folder:           "records",
 			RegenerateFolder: "records/regenerated",
 			Format:           "json",

@@ -82,11 +82,11 @@ func (fsp FilesystemProvider) DeleteRecords(subfolder string, hashes []string) e
 }
 
 func (fsp FilesystemProvider) GetHashes(subfolder string) ([]string, error) {
-	folder := fsp.Config.FilesystemProvider.Folder + "/" + subfolder
+	folder := fsp.Config.FilesystemConfig.Folder + "/" + subfolder
 
 	files, err := os.ReadDir(folder)
 	if err != nil {
-		return nil, filesystemProviderErr("failed reading folder "+fsp.Config.FilesystemProvider.Folder, err)
+		return nil, filesystemProviderErr("failed reading folder "+fsp.Config.FilesystemConfig.Folder, err)
 	}
 
 	hashes := fsp.getHashesFromFiles(files)
@@ -97,7 +97,7 @@ func (fsp FilesystemProvider) GetHashes(subfolder string) ([]string, error) {
 func (fsp FilesystemProvider) GetHostsAndHashes() ([]HostAndHashes, error) {
 	var hostHashes []HostAndHashes
 
-	folder := fsp.Config.FilesystemProvider.Folder
+	folder := fsp.Config.FilesystemConfig.Folder
 
 	subfolders, err := os.ReadDir(folder)
 	if err != nil {
@@ -126,12 +126,12 @@ func (fsp FilesystemProvider) GetHostsAndHashes() ([]HostAndHashes, error) {
 func (fsp FilesystemProvider) generateFilepath(subfolder string, hash string, isRegenerate bool) string {
 	var folder string
 	if isRegenerate {
-		folder = fsp.Config.FilesystemProvider.RegenerateFolder
+		folder = fsp.Config.FilesystemConfig.RegenerateFolder
 	} else {
-		folder = fsp.Config.FilesystemProvider.Folder
+		folder = fsp.Config.FilesystemConfig.Folder
 	}
 
-	format := fsp.Config.FilesystemProvider.Format
+	format := fsp.Config.FilesystemConfig.Format
 
 	return filepath.Join(folder, subfolder, hash+"."+format)
 }
@@ -139,9 +139,9 @@ func (fsp FilesystemProvider) generateFilepath(subfolder string, hash string, is
 func (fsp FilesystemProvider) createFolder(subfolder string, isRegenerate bool) error {
 	var folder string
 	if isRegenerate {
-		folder = filepath.Join(fsp.Config.FilesystemProvider.RegenerateFolder, subfolder)
+		folder = filepath.Join(fsp.Config.FilesystemConfig.RegenerateFolder, subfolder)
 	} else {
-		folder = filepath.Join(fsp.Config.FilesystemProvider.Folder, subfolder)
+		folder = filepath.Join(fsp.Config.FilesystemConfig.Folder, subfolder)
 	}
 
 	_, err := os.Stat(folder)
