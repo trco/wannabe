@@ -19,6 +19,8 @@ COPY --from=builder /build/wannabe /usr/src/app/wannabe
 
 RUN apk add --no-cache bash curl
 
+ENV RUNNING_IN_CONTAINER=true
+
 EXPOSE 6789
 EXPOSE 6790
 
