@@ -17,7 +17,7 @@ import (
 )
 
 func main() {
-	cfg, err := config.LoadConfig("config.json")
+	cfg, err := config.LoadConfig()
 	if err != nil {
 		log.Fatalf("fatal error starting app: %v", err)
 	}
@@ -27,7 +27,7 @@ func main() {
 		log.Fatalf("fatal error starting app: %v", err)
 	}
 
-	mitmConfig, err := config.LoadMitmConfig("wannabe.crt", "wannabe.key")
+	mitmConfig, err := config.LoadMitmConfig()
 	if err != nil {
 		log.Fatalf("fatal error starting app: %v", err)
 	}

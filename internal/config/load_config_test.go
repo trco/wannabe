@@ -10,8 +10,14 @@ import (
 
 func TestLoadConfig(t *testing.T) {
 	t.Run("load config", func(t *testing.T) {
-		configFilename, _ := createTestConfigFile("config.json")
-		config, _ := LoadConfig(configFilename)
+		configPath, _ := createTestConfigFile("config.json")
+		os.Setenv("CONFIG_PATH", configPath)
+		os.Setenv("RUNNING_IN_CONTAINER", "true")
+		defer os.Unsetenv("CONFIG_PATH")
+		defer os.Remove(configPath)
+		defer os.Unsetenv("RUNNING_IN_CONTAINER")
+
+		config, _ := LoadConfig()
 
 		if !reflect.DeepEqual(config, wantConfig) {
 			t.Errorf("LoadConfig() = %v, want %v", config, wantConfig)
@@ -30,26 +36,28 @@ func TestSetConfigDefaults(t *testing.T) {
 }
 
 func TestLoadConfigFromFile(t *testing.T) {
-	configFilename, _ := createTestConfigFile("config.json")
-	defer os.Remove(configFilename)
+	configPath, _ := createTestConfigFile("config.json")
+	os.Setenv("CONFIG_PATH", configPath)
+	defer os.Unsetenv("CONFIG_PATH")
+	defer os.Remove(configPath)
 
 	tests := []struct {
 		name          string
-		filename      string
+		configPath    string
 		defaultConfig Config
 		wantConfig    Config
 		wantErr       bool
 	}{
 		{
 			name:          "non-existing config file",
-			filename:      "non_existing_config.json",
+			configPath:    "non_existing_config.json",
 			defaultConfig: defaultConfig,
-			wantConfig:    Config{},
+			wantConfig:    defaultConfig,
 			wantErr:       true,
 		},
 		{
 			name:          "existing config file",
-			filename:      configFilename,
+			configPath:    configPath,
 			defaultConfig: defaultConfig,
 			wantConfig:    wantConfig,
 			wantErr:       false,
@@ -58,13 +66,13 @@ func TestLoadConfigFromFile(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := loadConfigFromFile(tt.filename, tt.defaultConfig)
+			err := loadConfigFromFile(tt.configPath, &tt.defaultConfig)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("loadConfigFromFile() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !reflect.DeepEqual(got, tt.wantConfig) {
-				t.Errorf("loadConfigFromFile() = %v, want %v", got, tt.wantConfig)
+			if !reflect.DeepEqual(tt.defaultConfig, tt.wantConfig) {
+				t.Errorf("loadConfigFromFile() = %v, want %v", tt.defaultConfig, tt.wantConfig)
 			}
 		})
 	}

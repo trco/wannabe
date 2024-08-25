@@ -4,12 +4,17 @@ import (
 	"crypto/rsa"
 	"crypto/tls"
 	"crypto/x509"
+	"fmt"
+	"os"
 
 	"github.com/AdguardTeam/gomitmproxy/mitm"
 )
 
-func LoadMitmConfig(certificate string, key string) (*mitm.Config, error) {
-	tlsCert, err := tls.LoadX509KeyPair(certificate, key)
+func LoadMitmConfig() (*mitm.Config, error) {
+	// var certPath, certKeyPath string
+	certPath, certKeyPath, err := getCertPaths()
+
+	tlsCert, err := tls.LoadX509KeyPair(certPath, certKeyPath)
 	if err != nil {
 		return nil, err
 	}
@@ -26,4 +31,37 @@ func LoadMitmConfig(certificate string, key string) (*mitm.Config, error) {
 	}
 
 	return mitmConfig, nil
+}
+
+func getCertPaths() (string, string, error) {
+	var certPath, certKeyPath string
+
+	if os.Getenv(RunningInContainer) == "" {
+		_, err := os.Stat("wannabe.crt")
+		if err != nil {
+			return "", "", fmt.Errorf("failed loading wannabe.crt file: %v", err)
+		}
+		certPath = "wannabe.crt"
+
+		_, err = os.Stat("wannabe.key")
+		if err != nil {
+			return "", "", fmt.Errorf("failed loading wannabe.key file: %v", err)
+		}
+		certKeyPath = "wannabe.key"
+
+		return certPath, certKeyPath, nil
+	}
+
+	certPath = os.Getenv(CertPath)
+	if certPath == "" {
+		return "", "", fmt.Errorf("%v env variable not set", CertPath)
+	}
+
+	certKeyPath = os.Getenv(CertKeyPath)
+	if certPath == "" {
+		return "", "", fmt.Errorf("%v env variable not set", CertKeyPath)
+	}
+
+	return certPath, certKeyPath, nil
+
 }

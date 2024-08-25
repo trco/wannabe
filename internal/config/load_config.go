@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/knadh/koanf"
@@ -9,12 +10,19 @@ import (
 	"github.com/knadh/koanf/providers/file"
 )
 
-func LoadConfig(configFilename string) (Config, error) {
+func LoadConfig() (Config, error) {
 	config := setConfigDefaults()
 
-	config, err := loadConfigFromFile(configFilename, config)
+	configPath, err := getConfigPath()
 	if err != nil {
-		return Config{}, fmt.Errorf("failed loading config from file: %v", err)
+		return Config{}, fmt.Errorf("failed getting config path: %v", err)
+	}
+
+	if configPath != "" {
+		err := loadConfigFromFile(configPath, &config)
+		if err != nil {
+			return Config{}, fmt.Errorf("failed loading config from file: %v", err)
+		}
 	}
 
 	err = validateConfig(config)
@@ -23,6 +31,29 @@ func LoadConfig(configFilename string) (Config, error) {
 	}
 
 	return config, nil
+}
+
+func getConfigPath() (string, error) {
+	var configPath string
+
+	if os.Getenv(RunningInContainer) == "" {
+		// check if config.json exists
+		_, err := os.Stat("config.json")
+		if err != nil && !os.IsNotExist(err) {
+			return "", fmt.Errorf("failed checking if config.json file exists in the root folder")
+		} else if os.IsNotExist(err) {
+			return "", nil
+		}
+
+		return "config.json", nil
+	}
+
+	configPath = os.Getenv(ConfigPath)
+	if configPath == "" {
+		return "", fmt.Errorf("%v env variable not set", ConfigPath)
+	}
+
+	return configPath, nil
 }
 
 func setConfigDefaults() Config {
@@ -39,8 +70,8 @@ func setConfigDefaults() Config {
 	}
 }
 
-func loadConfigFromFile(configFilename string, config Config) (Config, error) {
-	f := file.Provider(configFilename)
+func loadConfigFromFile(configPath string, config *Config) error {
+	f := file.Provider(configPath)
 	var k = koanf.New(".")
 
 	loadConfig := func() error {
@@ -50,7 +81,7 @@ func loadConfigFromFile(configFilename string, config Config) (Config, error) {
 			return err
 		}
 
-		err = k.Unmarshal("", &config)
+		err = k.Unmarshal("", config)
 		if err != nil {
 			return err
 		}
@@ -60,10 +91,10 @@ func loadConfigFromFile(configFilename string, config Config) (Config, error) {
 
 	err := loadConfig()
 	if err != nil {
-		return Config{}, err
+		return err
 	}
 
-	return config, nil
+	return nil
 }
 
 var validate *validator.Validate
@@ -107,6 +138,13 @@ func contains(slice []string, value string) bool {
 	}
 	return false
 }
+
+const (
+	RunningInContainer = "RUNNING_IN_CONTAINER"
+	ConfigPath         = "CONFIG_PATH"
+	CertPath           = "CERT_PATH"
+	CertKeyPath        = "CERT_KEY_PATH"
+)
 
 type Config struct {
 	Mode            string             `koanf:"mode" validate:"required,oneof=proxy server mixed"`
