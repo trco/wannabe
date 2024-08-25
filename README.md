@@ -8,7 +8,7 @@ Official docker images are available at [Docker Hub](https://hub.docker.com/r/tr
 
 For a successful startup, Wannabe requires the configuration and SSL certificate files.
 
-For information on configuring see the [Configuration](#configuration) section. You must generate and use the self-signed SSL certificate for Wannabe to securely proxy HTTPS requests to other servers. It's crucial to ensure that the client's operating system, whether on a local machine or within a containerized environment, trusts the SSL certificate for secure communication with Wannabe. For guidance on adding the SSL certificate to your operating system and configuring trust settings, please refer to the relevant documentation.
+For information on configuration see the [Configuration](#configuration) section. You must generate and use the self-signed SSL certificate for Wannabe to securely proxy HTTPS requests to other servers. It's crucial to ensure that the client's operating system, whether on a local machine or within a containerized environment, trusts the SSL certificate for secure communication with Wannabe. For guidance on adding the SSL certificate to your operating system and configuring trust settings, please refer to the relevant documentation.
 
 ### Generate self-signed SSL certificate
 
@@ -38,7 +38,7 @@ docker pull trco/wannabe
 ```
 
 ```
-// run Wannabe container using config.json and SSL certificate siles wannabe.crt and wannabe.key
+// run Wannabe container using config.json and SSL certificate files wannabe.crt and wannabe.key
 docker run -d \
 -p 6789:6789 \
 -p 6790:6790 \
