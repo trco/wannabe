@@ -13,6 +13,7 @@ import (
 
 func DecodeBody(encodedBody []byte, contentEncodingHeader []string, contentTypeHeader []string) (interface{}, error) {
 	var body interface{}
+	var err error
 
 	if len(encodedBody) == 0 {
 		return body, nil
@@ -22,7 +23,7 @@ func DecodeBody(encodedBody []byte, contentEncodingHeader []string, contentTypeH
 
 	// gunzip the body before decoding it to the interface
 	if contentEncoding == "gzip" {
-		var err error
+
 		encodedBody, err = Gunzip(encodedBody)
 		if err != nil {
 			return nil, fmt.Errorf("DecodeBody: failed unzipping body: %v", err)
@@ -33,7 +34,7 @@ func DecodeBody(encodedBody []byte, contentEncodingHeader []string, contentTypeH
 
 	switch {
 	case contentType == "application/json":
-		err := json.Unmarshal(encodedBody, &body)
+		err = json.Unmarshal(encodedBody, &body)
 		if err != nil {
 			return nil, fmt.Errorf("DecodeBody: failed unmarshaling JSON body: %v", err)
 		}
@@ -46,7 +47,7 @@ func DecodeBody(encodedBody []byte, contentEncodingHeader []string, contentTypeH
 	case contentType == "text/plain", contentType == "text/html":
 		body = string(encodedBody)
 	default:
-		return nil, fmt.Errorf("DecodeBody: unsupported content type: %s", contentType)
+		body = encodedBody
 	}
 
 	return body, nil
