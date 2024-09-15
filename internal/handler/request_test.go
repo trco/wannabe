@@ -283,11 +283,11 @@ func TestEncodeBody(t *testing.T) {
 			wantErr:         false,
 		},
 		{
-			name:            "unsupported content type",
+			name:            "random content type",
 			decodedBody:     "unsupported",
 			contentType:     []string{"unsupported"},
 			contentEncoding: []string{},
-			want:            nil,
+			want:            []byte{186, 123, 46, 166, 154, 43},
 			wantErr:         true,
 		},
 		{

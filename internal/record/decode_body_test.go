@@ -27,7 +27,7 @@ func TestDecodeBody(t *testing.T) {
 			encodedBody:     []byte(`{"key": "value"}`),
 			contentType:     []string{},
 			contentEncoding: []string{},
-			want:            nil,
+			want:            []byte{123, 34, 107, 101, 121, 34, 58, 32, 34, 118, 97, 108, 117, 101, 34, 125},
 		},
 		{
 			name:            "json content type",
@@ -58,11 +58,11 @@ func TestDecodeBody(t *testing.T) {
 			want:            "\u003c!DOCTYPE html\u003e\n \u003chtml\u003e\n \u003ch1\u003eHerman Melville - Moby-Dick\u003c/h1\u003e\n \u003c/html\u003e",
 		},
 		{
-			name:            "unsupported content type",
+			name:            "random content type",
 			encodedBody:     []byte(`{"key": "value"}`),
 			contentType:     []string{"unsupported/type"},
 			contentEncoding: []string{},
-			want:            nil,
+			want:            []byte{123, 34, 107, 101, 121, 34, 58, 32, 34, 118, 97, 108, 117, 101, 34, 125},
 		},
 		{
 			name:            "json content type, gzip content encoding",
