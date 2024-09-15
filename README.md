@@ -603,7 +603,7 @@ To use records created through the Wannabe API with an HTTPS scheme in the reque
 
 **Which request and response body content types are currently supported?**
 
-Wannabe currently supports the following content types: *application/json*, *application/xml*, *text/xml*, *text/plain*, and *text/html*.
+Wannabe explicitly supports the following content types in requests and responses: *application/json*, *application/xml*, *text/xml*, *text/plain*, and *text/html*. Additionally, it is tested to support *image/...* content types in responses and other content types where the response body consists of binary data.
 
 **Which request and response body content encodings are currently supported?**
 
