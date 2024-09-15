@@ -2,6 +2,7 @@ package handler
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -142,26 +143,28 @@ func setResponse(encodedRecord []byte, request *http.Request) (*http.Response, e
 
 func encodeBody(decodedBody interface{}, contentTypeHeader []string, contentEncodingHeader []string) ([]byte, error) {
 	var body []byte
+	var err error
 
 	contentType := record.GetContentType(contentTypeHeader)
 	switch {
 	case contentType == "application/json":
-		var err error
 		body, err = json.Marshal(decodedBody)
 		if err != nil {
-			return nil, fmt.Errorf("SetResponse: failed marshaling body: %v", err)
+			return nil, fmt.Errorf("failed marshaling application/json body: %v", err)
 		}
 	case contentType == "application/xml", contentType == "text/xml":
-		var err error
 		mapValue := mxj.Map(decodedBody.(map[string]interface{}))
 		body, err = mapValue.Xml()
 		if err != nil {
-			return body, fmt.Errorf("Generate: failed unmarshaling XML body: %v", err)
+			return body, fmt.Errorf("failed unmarshaling application/xml or text/xml body: %v", err)
 		}
 	case contentType == "text/plain", contentType == "text/html":
 		body = []byte(decodedBody.(string))
 	default:
-		return nil, fmt.Errorf("SetResponse: unsupported content type: %s", contentTypeHeader)
+		body, err = base64.StdEncoding.DecodeString(decodedBody.(string))
+		if err != nil {
+			return body, fmt.Errorf("failed unmarshaling body: %v", err)
+		}
 	}
 
 	// gzip the body that was unzipped before storing it to the record
@@ -169,7 +172,7 @@ func encodeBody(decodedBody interface{}, contentTypeHeader []string, contentEnco
 	if contentEncoding == "gzip" {
 		compressedBody, err := record.Gzip(body)
 		if err != nil {
-			return nil, fmt.Errorf("SetResponse: failed compressing response body: %s", err)
+			return nil, fmt.Errorf("failed compressing response body: %s", err)
 		}
 
 		return compressedBody, nil
