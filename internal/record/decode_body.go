@@ -88,16 +88,6 @@ func sliceItemContains(slice []string, value string) bool {
 	return false
 }
 
-// func getDynamicSliceItem(slice []string, partialValue string) string {
-// 	for _, value := range slice {
-// 		if strings.Contains(value, partialValue) {
-// 			return value
-// 		}
-// 	}
-
-// 	return ""
-// }
-
 // Gunzip decompresses a gzip-compressed byte slice.
 func Gunzip(data []byte) ([]byte, error) {
 	gzReader, err := gzip.NewReader(bytes.NewReader(data))
