@@ -11,8 +11,10 @@ import (
 )
 
 func LoadMitmConfig() (*mitm.Config, error) {
-	// var certPath, certKeyPath string
 	certPath, certKeyPath, err := getCertPaths()
+	if err != nil {
+		return nil, err
+	}
 
 	tlsCert, err := tls.LoadX509KeyPair(certPath, certKeyPath)
 	if err != nil {
@@ -34,34 +36,23 @@ func LoadMitmConfig() (*mitm.Config, error) {
 }
 
 func getCertPaths() (string, string, error) {
-	var certPath, certKeyPath string
+	certPath := os.Getenv(CertPath)
+	if certPath == "" {
+		certPath = "certs/wannabe.crt"
 
-	if os.Getenv(RunningInContainer) == "" {
-		_, err := os.Stat("wannabe.crt")
-		if err != nil {
-			return "", "", fmt.Errorf("failed loading wannabe.crt file: %v", err)
+		if _, err := os.Stat(certPath); err != nil {
+			return "", "", fmt.Errorf("failed loading certificate file: %v", err)
 		}
-		certPath = "wannabe.crt"
-
-		_, err = os.Stat("wannabe.key")
-		if err != nil {
-			return "", "", fmt.Errorf("failed loading wannabe.key file: %v", err)
-		}
-		certKeyPath = "wannabe.key"
-
-		return certPath, certKeyPath, nil
 	}
 
-	certPath = os.Getenv(CertPath)
-	if certPath == "" {
-		return "", "", fmt.Errorf("%v env variable not set", CertPath)
-	}
+	certKeyPath := os.Getenv(CertKeyPath)
+	if certKeyPath == "" {
+		certKeyPath = "certs/wannabe.key"
 
-	certKeyPath = os.Getenv(CertKeyPath)
-	if certPath == "" {
-		return "", "", fmt.Errorf("%v env variable not set", CertKeyPath)
+		if _, err := os.Stat(certKeyPath); err != nil {
+			return "", "", fmt.Errorf("failed loading key file: %v", err)
+		}
 	}
 
 	return certPath, certKeyPath, nil
-
 }
