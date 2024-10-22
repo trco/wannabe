@@ -34,23 +34,13 @@ func LoadConfig() (Config, error) {
 }
 
 func getConfigPath() (string, error) {
-	var configPath string
-
-	if os.Getenv(RunningInContainer) == "" {
-		// check if config.json exists
-		_, err := os.Stat("config.json")
-		if err != nil && !os.IsNotExist(err) {
-			return "", fmt.Errorf("failed checking if config.json file exists in the root folder")
-		} else if os.IsNotExist(err) {
-			return "", nil
-		}
-
-		return "config.json", nil
-	}
-
-	configPath = os.Getenv(ConfigPath)
+	configPath := os.Getenv(ConfigPath)
 	if configPath == "" {
-		return "", fmt.Errorf("%v env variable not set", ConfigPath)
+		configPath = "config.json"
+
+		if _, err := os.Stat(configPath); err != nil {
+			return "", fmt.Errorf("failed loading config file: %v", err)
+		}
 	}
 
 	return configPath, nil
