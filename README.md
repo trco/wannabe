@@ -8,29 +8,35 @@ Official docker images are available at [Docker Hub](https://hub.docker.com/r/tr
 
 For a successful startup, Wannabe requires the configuration and SSL certificate files.
 
-For information on configuration see the [Configuration](#configuration) section. You must generate and use the self-signed SSL certificate for Wannabe to securely proxy HTTPS requests to other servers. It's crucial to ensure that the client's operating system, whether on a local machine or within a containerized environment, trusts the SSL certificate for secure communication with Wannabe. For guidance on adding the SSL certificate to your operating system and configuring trust settings, please refer to the relevant documentation.
+For information on configuration, see the [Configuration](#configuration) section. Wannabe comes with a built-in self-signed SSL certificate that can be used out of the box for securely proxying HTTPS requests to other servers. It's crucial to ensure that the client's operating system, whether on a local machine or within a containerized environment, trusts the SSL certificate for secure communication with Wannabe. You can find the built-in certificate and its key in the `certs` folder of this repository. For guidance on adding the SSL certificate to your operating system and configuring trust settings, please refer to the relevant documentation.
+
+However, if you prefer to use your own custom SSL certificate, you have the option to generate and use a self-signed certificate. See the [Running as a standalone server](#running-as-a-standalone-server) or [Running in docker](#running-in-docker) sections for details on how to use your own custom SSL certificate.
 
 ### Generate self-signed SSL certificate
 
 ```
 // generate 2048-bit private key
-openssl genrsa -out wannabe.key 2048
+openssl genrsa -out custom_certificate_wannabe.key 2048
 ```
 
 ```
 // generate self-signed SSL certificate valid for 10 years
-openssl req -new -x509 -key wannabe.key -out wannabe.crt -days 3650
+openssl req -new -x509 -key custom_certificate_wannabe.key -out custom_certificate_wannabe.crt -days 3650
 ```
 
 ### Running as a standalone server
 
-Like any Go program, Wannabe can be launched by simply cloning the repository, adding a `config.json`, `wannabe.crt` and `wannabe.key` to the root of the cloned repository, compiling the source code into an executable binary file using the `go build` command, and then running the program with the `go run` command.
+Like any Go program, Wannabe can be launched by following these steps:
+1. Clone the repository.
+2. Add a `config.json` file to the root of the cloned repository.
+3. Use either the built-in certificate `wannabe.crt` and its key `wannabe.key` in the `certs` folder of the repository, or overwrite both certificate files with your own custom certificate and key.
+4. Compile the source code into an executable binary file using the `go build` command, then run the program with the `./wannabe` command (or `wannabe.exe` on Windows).
 
 ### Running in Docker
 
 Wannabe provides official [Docker images](https://hub.docker.com/r/trco/.wannabe) for running the application within a container.
 
-To ensure a successful launch of the application, the configuration `.json` file and SSL certificate `.crt` and `.key` files should be mounted from the host operating system to the `/usr/src/app` directory of the Wannabe container. The environment variables `CONFIG_PATH`, `CERT_PATH`, and `CERT_KEY_PATH` should be set to the paths where the relevant files are mounted. Inside the container, the Wannabe server operates on port 6789, and the API is accessible through port 6790.
+To ensure a successful launch of the application, the configuration `.json` file should be present at the defined `CONFIG_PATH` environment variable. In case of using your own custom SSL certificate, the certificate `.crt` and key `.key` files should be present at the defined `CERT_PATH` and `CERT_KEY_PATH` environment variables. Inside the container, the Wannabe server operates on port 6789, and the API is accessible through port 6790.
 
 ```
 // pull the latest Wannabe image from Docker Hub
@@ -38,16 +44,16 @@ docker pull trco/wannabe
 ```
 
 ```
-// run Wannabe container using config.json and SSL certificate files wannabe.crt and wannabe.key
+// example of running Wannabe container using config.json and custom SSL certificate files
 docker run -d \
 -p 6789:6789 \
 -p 6790:6790 \
 -v $(pwd)/config.json:/usr/src/app/config.json \
--v $(pwd)/wannabe.crt:/usr/src/app/wannabe.crt \
--v $(pwd)/wannabe.key:/usr/src/app/wannabe.key \
+-v $(pwd)/custom_certificate_wannabe.crt:/usr/src/app/custom_certificate_wannabe.crt \
+-v $(pwd)/custom_certificate_wannabe.key:/usr/src/app/custom_certificate_wannabe.key \
 -e CONFIG_PATH=/usr/src/app/config.json \
--e CERT_PATH=/usr/src/app/wannabe.crt \
--e CERT_KEY_PATH=/usr/src/app/wannabe.key \
+-e CERT_PATH=/usr/src/app/custom_certificate_wannabe.crt \
+-e CERT_KEY_PATH=/usr/src/app/custom_certificate_wannabe.key \
 --name wannabe \
 trco/wannabe
 ```
@@ -631,3 +637,4 @@ If you're eager to contribute to Wannabe but aren't sure where to begin, we've g
 
 ## Author
 Uroš Trstenjak (Trčo), [github.com/trco](https://github.com/trco), [Connect on LinkedIn](https://www.linkedin.com/in/uros-trstenjak/).
+
